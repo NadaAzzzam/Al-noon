@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import type {
   ApiSuccess,
   Product,
+  ProductFilterOption,
   ProductsQuery,
   ProductsListResponse,
   ProductApiResponse,
@@ -19,12 +20,32 @@ function normalizeProduct(p: Product & { _id?: string }): Product {
 export class ProductsService {
   private readonly http = inject(HttpClient);
 
+  /**
+   * GET /api/products – build query params to match API exactly.
+   * Params: page, limit, category, search, status, newArrival, availability, sort, minPrice, maxPrice, color, minRating.
+   */
   getProducts(query: ProductsQuery = {}): Observable<ProductsListResponse> {
     let params = new HttpParams();
-    Object.entries(query).forEach(([k, v]) => {
-      if (v !== undefined && v !== null && v !== '')
-        params = params.set(k, String(v));
-    });
+
+    const set = (key: string, value: string | number | boolean | undefined | null) => {
+      if (value === undefined || value === null || value === '') return;
+      params = params.set(key, String(value));
+    };
+
+    set('page', query.page);
+    set('limit', query.limit);
+    set('category', query.category);
+    set('search', query.search);
+    set('status', query.status);
+    if (query.newArrival === true) params = params.set('newArrival', 'true');
+    else if (query.newArrival === false) params = params.set('newArrival', 'false');
+    set('availability', query.availability && query.availability !== 'all' ? query.availability : undefined);
+    set('sort', query.sort);
+    set('minPrice', query.minPrice);
+    set('maxPrice', query.maxPrice);
+    set('color', query.color);
+    set('minRating', query.minRating);
+
     return this.http
       .get<ApiSuccess<Product[]> & { pagination?: ProductsListResponse['pagination'] }>(
         'products',
@@ -87,6 +108,34 @@ export class ProductsService {
               const raw = r.success && r.data && Array.isArray(r.data) ? r.data : [];
               sub.next(raw.map(normalizeProduct));
             },
+            error: () => sub.next([]),
+            complete: () => sub.complete(),
+          });
+        })
+    );
+  }
+
+  /** GET /api/products/filters/availability – options for availability dropdown */
+  getAvailabilityFilters(): Observable<ProductFilterOption[]> {
+    return this.http.get<ApiSuccess<ProductFilterOption[]>>('products/filters/availability').pipe(
+      (o) =>
+        new Observable<ProductFilterOption[]>((sub) => {
+          o.subscribe({
+            next: (r) => sub.next(r.success && Array.isArray(r.data) ? r.data : []),
+            error: () => sub.next([]),
+            complete: () => sub.complete(),
+          });
+        })
+    );
+  }
+
+  /** GET /api/products/filters/sort – options for sort dropdown */
+  getSortFilters(): Observable<ProductFilterOption[]> {
+    return this.http.get<ApiSuccess<ProductFilterOption[]>>('products/filters/sort').pipe(
+      (o) =>
+        new Observable<ProductFilterOption[]>((sub) => {
+          o.subscribe({
+            next: (r) => sub.next(r.success && Array.isArray(r.data) ? r.data : []),
             error: () => sub.next([]),
             complete: () => sub.complete(),
           });

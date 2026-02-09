@@ -176,6 +176,13 @@ export type ProductSort =
 
 export type ProductAvailability = 'inStock' | 'outOfStock' | 'all';
 
+/** Option for filter dropdowns (GET /api/products/filters/availability, GET /api/products/filters/sort) */
+export interface ProductFilterOption {
+  value: string;
+  labelEn: string;
+  labelAr: string;
+}
+
 /** List products query (GET /products: status is ACTIVE | INACTIVE) */
 export interface ProductsQuery {
   page?: number;
@@ -198,18 +205,26 @@ export interface ProductsListResponse {
   pagination: Pagination;
 }
 
-/** Category (OpenAPI: status DRAFT | PUBLISHED) */
+/** Category status (OpenAPI: visible | hidden; store may filter by PUBLISHED as alias for visible) */
+export type CategoryStatus = 'visible' | 'hidden' | 'PUBLISHED';
+
+/** Category (OpenAPI CategoryData: API may send _id; normalize to id in services) */
 export interface Category {
   id: string;
   name: LocalizedText;
-  status: string;
+  description?: LocalizedText;
+  status: CategoryStatus;
+  createdAt?: string;
+  updatedAt?: string;
+  _id?: string;
 }
 
-/** City */
+/** City (API may send _id; normalize to id in services) */
 export interface City {
   id: string;
   name: LocalizedText;
   deliveryFee: number;
+  _id?: string;
 }
 
 /** Order */
@@ -232,6 +247,7 @@ export interface CreateOrderBody {
   guestPhone?: string;
 }
 
+/** API OrderItem has product: string (id) or populated Product; we normalize to Product in services. */
 export interface OrderItem {
   product: Product;
   quantity: number;
@@ -244,20 +260,25 @@ export interface OrderPayment {
   instaPayProofUrl?: string;
 }
 
+export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+
 export interface Order {
   id: string;
+  /** User ID when authenticated; null for guest checkout (OpenAPI OrderData) */
+  user?: string | null;
   items: OrderItem[];
   total: number;
-  deliveryFee?: number;
-  status: string;
-  paymentMethod?: PaymentMethod;
-  shippingAddress?: string;
-  payment?: OrderPayment;
+  deliveryFee?: number | null;
+  status: OrderStatus | string;
+  paymentMethod?: PaymentMethod | null;
+  shippingAddress?: string | null;
+  payment?: OrderPayment | null;
   createdAt?: string;
+  updatedAt?: string;
   /** Present when order was placed as guest checkout (BE returns these) */
-  guestName?: string;
-  guestEmail?: string;
-  guestPhone?: string;
+  guestName?: string | null;
+  guestEmail?: string | null;
+  guestPhone?: string | null;
 }
 
 /** Client shape for list orders (after mapping from API) */
@@ -271,12 +292,21 @@ export interface NewsletterSubscribeBody {
   email: string;
 }
 
-/** Contact */
+/** 409 when email already subscribed (OpenAPI NewsletterConflictResponse) */
+export interface NewsletterConflictResponse {
+  success: false;
+  message: string;
+  code?: string;
+  data: object | null;
+  alreadySubscribed: true;
+}
+
+/** Contact (OpenAPI submitStoreContact: required email only) */
 export interface ContactBody {
-  name: string;
+  name?: string;
   email: string;
   phone?: string;
-  comment: string;
+  comment?: string;
 }
 
 /** AI Chat */
@@ -309,10 +339,12 @@ export interface AiChatResponse {
 
 // ----- API response wrappers (OpenAPI spec shapes; map in services) -----
 
-/** GET /orders – PaginatedOrdersResponse */
+/** GET /orders – PaginatedOrdersResponse (OpenAPI: data = array of orders, pagination at root) */
 export interface PaginatedOrdersApiResponse {
   success: true;
-  data: { orders: Order[]; pagination: Pagination };
+  /** BE returns data as Order[] (not data.orders); service accepts both. */
+  data: Order[] | { orders: Order[]; pagination?: Pagination };
+  pagination?: Pagination;
   message?: string;
 }
 

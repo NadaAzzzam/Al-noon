@@ -10,101 +10,122 @@
         </div>
         <div class="form-group">
           <label>{{ 'catalog.category' | translate }}</label>
-          <select [value]="categoryId() ?? ''" (change)="categoryId.set($any($event.target).value || undefined)">
+          <select name="category" [ngModel]="categoryId() ?? ''" (ngModelChange)="categoryId.set($event || undefined)">
             <option value="">{{ 'catalog.all' | translate }}</option>
-            @for (c of categories(); track $index) {
+            @for (c of categories(); track c.id) {
               <option [value]="c.id">{{ getLocalized(c.name) }}</option>
             }
           </select>
         </div>
         <div class="form-group">
           <label>{{ 'catalog.availability' | translate }}</label>
-          <select [value]="availability()" (change)="availability.set($any($event.target).value)">
+          <select name="availability" [ngModel]="availability()" (ngModelChange)="availability.set($event)">
             <option value="all">{{ 'catalog.all' | translate }}</option>
-            <option value="inStock">{{ 'catalog.inStock' | translate }}</option>
-            <option value="outOfStock">{{ 'catalog.outOfStock' | translate }}</option>
+            @for (opt of availabilityOptions(); track opt.value) {
+            <option [value]="opt.value">{{ getLocalized({ en: opt.labelEn, ar: opt.labelAr }) }}</option>
+            }
           </select>
         </div>
         <div class="form-group">
           <label>{{ 'catalog.sort' | translate }}</label>
-          <select [value]="sort()" (change)="sort.set($any($event.target).value)">
-            @for (opt of sortOptions; track opt.value) {
-              <option [value]="opt.value">{{ 'catalog.' + opt.value | translate }}</option>
+          <select name="sort" [ngModel]="sort()" (ngModelChange)="sort.set($event)">
+            <option value="newest">{{ 'catalog.newest' | translate }}</option>
+            @for (opt of sortOptions(); track opt.value) {
+            <option [value]="opt.value">{{ getLocalized({ en: opt.labelEn, ar: opt.labelAr }) }}</option>
             }
           </select>
         </div>
+        <div class="form-group">
+          <label>{{ 'catalog.minPrice' | translate }} (EGP)</label>
+          <input type="number" min="0" step="1" [value]="minPrice() ?? ''"
+            (input)="minPrice.set($any($event.target).value ? +$any($event.target).value : undefined)" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'catalog.maxPrice' | translate }} (EGP)</label>
+          <input type="number" min="0" step="1" [value]="maxPrice() ?? ''"
+            (input)="maxPrice.set($any($event.target).value ? +$any($event.target).value : undefined)" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'catalog.color' | translate }}</label>
+          <input type="text" [value]="color() ?? ''" (input)="color.set($any($event.target).value || undefined)" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'catalog.minRating' | translate }} (1-5)</label>
+          <input type="number" min="1" max="5" step="0.1" [value]="minRating() ?? ''"
+            (input)="minRating.set($any($event.target).value ? +$any($event.target).value : undefined)" />
+        </div>
         <button type="submit" class="btn btn-block">{{ 'catalog.apply' | translate }}</button>
+        <button type="button" class="btn btn-block btn-outline" (click)="clearFilters()">{{ 'catalog.clear' | translate
+          }}</button>
       </form>
     </aside>
 
     <div class="products-wrap">
       @if (loading()) {
-        <p class="loading">{{ 'catalog.loading' | translate }}</p>
+      <p class="loading">{{ 'catalog.loading' | translate }}</p>
       } @else {
-        <div class="product-grid">
-          @for (p of products(); track $index) {
-            @if (p.id) {
-              <a [routerLink]="['/product', p.id]" class="product-card">
-                <div class="product-image-wrap">
-                  @if (p.images.length) {
-                    <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
-                  } @else {
-                    <div class="product-image-placeholder"></div>
-                  }
-                  @if (p.discountPrice != null && p.discountPrice < p.price) {
-                    <span class="sale-badge">{{ 'sale' | translate }}</span>
-                  }
-                  @if (p.stock <= 0) {
-                    <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
-                  }
-                </div>
-                <h3 class="product-name">{{ getLocalized(p.name) }}</h3>
-                <div class="price">
-                  @if (p.discountPrice != null && p.discountPrice < p.price) {
-                    <span class="original">LE {{ p.price }} EGP</span>
-                    <span class="current">LE {{ p.discountPrice }} EGP</span>
-                  } @else {
-                    <span class="current">LE {{ p.price }} EGP</span>
-                  }
-                </div>
-              </a>
+      <div class="product-grid">
+        @for (p of products(); track $index) {
+        @if (p.id) {
+        <a [routerLink]="['/product', p.id]" class="product-card">
+          <div class="product-image-wrap">
+            @if (p.images.length) {
+            <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
             } @else {
-              <div class="product-card">
-                <div class="product-image-wrap">
-                  @if (p.images.length) {
-                    <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
-                  } @else {
-                    <div class="product-image-placeholder"></div>
-                  }
-                  @if (p.discountPrice != null && p.discountPrice < p.price) {
-                    <span class="sale-badge">{{ 'sale' | translate }}</span>
-                  }
-                  @if (p.stock <= 0) {
-                    <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
-                  }
-                </div>
-                <h3 class="product-name">{{ getLocalized(p.name) }}</h3>
-                <div class="price">
-                  @if (p.discountPrice != null && p.discountPrice < p.price) {
-                    <span class="original">LE {{ p.price }} EGP</span>
-                    <span class="current">LE {{ p.discountPrice }} EGP</span>
-                  } @else {
-                    <span class="current">LE {{ p.price }} EGP</span>
-                  }
-                </div>
-              </div>
+            <div class="product-image-placeholder"></div>
             }
-          }
+            @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="sale-badge">{{ 'sale' | translate
+              }}</span>
+              }
+              @if (p.stock <= 0) { <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
+                }
+          </div>
+          <h3 class="product-name">{{ getLocalized(p.name) }}</h3>
+          <div class="price">
+            @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="original">LE {{ p.price }}
+              EGP</span>
+              <span class="current">LE {{ p.discountPrice }} EGP</span>
+              } @else {
+              <span class="current">LE {{ p.price }} EGP</span>
+              }
+          </div>
+        </a>
+        } @else {
+        <div class="product-card">
+          <div class="product-image-wrap">
+            @if (p.images.length) {
+            <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
+            } @else {
+            <div class="product-image-placeholder"></div>
+            }
+            @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="sale-badge">{{ 'sale' | translate
+              }}</span>
+              }
+              @if (p.stock <= 0) { <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
+                }
+          </div>
+          <h3 class="product-name">{{ getLocalized(p.name) }}</h3>
+          <div class="price">
+            @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="original">LE {{ p.price }}
+              EGP</span>
+              <span class="current">LE {{ p.discountPrice }} EGP</span>
+              } @else {
+              <span class="current">LE {{ p.price }} EGP</span>
+              }
+          </div>
         </div>
-        @if (totalPages() > 1) {
-          <nav class="pagination">
-            @for (p of pages(); track p) {
-              <button type="button" class="btn btn-outline" [class.active]="page() === p" (click)="goToPage(p)">
-                {{ p }}
-              </button>
-            }
-          </nav>
         }
+        }
+      </div>
+      @if (totalPages() > 1) {
+      <nav class="pagination">
+        @for (p of pages(); track p) {
+        <button type="button" class="btn btn-outline" [class.active]="page() === p" (click)="goToPage(p)">
+          {{ p }}
+        </button>
+        }
+      </nav>
+      }
       }
     </div>
   </div>

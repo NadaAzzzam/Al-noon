@@ -88,6 +88,7 @@
     "inStock": "In stock",
     "outOfStock": "Out of stock",
     "apply": "Apply",
+    "clear": "Clear filters",
     "loading": "Loading...",
     "newest": "Newest",
     "priceAsc": "Price: Low to High",
@@ -96,7 +97,11 @@
     "nameDesc": "Name Z–A",
     "bestSelling": "Best selling",
     "highestSelling": "Highest selling",
-    "lowSelling": "Lowest selling"
+    "lowSelling": "Lowest selling",
+    "minPrice": "Min price",
+    "maxPrice": "Max price",
+    "color": "Color",
+    "minRating": "Min rating"
   },
   "product": {
     "notFound": "Product not found",
@@ -123,8 +128,11 @@
     "status": "Status",
     "items": "Items",
     "total": "Total",
+    "product": "Product",
     "notFound": "Order not found",
-    "backToOrders": "Back to orders"
+    "backToOrders": "Back to orders",
+    "placedBy": "Placed by",
+    "guestContact": "Contact"
   },
   "orderConfirmation": {
     "thankYou": "Thank you for your order",

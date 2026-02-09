@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, of, tap, shareReplay } from 'rxjs';
 import type {
   ApiSuccess,
   StoreData,
@@ -24,12 +24,35 @@ function normalizeSocialLinks(raw: unknown): StoreSocialLink[] {
   return [];
 }
 
+/** Known content page slugs (backend GET /store/page/:slug). Contact is a separate route /contact. */
+const PAGE_SLUG_MAP: Record<string, string> = {
+  privacy: '/page/privacy',
+  'shipping-policy': '/page/shipping-policy',
+  shipping: '/page/shipping-policy',
+  'return-policy': '/page/return-policy',
+  about: '/page/about',
+};
+
+/** Normalize quickLink URL so internal page slugs match app routes (e.g. /privacy → /page/privacy). */
+function normalizeQuickLinkUrl(url: string): string {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (!trimmed) return '';
+  const path = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed;
+  const slug = path.split('/')[0]?.toLowerCase();
+  if (slug && PAGE_SLUG_MAP[slug]) return PAGE_SLUG_MAP[slug];
+  if (slug === 'contact') return '/contact';
+  return trimmed.startsWith('/') || trimmed.startsWith('http') ? trimmed : `/${trimmed}`;
+}
+
 /** Ensure quickLinks is always an array; BE sends label, FE uses title. */
 function normalizeQuickLinks(raw: unknown): StoreQuickLink[] {
   if (!Array.isArray(raw)) return [];
   return raw.map((link: Record<string, unknown>) => {
     const title = (link['title'] ?? link['label']) as StoreQuickLink['title'];
-    return { ...link, title: title ?? { en: '', ar: '' }, url: link['url'] ?? '' } as StoreQuickLink;
+    const rawUrl = (link['url'] ?? '') as string;
+    const url = normalizeQuickLinkUrl(rawUrl);
+    return { ...link, title: title ?? { en: '', ar: '' }, url } as StoreQuickLink;
   });
 }
 
@@ -60,6 +83,8 @@ function normalizeStore(store: Record<string, unknown>): StoreData {
 export class StoreService {
   private readonly http = inject(HttpClient);
   private cached: StoreData | null = null;
+  /** Pending shared request so header + footer (and others) trigger only one HTTP call */
+  private store$: Observable<StoreData> | null = null;
 
   getStore(force = false): Observable<StoreData> {
     if (this.cached && !force) {
@@ -68,13 +93,17 @@ export class StoreService {
         sub.complete();
       });
     }
-    return this.http
+    if (this.store$ && !force) return this.store$;
+    this.store$ = this.http
       .get<StoreApiResponse | ApiSuccess<StoreData>>('store')
       .pipe(
         tap((res) => {
           if (res.success && res.data) {
             const raw = 'store' in res.data ? res.data.store : res.data;
-            if (raw && typeof raw === 'object') this.cached = normalizeStore(raw as unknown as Record<string, unknown>);
+            if (raw && typeof raw === 'object') {
+              this.cached = normalizeStore(raw as unknown as Record<string, unknown>);
+              this.store$ = null;
+            }
           }
         })
       )
@@ -91,19 +120,26 @@ export class StoreService {
               error: (e) => sub.error(e),
               complete: () => sub.complete(),
             });
-          })
+          }),
+        shareReplay(1)
       );
+    return this.store$;
   }
 
   getPage(slug: string): Observable<ContentPage> {
     return this.http
-      .get<PageApiResponse | ApiSuccess<{ page: ContentPage }>>(`store/page/${encodeURIComponent(slug)}`)
+      .get<PageApiResponse | ApiSuccess<{ page: ContentPage }> | ApiSuccess<ContentPage>>(
+        `store/page/${encodeURIComponent(slug)}`
+      )
       .pipe(
         (o) =>
           new Observable<ContentPage>((sub) => {
             o.subscribe({
               next: (r) => {
-                if (r.success && r.data?.page) sub.next(r.data.page);
+                if (!r.success || !r.data) return;
+                const d = r.data as { page?: ContentPage } & ContentPage;
+                const page = d.page ?? (d.slug != null && (d.title != null || d.content != null) ? (d as ContentPage) : null);
+                if (page) sub.next(page);
               },
               error: (e) => sub.error(e),
               complete: () => sub.complete(),

@@ -7,6 +7,10 @@
   @let o = order()!;
   <h1 class="page-title">{{ 'orderDetail.order' | translate }} #{{ o.id.slice(0, 8) }}</h1>
   <p class="order-status">{{ 'orderDetail.status' | translate }}: {{ o.status }}</p>
+  @if (o.guestName || o.guestEmail) {
+  <p class="guest-contact">{{ 'orderDetail.placedBy' | translate }}: {{ o.guestName || '' }}{{ o.guestName &&
+    o.guestEmail ? ' — ' : '' }}{{ o.guestEmail || '' }}</p>
+  }
   @if (o.shippingAddress) {
   <p class="shipping-address">{{ 'orderDetail.shipping' | translate }}: {{ o.shippingAddress }}</p>
   }
@@ -20,7 +24,11 @@
       <div class="item-image item-image-placeholder"></div>
       }
       <div class="item-details">
+        @if (item.product.id) {
         <a [routerLink]="['/product', item.product.id]">{{ getLocalized(item.product.name) }}</a>
+        } @else {
+        <span>{{ getLocalized(item.product.name) || ('orderDetail.product' | translate) }}</span>
+        }
         <p>× {{ item.quantity }} — LE {{ item.price }} EGP</p>
       </div>
       <span class="item-total">LE {{ item.quantity * item.price }} EGP</span>

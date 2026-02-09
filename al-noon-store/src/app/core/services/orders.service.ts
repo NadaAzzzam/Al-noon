@@ -10,20 +10,42 @@ import type {
   OrdersListResponse,
   PaginatedOrdersApiResponse,
   OrderApiResponse,
+  Product,
 } from '../types/api.types';
 
-/** Ensure order item product has id (API may return _id). */
-function normalizeOrderItem(item: OrderItem & { product?: { _id?: string; id?: string } }): OrderItem {
-  const product = item.product;
-  if (!product) return item as OrderItem;
-  const id = product.id ?? (product as { _id?: string })._id ?? '';
-  return { ...item, product: { ...product, id: String(id) } } as OrderItem;
+/** Minimal product for display when BE returns only product id (OpenAPI: product = string | populated). */
+function minimalProduct(id: string): Product {
+  return {
+    id: String(id),
+    name: { en: 'Product', ar: 'منتج' },
+    images: [],
+    price: 0,
+    stock: 0,
+    status: 'ACTIVE',
+  };
+}
+
+/** Ensure order item product has id (API may return _id). If product is only a string id, use minimal Product. */
+function normalizeOrderItem(
+  item: OrderItem & { product?: string | (Product & { _id?: string }) }
+): OrderItem {
+  const raw = item.product;
+  if (typeof raw === 'string') {
+    return { ...item, product: minimalProduct(raw), quantity: item.quantity, price: item.price };
+  }
+  if (!raw) {
+    return { ...item, product: minimalProduct(''), quantity: item.quantity, price: item.price };
+  }
+  const id = String((raw as Product).id ?? (raw as { _id?: string })._id ?? '');
+  return { ...item, product: { ...raw, id } as Product };
 }
 
 /** Ensure order has id (API may return _id) and items have product.id; preserve guest fields. */
 function normalizeOrder(o: Order & { _id?: string }): Order {
   const id = String(o.id ?? o._id ?? '');
-  const items = (o.items ?? []).map((i) => normalizeOrderItem(i as OrderItem & { product?: { _id?: string } }));
+  const items = (o.items ?? []).map((i) =>
+    normalizeOrderItem(i as OrderItem & { product?: string | (Product & { _id?: string }) })
+  );
   return { ...o, id, items };
 }
 

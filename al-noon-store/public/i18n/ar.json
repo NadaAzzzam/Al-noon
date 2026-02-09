@@ -88,6 +88,7 @@
     "inStock": "متوفر",
     "outOfStock": "نفذ",
     "apply": "تطبيق",
+    "clear": "مسح الفلاتر",
     "loading": "جاري التحميل...",
     "newest": "الأحدث",
     "priceAsc": "السعر: منخفض إلى عالي",
@@ -96,7 +97,11 @@
     "nameDesc": "الاسم ي–أ",
     "bestSelling": "الأكثر مبيعاً",
     "highestSelling": "الأعلى مبيعاً",
-    "lowSelling": "الأقل مبيعاً"
+    "lowSelling": "الأقل مبيعاً",
+    "minPrice": "السعر الأدنى",
+    "maxPrice": "السعر الأعلى",
+    "color": "اللون",
+    "minRating": "التقييم الأدنى"
   },
   "product": {
     "notFound": "المنتج غير موجود",
@@ -123,8 +128,11 @@
     "status": "الحالة",
     "items": "المنتجات",
     "total": "الإجمالي",
+    "product": "منتج",
     "notFound": "الطلب غير موجود",
-    "backToOrders": "عودة للطلبات"
+    "backToOrders": "عودة للطلبات",
+    "placedBy": "تم الطلب بواسطة",
+    "guestContact": "التواصل"
   },
   "orderConfirmation": {
     "thankYou": "شكراً لطلبك",
