@@ -50,13 +50,13 @@
   </div>
   }
   <div class="hero-content">
-    <span class="hero-label scroll-animate">{{ 'home.newCollection' | translate }}</span>
-    <h1 class="hero-title scroll-animate">{{ getLocalized(hero.title) || ('home.newCollection' | translate) }}</h1>
+    <span class="hero-label">{{ 'home.newCollection' | translate }}</span>
+    <h1 class="hero-title">{{ getLocalized(hero.title) || ('home.newCollection' | translate) }}</h1>
     @if (getLocalized(hero.subtitle)) {
-    <p class="hero-subtitle scroll-animate">{{ getLocalized(hero.subtitle) }}</p>
+    <p class="hero-subtitle">{{ getLocalized(hero.subtitle) }}</p>
     }
     @if (hero.ctaUrl && getLocalized(hero.ctaLabel)) {
-    <a [routerLink]="hero.ctaUrl" class="btn hero-btn scroll-animate">
+    <a [routerLink]="hero.ctaUrl" class="btn hero-btn">
       {{ getLocalized(hero.ctaLabel) }}
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
@@ -67,7 +67,7 @@
 }
 
 <!-- ═══════ New Arrivals Slider ═══════ -->
-<section class="section new-arrivals scroll-animate">
+<section class="section new-arrivals">
   <div class="container">
     <div class="section-header">
       <div>
@@ -105,7 +105,7 @@
 
 <!-- ═══════ Collections ═══════ -->
 @if (collections.length) {
-<section class="section collections-section scroll-animate">
+<section class="section collections-section">
   <div class="container">
     <div class="section-header">
       <div>
@@ -115,7 +115,7 @@
     </div>
     <div class="collections-grid">
       @for (col of collections; track col.url || getLocalized(col.title); let i = $index) {
-      <a [routerLink]="col.url" class="collection-card scroll-animate" [style.animation-delay]="(i * 100) + 'ms'">
+      <a [routerLink]="col.url" class="collection-card">
         @if (col.image) {
         <img [src]="api.imageUrl(col.image)" [alt]="getLocalized(col.title)" loading="lazy" />
         }
@@ -137,7 +137,7 @@
 
 <!-- ═══════ Our Collection Media ═══════ -->
 @if (s?.ourCollectionSectionImages?.length || s?.ourCollectionSectionVideos?.length) {
-<section class="section our-collection scroll-animate">
+<section class="section our-collection">
   <div class="container">
     <div class="section-header">
       <div>
@@ -147,7 +147,7 @@
     </div>
     <div class="media-grid">
       @for (img of s?.ourCollectionSectionImages ?? []; track img; let i = $index) {
-      <div class="media-item scroll-animate" [style.animation-delay]="(i * 80) + 'ms'">
+      <div class="media-item">
         <img [src]="api.imageUrl(img)" alt="" loading="lazy" />
       </div>
       }
@@ -163,7 +163,7 @@
 
 <!-- ═══════ Testimonials Slider ═══════ -->
 @if (feedbacks.length) {
-<section class="section testimonials scroll-animate">
+<section class="section testimonials">
   <div class="container">
     <div class="section-header">
       <div>

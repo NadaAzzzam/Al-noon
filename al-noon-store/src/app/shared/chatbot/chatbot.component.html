@@ -1,57 +1,52 @@
 @if (settings()?.enabled) {
-  <div class="chatbot-widget" [class.open]="open()">
-    <button type="button" class="chatbot-toggle" (click)="toggle()" [attr.aria-label]="'Chat'">
-      {{ open() ? '×' : '💬' }}
-    </button>
-    @if (open()) {
-      <div class="chatbot-panel">
-        <div class="chatbot-messages">
-          @for (msg of messages(); track $index) {
-            <div class="message" [class.user]="msg.role === 'user'" [class.assistant]="msg.role === 'assistant'">
-              <p class="message-text">{{ msg.text }}</p>
-              @if (msg.productCards?.length) {
-                <div class="product-cards">
-                  @for (card of msg.productCards; track card.id) {
-                    <a [routerLink]="['/product', card.id]" class="product-card-link">
-                      @if (card.image) {
-                        <img [src]="api.imageUrl(card.image)" [alt]="getCardName(card)" />
-                      }
-                      <span>{{ getCardName(card) }}</span>
-                    </a>
-                  }
-                </div>
-              }
-            </div>
-          }
-          @if (loading()) {
-            <div class="message assistant">
-              <p class="message-text">…</p>
-            </div>
+<div class="chatbot-widget" [class.open]="open()">
+  <button type="button" class="chatbot-toggle" (click)="toggle()" [attr.aria-label]="'Chat'">
+    {{ open() ? '×' : '💬' }}
+  </button>
+  @if (open()) {
+  <div class="chatbot-panel">
+    <div class="chatbot-messages">
+      @for (msg of messages(); track $index) {
+      <div class="message" [class.user]="msg.role === 'user'" [class.assistant]="msg.role === 'assistant'">
+        <p class="message-text">{{ msg.text }}</p>
+        @if (msg.productCards?.length) {
+        <div class="product-cards">
+          @for (card of msg.productCards; track card.id) {
+          <a [routerLink]="['/product', card.id]" class="product-card-link">
+            @if (card.image) {
+            <img [src]="api.imageUrl(card.image)" [alt]="getCardName(card)" />
+            }
+            <span>{{ getCardName(card) }}</span>
+          </a>
           }
         </div>
-        @if (error()) {
-          <p class="chatbot-error">{{ error() }}</p>
         }
-        @if (settings()?.suggestedQuestions?.length && messages().length <= 1) {
-          <div class="suggested">
-            @for (q of settings()!.suggestedQuestions; track $index) {
-              <button type="button" class="suggested-btn" (click)="sendSuggested(getLocalized(q))">
-                {{ getLocalized(q) }}
-              </button>
-            }
-          </div>
-        }
-        <form class="chatbot-input" (ngSubmit)="send()">
-          <input
-            type="text"
-            [value]="input()"
-            (input)="input.set($any($event.target).value)"
-            [placeholder]="'chatbot.placeholder' | translate"
-            [disabled]="loading()"
-          />
-          <button type="submit" class="btn" [disabled]="loading() || !input().trim()">{{ 'chatbot.send' | translate }}</button>
-        </form>
       </div>
+      }
+      @if (loading()) {
+      <div class="message assistant">
+        <p class="message-text">…</p>
+      </div>
+      }
+    </div>
+    @if (error()) {
+    <p class="chatbot-error">{{ error() }}</p>
     }
+    @if (settings()?.suggestedQuestions?.length && messages().length <= 1) { <div class="suggested">
+      @for (q of settings()!.suggestedQuestions; track $index) {
+      <button type="button" class="suggested-btn" (click)="sendSuggested(getLocalized(q))">
+        {{ getLocalized(q) }}
+      </button>
+      }
   </div>
+  }
+  <form class="chatbot-input" (ngSubmit)="send()">
+    <input type="text" [value]="input()" (input)="input.set($any($event.target).value)"
+      [placeholder]="'chatbot.placeholder' | translate" [disabled]="loading()" />
+    <button type="submit" class="btn" [disabled]="loading() || !input().trim()">{{ 'chatbot.send' | translate
+      }}</button>
+  </form>
+</div>
+}
+</div>
 }

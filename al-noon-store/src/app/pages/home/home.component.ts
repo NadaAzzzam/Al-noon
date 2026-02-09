@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, ChangeDetectionStrategy, DestroyRef, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -22,12 +22,11 @@ import type { StoreData, Product } from '../../core/types/api.types';
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+export class HomeComponent implements OnInit, OnDestroy {
   private readonly storeService = inject(StoreService);
   private readonly productsService = inject(ProductsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly seo = inject(SeoService);
-  private readonly el = inject(ElementRef);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
 
@@ -46,7 +45,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   testimonialsScrollLeft = signal(0);
 
   private heroInterval: ReturnType<typeof setInterval> | null = null;
-  private observer: IntersectionObserver | null = null;
 
   ngOnInit(): void {
     this.loading.set(true);
@@ -74,28 +72,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.heroInterval = setInterval(() => this.nextHeroImage(), 5000);
   }
 
-  ngAfterViewInit(): void {
-    // Scroll-triggered animations
-    if (typeof IntersectionObserver !== 'undefined') {
-      this.observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('animate-in');
-              this.observer?.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-      );
-      const targets = this.el.nativeElement.querySelectorAll('.scroll-animate');
-      targets.forEach((t: Element) => this.observer?.observe(t));
-    }
-  }
-
   ngOnDestroy(): void {
     if (this.heroInterval) clearInterval(this.heroInterval);
-    this.observer?.disconnect();
   }
 
   nextHeroImage(): void {

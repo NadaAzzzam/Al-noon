@@ -41,11 +41,19 @@ export class ChatbotComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((s) => {
       this.settings.set(s);
-      if (s.enabled && s.greeting) {
-        const greeting = this.getLocalized(s.greeting);
-        if (greeting) this.messages.set([{ role: 'assistant', text: greeting }]);
-      }
+      const greeting = this.getLocalized(s.greeting);
+      if (greeting?.trim()) this.messages.set([{ role: 'assistant', text: greeting }]);
     });
+  }
+
+  /** Show widget when we have settings and either enabled or any content (greeting / suggested questions). */
+  get showWidget(): boolean {
+    const s = this.settings();
+    if (!s) return false;
+    if (s.enabled) return true;
+    const hasGreeting = this.getLocalized(s.greeting).trim().length > 0;
+    const hasSuggestions = (s.suggestedQuestions?.length ?? 0) > 0;
+    return hasGreeting || hasSuggestions;
   }
 
   getLocalized(obj: { en?: string; ar?: string } | undefined): string {
