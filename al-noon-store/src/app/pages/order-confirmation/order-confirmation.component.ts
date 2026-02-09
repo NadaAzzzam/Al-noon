@@ -22,6 +22,9 @@ import type { Order } from '../../core/types/api.types';
       <p class="confirmation-message">{{ 'orderConfirmation.message' | translate }}</p>
       <p class="order-id">{{ 'orderConfirmation.orderId' | translate }}: <strong>#{{ o.id }}</strong></p>
       <p class="order-status">{{ 'orderDetail.status' | translate }}: {{ o.status }}</p>
+      @if (o.guestEmail) {
+        <p class="guest-contact">{{ 'checkout.guestEmail' | translate }}: {{ o.guestEmail }}</p>
+      }
       @if (o.shippingAddress) {
         <p class="shipping-address">{{ 'orderDetail.shipping' | translate }}: {{ o.shippingAddress }}</p>
       }
@@ -60,6 +63,7 @@ import type { Order } from '../../core/types/api.types';
 .confirmation-message { margin-bottom: 16px; color: var(--color-text-muted); }
 .order-id { margin-bottom: 8px; font-size: 1rem; }
 .order-status { margin-bottom: 16px; font-size: 14px; }
+.guest-contact { margin-bottom: 8px; font-size: 14px; color: var(--color-text-muted); }
 .shipping-address { margin-bottom: 24px; font-size: 14px; color: var(--color-text-muted); }
 .not-found { color: var(--color-text-muted); margin-bottom: 16px; }
 .order-items { margin-bottom: 24px; }

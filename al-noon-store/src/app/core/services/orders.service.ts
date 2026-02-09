@@ -20,10 +20,11 @@ function normalizeOrderItem(item: OrderItem & { product?: { _id?: string; id?: s
   return { ...item, product: { ...product, id: String(id) } } as OrderItem;
 }
 
-/** Ensure order items have product.id; accept API shape with _id. */
-function normalizeOrder(o: Order): Order {
+/** Ensure order has id (API may return _id) and items have product.id; preserve guest fields. */
+function normalizeOrder(o: Order & { _id?: string }): Order {
+  const id = String(o.id ?? o._id ?? '');
   const items = (o.items ?? []).map((i) => normalizeOrderItem(i as OrderItem & { product?: { _id?: string } }));
-  return { ...o, items };
+  return { ...o, id, items };
 }
 
 @Injectable({ providedIn: 'root' })

@@ -254,6 +254,10 @@ export interface Order {
   shippingAddress?: string;
   payment?: OrderPayment;
   createdAt?: string;
+  /** Present when order was placed as guest checkout (BE returns these) */
+  guestName?: string;
+  guestEmail?: string;
+  guestPhone?: string;
 }
 
 /** Client shape for list orders (after mapping from API) */

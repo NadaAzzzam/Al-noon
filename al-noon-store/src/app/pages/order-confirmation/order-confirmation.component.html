@@ -9,6 +9,9 @@
       <p class="confirmation-message">{{ 'orderConfirmation.message' | translate }}</p>
       <p class="order-id">{{ 'orderConfirmation.orderId' | translate }}: <strong>#{{ o.id }}</strong></p>
       <p class="order-status">{{ 'orderDetail.status' | translate }}: {{ o.status }}</p>
+      @if (o.guestEmail) {
+        <p class="guest-contact">{{ 'checkout.guestEmail' | translate }}: {{ o.guestEmail }}</p>
+      }
       @if (o.shippingAddress) {
         <p class="shipping-address">{{ 'orderDetail.shipping' | translate }}: {{ o.shippingAddress }}</p>
       }
