@@ -1,0 +1,10 @@
+<div class="container page-content">
+  @if (notFound()) {
+    <p class="not-found">{{ 'page.notFound' | translate }}</p>
+  } @else if (page()) {
+    <article>
+      <h1 class="page-title">{{ page()!.title | localized }}</h1>
+      <div class="page-body" [innerHTML]="(page()!.content | localized)"></div>
+    </article>
+  }
+</div>

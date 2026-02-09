@@ -1,0 +1,80 @@
+<div class="catalog container">
+  <h1 class="page-title">{{ 'catalog.shop' | translate }}</h1>
+
+  <div class="catalog-layout">
+    <aside class="filters">
+      <form (ngSubmit)="applyFilters()" class="filters-form">
+        <div class="form-group">
+          <label>{{ 'catalog.search' | translate }}</label>
+          <input type="search" [value]="search()" (input)="search.set($any($event.target).value)" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'catalog.category' | translate }}</label>
+          <select [value]="categoryId() ?? ''" (change)="categoryId.set($any($event.target).value || undefined)">
+            <option value="">{{ 'catalog.all' | translate }}</option>
+            @for (c of categories(); track c.id) {
+              <option [value]="c.id">{{ getLocalized(c.name) }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label>{{ 'catalog.availability' | translate }}</label>
+          <select [value]="availability()" (change)="availability.set($any($event.target).value)">
+            <option value="all">{{ 'catalog.all' | translate }}</option>
+            <option value="inStock">{{ 'catalog.inStock' | translate }}</option>
+            <option value="outOfStock">{{ 'catalog.outOfStock' | translate }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>{{ 'catalog.sort' | translate }}</label>
+          <select [value]="sort()" (change)="sort.set($any($event.target).value)">
+            @for (opt of sortOptions; track opt.value) {
+              <option [value]="opt.value">{{ 'catalog.' + opt.value | translate }}</option>
+            }
+          </select>
+        </div>
+        <button type="submit" class="btn btn-block">{{ 'catalog.apply' | translate }}</button>
+      </form>
+    </aside>
+
+    <div class="products-wrap">
+      @if (loading()) {
+        <p class="loading">{{ 'catalog.loading' | translate }}</p>
+      } @else {
+        <div class="product-grid">
+          @for (p of products(); track p.id) {
+            <a [routerLink]="['/product', p.id]" class="product-card">
+              <div class="product-image-wrap">
+                <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
+                @if (p.discountPrice != null && p.discountPrice < p.price) {
+                  <span class="sale-badge">{{ 'sale' | translate }}</span>
+                }
+                @if (p.stock <= 0) {
+                  <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
+                }
+              </div>
+              <h3 class="product-name">{{ getLocalized(p.name) }}</h3>
+              <div class="price">
+                @if (p.discountPrice != null && p.discountPrice < p.price) {
+                  <span class="original">LE {{ p.price }} EGP</span>
+                  <span class="current">LE {{ p.discountPrice }} EGP</span>
+                } @else {
+                  <span class="current">LE {{ p.price }} EGP</span>
+                }
+              </div>
+            </a>
+          }
+        </div>
+        @if (totalPages() > 1) {
+          <nav class="pagination">
+            @for (p of pages(); track p) {
+              <button type="button" class="btn btn-outline" [class.active]="page() === p" (click)="goToPage(p)">
+                {{ p }}
+              </button>
+            }
+          </nav>
+        }
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,35 @@
+<div class="container cart-page">
+  <h1 class="page-title">{{ 'cart.title' | translate }}</h1>
+
+  @if (items().length === 0) {
+    <p class="empty">{{ 'cart.empty' | translate }}</p>
+    <a [routerLink]="['/catalog']" class="btn">{{ 'cart.continueShopping' | translate }}</a>
+  } @else {
+    <div class="cart-layout">
+      <div class="cart-items">
+        @for (item of items(); track item.productId) {
+          <div class="cart-item">
+            <div class="cart-item-image">
+              <img [src]="api.imageUrl(item.image)" [alt]="item.name ?? ''" />
+            </div>
+            <div class="cart-item-details">
+              <a [routerLink]="['/product', item.productId]" class="cart-item-name">{{ item.name ?? ('cart.product' | translate) }}</a>
+              <p class="cart-item-price">LE {{ item.price }} EGP × {{ item.quantity }}</p>
+              <div class="cart-item-actions">
+                <input type="number" [value]="item.quantity" min="1" (change)="updateQty(item.productId, +$any($event.target).value)" />
+                <button type="button" class="btn-link" (click)="remove(item.productId)">{{ 'cart.remove' | translate }}</button>
+              </div>
+            </div>
+            <div class="cart-item-total">LE {{ item.price * item.quantity }} EGP</div>
+          </div>
+        }
+      </div>
+      <div class="cart-summary">
+        <h2>{{ 'cart.summary' | translate }}</h2>
+        <p class="subtotal">{{ 'cart.subtotal' | translate }}: LE {{ subtotal() }} EGP</p>
+        <p class="note">{{ 'cart.note' | translate }}</p>
+        <a [routerLink]="['/checkout']" class="btn btn-block">{{ 'cart.checkOut' | translate }}</a>
+      </div>
+    </div>
+  }
+</div>

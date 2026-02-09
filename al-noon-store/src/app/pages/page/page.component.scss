@@ -1,0 +1,23 @@
+.page-content {
+  padding: 32px 0 48px;
+  max-width: 720px;
+}
+
+.page-title {
+  margin-bottom: 24px;
+}
+
+.page-body {
+  line-height: 1.7;
+  font-size: 15px;
+
+  p {
+    margin-bottom: 1em;
+  }
+}
+
+.not-found {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 48px;
+}

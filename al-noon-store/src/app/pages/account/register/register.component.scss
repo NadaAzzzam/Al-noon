@@ -1,0 +1,31 @@
+.auth-page {
+  padding: 48px 0;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.auth-form {
+  margin-bottom: 24px;
+}
+
+.error-msg {
+  color: var(--color-sale);
+  margin-bottom: 16px;
+}
+
+.field-error {
+  display: block;
+  font-size: 12px;
+  color: var(--color-sale);
+  margin-top: 4px;
+}
+
+.auth-footer {
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-text-muted);
+
+  a {
+    text-decoration: underline;
+  }
+}

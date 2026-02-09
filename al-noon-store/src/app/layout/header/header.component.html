@@ -1,0 +1,57 @@
+<header class="header">
+  <div class="container header-inner">
+    <a [routerLink]="['/']" class="logo">
+      @if (store()?.logo) {
+        <img [src]="api.imageUrl(store()!.logo)" [alt]="store()!.storeName.en || 'Store'" />
+      } @else {
+        <span class="logo-text">{{ (store()?.storeName | localized) || ('storeName' | translate) }}</span>
+      }
+    </a>
+
+    <nav class="nav">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        {{ 'nav.home' | translate }}
+      </a>
+      @for (link of store()?.quickLinks ?? []; track link.url) {
+        @if (link.url.startsWith('/')) {
+          <a [routerLink]="link.url" routerLinkActive="active">{{ link.title | localized }}</a>
+        } @else {
+          <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.title | localized }}</a>
+        }
+      }
+      <a routerLink="/catalog">{{ 'nav.shop' | translate }}</a>
+    </nav>
+
+    <div class="actions">
+      <button type="button" class="icon-btn" (click)="toggleSearch()" [attr.aria-label]="'nav.search' | translate">
+        {{ 'nav.search' | translate }}
+      </button>
+      <button type="button" class="icon-btn" (click)="toggleLocale()" [attr.aria-label]="'nav.search' | translate">
+        {{ currentLocale() === 'ar' ? 'EN' : 'ع' }}
+      </button>
+      @if (isLoggedIn()) {
+        <a [routerLink]="['/account', 'orders']" class="icon-btn">{{ 'nav.myOrders' | translate }}</a>
+        <button type="button" class="icon-btn" (click)="signOut()">{{ 'nav.logOut' | translate }}</button>
+      } @else {
+        <a [routerLink]="['/account', 'login']" class="icon-btn">{{ 'nav.logIn' | translate }}</a>
+      }
+      <a [routerLink]="['/cart']" class="icon-btn cart-link">
+        {{ 'nav.cart' | translate }}
+        @if (cartCount() > 0) {
+          <span class="cart-count">{{ cartCount() }}</span>
+        }
+      </a>
+    </div>
+  </div>
+
+  @if (searchOpen()) {
+    <div class="search-bar">
+      <div class="container">
+        <form class="search-form" (ngSubmit)="submitSearch()">
+          <input type="search" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)" [placeholder]="'nav.searchPlaceholder' | translate" />
+          <button type="submit" class="btn">{{ 'nav.search' | translate }}</button>
+        </form>
+      </div>
+    </div>
+  }
+</header>

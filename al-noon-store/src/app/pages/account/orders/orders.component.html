@@ -1,0 +1,21 @@
+<div class="container orders-page">
+  <h1 class="page-title">{{ 'orders.myOrders' | translate }}</h1>
+  @if (loading()) {
+    <p class="loading">{{ 'orders.loading' | translate }}</p>
+  } @else if (orders().length === 0) {
+    <p class="empty">{{ 'orders.empty' | translate }}</p>
+  } @else {
+    <div class="orders-list">
+      @for (order of orders(); track order.id) {
+        <a [routerLink]="['/account', 'orders', order.id]" class="order-card">
+          <div class="order-header">
+            <span class="order-id">#{{ order.id.slice(0, 8) }}</span>
+            <span class="order-status">{{ order.status }}</span>
+          </div>
+          <p class="order-total">LE {{ order.total }} EGP</p>
+          <p class="order-date">{{ order.createdAt | date:'medium' }}</p>
+        </a>
+      }
+    </div>
+  }
+</div>

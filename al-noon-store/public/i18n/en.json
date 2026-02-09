@@ -1,0 +1,135 @@
+{
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "cart": "Cart",
+    "logIn": "Log in",
+    "logOut": "Log out",
+    "myOrders": "My orders",
+    "search": "Search",
+    "searchPlaceholder": "Search..."
+  },
+  "auth": {
+    "logIn": "Log in",
+    "signUp": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "passwordMin": "min 6",
+    "dontHaveAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "createAccount": "Sign up",
+    "submitLogin": "Log in",
+    "submitRegister": "Sign up"
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty.",
+    "continueShopping": "Continue shopping",
+    "summary": "Summary",
+    "subtotal": "Subtotal",
+    "note": "Taxes and shipping calculated at checkout.",
+    "checkOut": "Check out",
+    "remove": "Remove",
+    "product": "Product"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "cartEmpty": "Your cart is empty.",
+    "viewCart": "View cart",
+    "city": "City",
+    "selectCity": "Select city",
+    "shippingAddress": "Shipping address",
+    "paymentMethod": "Payment method",
+    "cod": "Cash on delivery (COD)",
+    "orderSummary": "Order summary",
+    "subtotal": "Subtotal",
+    "delivery": "Delivery",
+    "total": "Total",
+    "placeOrder": "Place order",
+    "placingOrder": "Placing order..."
+  },
+  "contact": {
+    "title": "Contact us",
+    "success": "Your message has been sent. We will get back to you soon.",
+    "error": "Something went wrong. Please try again.",
+    "name": "Name",
+    "phone": "Phone",
+    "message": "Message",
+    "send": "Send"
+  },
+  "footer": {
+    "privacy": "Privacy",
+    "shipping": "Shipping",
+    "returnPolicy": "Return policy",
+    "about": "About",
+    "contact": "Contact",
+    "subscribe": "Subscribe to our emails",
+    "subscribeDesc": "Be the first to know about new collections and exclusive offers.",
+    "emailPlaceholder": "Email",
+    "subscribeBtn": "Subscribe",
+    "subscribedSuccess": "Subscribed successfully.",
+    "alreadySubscribed": "This email is already subscribed.",
+    "subscribeError": "Something went wrong. Try again later."
+  },
+  "catalog": {
+    "shop": "Shop",
+    "search": "Search",
+    "category": "Category",
+    "availability": "Availability",
+    "sort": "Sort",
+    "all": "All",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "apply": "Apply",
+    "loading": "Loading...",
+    "newest": "Newest",
+    "priceAsc": "Price: Low to High",
+    "priceDesc": "Price: High to Low",
+    "nameAsc": "Name A–Z",
+    "nameDesc": "Name Z–A"
+  },
+  "product": {
+    "notFound": "Product not found",
+    "size": "Size",
+    "color": "Color",
+    "quantity": "Quantity",
+    "addToCart": "Add to cart",
+    "added": "Added!",
+    "outOfStock": "Out of stock",
+    "stylingTip": "Styling tip",
+    "details": "Details",
+    "related": "Related products"
+  },
+  "sale": "Sale",
+  "soldOut": "Sold out",
+  "orders": {
+    "myOrders": "My orders",
+    "loading": "Loading...",
+    "empty": "No orders yet."
+  },
+  "orderDetail": {
+    "order": "Order",
+    "shipping": "Shipping",
+    "status": "Status",
+    "items": "Items",
+    "total": "Total",
+    "notFound": "Order not found",
+    "backToOrders": "Back to orders"
+  },
+  "page": {
+    "notFound": "Page not found"
+  },
+  "home": {
+    "newArrivals": "New Arrivals",
+    "collections": "Collections",
+    "ourCollection": "Our Collection",
+    "testimonials": "What our customers say",
+    "newCollection": "New Collection"
+  },
+  "chatbot": {
+    "placeholder": "Type your message...",
+    "send": "Send"
+  },
+  "storeName": "Al-Noon"
+}

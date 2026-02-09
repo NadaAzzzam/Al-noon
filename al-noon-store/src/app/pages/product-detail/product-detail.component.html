@@ -1,0 +1,107 @@
+@let p = product();
+@if (!p) {
+  <div class="container"><p class="not-found">{{ 'product.notFound' | translate }}</p></div>
+} @else {
+  <div class="container product-detail">
+    <div class="product-main">
+      <div class="gallery">
+        <div class="gallery-main">
+          <img [src]="api.imageUrl(images()[selectedImageIndex()])" [alt]="getLocalized(p.name)" />
+        </div>
+        @if (images().length > 1) {
+          <div class="gallery-thumbs">
+            @for (img of images(); track img; let i = $index) {
+              <button type="button" class="thumb" [class.active]="selectedImageIndex() === i" (click)="selectedImageIndex.set(i)">
+                <img [src]="api.imageUrl(img)" alt="" />
+              </button>
+            }
+          </div>
+        }
+      </div>
+      <div class="product-info">
+        <h1 class="product-title">{{ getLocalized(p.name) }}</h1>
+        <div class="price">
+          @if (p.discountPrice != null && p.discountPrice < p.price) {
+            <span class="original">LE {{ p.price }} EGP</span>
+            <span class="current">LE {{ p.discountPrice }} EGP</span>
+          } @else {
+            <span class="current">LE {{ p.price }} EGP</span>
+          }
+        </div>
+        @if (getLocalized(p.description)) {
+          <div class="description" [innerHTML]="getLocalized(p.description)"></div>
+        }
+
+        @if (p.sizes?.length) {
+          <div class="form-group">
+            <label>{{ 'product.size' | translate }}</label>
+            <div class="size-options">
+              @for (sz of p.sizes; track sz) {
+                <button type="button" class="size-btn" [class.selected]="selectedSize() === sz" (click)="selectedSize.set(sz)">
+                  {{ sz }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        @if (p.colors?.length) {
+          <div class="form-group">
+            <label>{{ 'product.color' | translate }}</label>
+            <p class="colors">{{ p.colors?.join(', ') ?? '' }}</p>
+          </div>
+        }
+
+        <div class="form-group">
+          <label>{{ 'product.quantity' | translate }}</label>
+          <input type="number" [value]="quantity()" (input)="quantity.set(+$any($event.target).value || 1)" min="1" [max]="p.stock" />
+        </div>
+
+        @if (p.stock <= 0) {
+          <p class="out-of-stock">{{ 'product.outOfStock' | translate }}</p>
+        } @else {
+          <button type="button" class="btn" (click)="addToCart()" [disabled]="added()">
+            {{ added() ? ('product.added' | translate) : ('product.addToCart' | translate) }}
+          </button>
+        }
+
+        @if (getLocalized(p.stylingTip)) {
+          <div class="styling-tip">
+            <strong>{{ 'product.stylingTip' | translate }}</strong>
+            <p>{{ getLocalized(p.stylingTip) }}</p>
+          </div>
+        }
+        @if (getLocalized(p.details)) {
+          <div class="details">
+            <strong>{{ 'product.details' | translate }}</strong>
+            <p>{{ getLocalized(p.details) }}</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (related().length) {
+      <section class="related">
+        <h2>{{ 'product.related' | translate }}</h2>
+        <div class="product-grid">
+          @for (r of related(); track r.id) {
+            <a [routerLink]="['/product', r.id]" class="product-card">
+              <div class="product-image-wrap">
+                <img [src]="api.imageUrl(r.images[0])" [alt]="getLocalized(r.name)" />
+              </div>
+              <h3 class="product-name">{{ getLocalized(r.name) }}</h3>
+              <div class="price">
+                @if (r.discountPrice != null && r.discountPrice < r.price) {
+                  <span class="original">LE {{ r.price }}</span>
+                  <span class="current">LE {{ r.discountPrice }} EGP</span>
+                } @else {
+                  <span class="current">LE {{ r.price }} EGP</span>
+                }
+              </div>
+            </a>
+          }
+        </div>
+      </section>
+    }
+  </div>
+}

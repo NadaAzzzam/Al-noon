@@ -1,0 +1,121 @@
+@let s = store();
+@let hero = s?.hero;
+@let collections = s?.homeCollections ?? [];
+@let feedbacks = (s?.feedbackSectionEnabled ? (s?.feedbacks ?? []).slice(0, s?.feedbackDisplayLimit ?? 5) : []);
+
+<!-- Hero -->
+@if (s?.heroEnabled && hero) {
+  <section class="hero">
+    @if (hero.images?.length) {
+      <div class="hero-media">
+        <img [src]="api.imageUrl(hero.images?.[0])" [alt]="getLocalized(hero.title)" />
+      </div>
+    }
+    <div class="hero-content">
+      <h1 class="hero-title">{{ getLocalized(hero.title) || ('home.newCollection' | translate) }}</h1>
+      @if (getLocalized(hero.subtitle)) {
+        <p class="hero-subtitle">{{ getLocalized(hero.subtitle) }}</p>
+      }
+      @if (hero.ctaUrl && getLocalized(hero.ctaLabel)) {
+        <a [routerLink]="hero.ctaUrl" class="btn">{{ getLocalized(hero.ctaLabel) }}</a>
+      }
+    </div>
+  </section>
+}
+
+<!-- New Arrivals -->
+<section class="section new-arrivals">
+  <div class="container">
+    <h2 class="section-title">{{ 'home.newArrivals' | translate }}</h2>
+    <div class="product-grid">
+      @for (p of newArrivals(); track p.id) {
+        <a [routerLink]="['/product', p.id]" class="product-card">
+          <div class="product-image-wrap">
+            <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
+            @if (p.discountPrice != null && p.discountPrice < p.price) {
+              <span class="sale-badge">{{ 'sale' | translate }}</span>
+            }
+            @if (p.stock <= 0) {
+              <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
+            }
+          </div>
+          <h3 class="product-name">{{ getLocalized(p.name) }}</h3>
+          <div class="price">
+            @if (p.discountPrice != null && p.discountPrice < p.price) {
+              <span class="original">LE {{ p.price }} EGP</span>
+              <span class="current">LE {{ p.discountPrice }} EGP</span>
+            } @else {
+              <span class="current">LE {{ p.price }} EGP</span>
+            }
+          </div>
+        </a>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Home collections (e.g. Abayas, Capes, Malhafa) -->
+@if (collections.length) {
+  <section class="section collections-section">
+    <div class="container">
+      <h2 class="section-title">{{ 'home.collections' | translate }}</h2>
+      <div class="collections-grid">
+        @for (col of collections; track col.url) {
+          <a [routerLink]="col.url" class="collection-card">
+            @if (col.image) {
+              <img [src]="api.imageUrl(col.image)" [alt]="getLocalized(col.title)" />
+            }
+            <div class="collection-card-content">
+              <h3>{{ getLocalized(col.title) }}</h3>
+            </div>
+          </a>
+        }
+      </div>
+    </div>
+  </section>
+}
+
+<!-- Our collection media (section images/videos) -->
+@if (s?.ourCollectionSectionImages?.length || s?.ourCollectionSectionVideos?.length) {
+  <section class="section our-collection">
+    <div class="container">
+      <h2 class="section-title">{{ 'home.ourCollection' | translate }}</h2>
+      <div class="media-grid">
+        @for (img of s?.ourCollectionSectionImages ?? []; track img) {
+          <div class="media-item">
+            <img [src]="api.imageUrl(img)" alt="" />
+          </div>
+        }
+        @for (vid of s?.ourCollectionSectionVideos ?? []; track vid) {
+          <div class="media-item">
+            <video [src]="api.imageUrl(vid)" muted loop playsinline></video>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+}
+
+<!-- Testimonials / Feedback -->
+@if (feedbacks.length) {
+  <section class="section testimonials">
+    <div class="container">
+      <h2 class="section-title">{{ 'home.testimonials' | translate }}</h2>
+      <div class="testimonials-grid">
+        @for (f of feedbacks; track f.id) {
+          <blockquote class="testimonial-card">
+            @if (f.rating) {
+              <div class="rating">★ {{ f.rating }}</div>
+            }
+            @if (f.comment) {
+              <p>{{ f.comment }}</p>
+            }
+            @if (f.product?.name) {
+              <cite>{{ getLocalized(f.product?.name) }}</cite>
+            }
+          </blockquote>
+        }
+      </div>
+    </div>
+  </section>
+}

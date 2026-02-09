@@ -1,0 +1,68 @@
+<div class="container checkout-page">
+  <h1 class="page-title">{{ 'checkout.title' | translate }}</h1>
+
+  @if (items().length === 0) {
+    <p class="empty">{{ 'checkout.cartEmpty' | translate }}</p>
+    <a [routerLink]="['/cart']" class="btn">{{ 'checkout.viewCart' | translate }}</a>
+  } @else {
+    <form (ngSubmit)="submit()" class="checkout-layout">
+      <div class="checkout-form">
+        <div class="form-group">
+          <label>{{ 'checkout.city' | translate }} *</label>
+          <select [value]="cityId()" (change)="cityId.set($any($event.target).value)">
+            <option value="">{{ 'checkout.selectCity' | translate }}</option>
+            @for (c of cities(); track c.id) {
+              <option [value]="c.id">{{ getLocalized(c.name) }}</option>
+            }
+          </select>
+          @if (cityError()) {
+            <span class="field-error">{{ cityError() }}</span>
+          }
+        </div>
+        <div class="form-group">
+          <label>{{ 'checkout.shippingAddress' | translate }} *</label>
+          <textarea [value]="shippingAddress()" (input)="shippingAddress.set($any($event.target).value)" rows="3"></textarea>
+          @if (shippingError()) {
+            <span class="field-error">{{ shippingError() }}</span>
+          }
+        </div>
+        <div class="form-group">
+          <label>{{ 'checkout.paymentMethod' | translate }}</label>
+          <select [value]="paymentMethod()" (change)="paymentMethod.set($any($event.target).value)">
+            <option value="COD">{{ 'checkout.cod' | translate }}</option>
+            <option value="INSTAPAY">InstaPay</option>
+          </select>
+        </div>
+      </div>
+      <div class="checkout-summary">
+        <h2>{{ 'checkout.orderSummary' | translate }}</h2>
+        <div class="summary-items">
+          @for (item of items(); track item.productId) {
+            <div class="summary-item">
+              <span>{{ item.name ?? ('cart.product' | translate) }} × {{ item.quantity }}</span>
+              <span>LE {{ item.price * item.quantity }} EGP</span>
+            </div>
+          }
+        </div>
+        <p class="summary-row">
+          <span>{{ 'checkout.subtotal' | translate }}</span>
+          <span>LE {{ subtotal() }} EGP</span>
+        </p>
+        <p class="summary-row">
+          <span>{{ 'checkout.delivery' | translate }}</span>
+          <span>LE {{ deliveryFee() }} EGP</span>
+        </p>
+        <p class="summary-row total">
+          <span>{{ 'checkout.total' | translate }}</span>
+          <span>LE {{ total() }} EGP</span>
+        </p>
+        @if (error()) {
+          <p class="error-msg">{{ error() }}</p>
+        }
+        <button type="submit" class="btn btn-block" [disabled]="!formValid() || submitting()">
+          {{ submitting() ? ('checkout.placingOrder' | translate) : ('checkout.placeOrder' | translate) }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

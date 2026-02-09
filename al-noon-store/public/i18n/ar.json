@@ -1,0 +1,135 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "shop": "المتجر",
+    "cart": "السلة",
+    "logIn": "تسجيل الدخول",
+    "logOut": "خروج",
+    "myOrders": "طلباتي",
+    "search": "بحث",
+    "searchPlaceholder": "بحث..."
+  },
+  "auth": {
+    "logIn": "تسجيل الدخول",
+    "signUp": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "name": "الاسم",
+    "passwordMin": "6 أحرف على الأقل",
+    "dontHaveAccount": "ليس لديك حساب؟",
+    "haveAccount": "لديك حساب؟",
+    "createAccount": "إنشاء حساب",
+    "submitLogin": "دخول",
+    "submitRegister": "تسجيل"
+  },
+  "cart": {
+    "title": "السلة",
+    "empty": "سلتك فارغة.",
+    "continueShopping": "متابعة التسوق",
+    "summary": "ملخص",
+    "subtotal": "المجموع الفرعي",
+    "note": "الضرائب والشحن تُحسب عند الدفع.",
+    "checkOut": "إتمام الطلب",
+    "remove": "إزالة",
+    "product": "منتج"
+  },
+  "checkout": {
+    "title": "إتمام الطلب",
+    "cartEmpty": "سلتك فارغة.",
+    "viewCart": "عرض السلة",
+    "city": "المدينة",
+    "selectCity": "اختر المدينة",
+    "shippingAddress": "عنوان الشحن",
+    "paymentMethod": "طريقة الدفع",
+    "cod": "الدفع عند الاستلام",
+    "orderSummary": "ملخص الطلب",
+    "subtotal": "المجموع الفرعي",
+    "delivery": "الشحن",
+    "total": "الإجمالي",
+    "placeOrder": "تأكيد الطلب",
+    "placingOrder": "جاري الطلب..."
+  },
+  "contact": {
+    "title": "اتصل بنا",
+    "success": "تم إرسال رسالتك. سنتواصل قريباً.",
+    "error": "حدث خطأ. حاول مرة أخرى.",
+    "name": "الاسم",
+    "phone": "الهاتف",
+    "message": "الرسالة",
+    "send": "إرسال"
+  },
+  "footer": {
+    "privacy": "الخصوصية",
+    "shipping": "الشحن",
+    "returnPolicy": "المرتجعات",
+    "about": "من نحن",
+    "contact": "اتصل بنا",
+    "subscribe": "اشترك في نشرتنا",
+    "subscribeDesc": "كن أول من يعرف عن المجموعات والعروض الحصرية.",
+    "emailPlaceholder": "البريد الإلكتروني",
+    "subscribeBtn": "اشترك",
+    "subscribedSuccess": "تم الاشتراك بنجاح.",
+    "alreadySubscribed": "هذا البريد مشترك مسبقاً.",
+    "subscribeError": "حدث خطأ. حاول لاحقاً."
+  },
+  "catalog": {
+    "shop": "المتجر",
+    "search": "بحث",
+    "category": "الفئة",
+    "availability": "التوفر",
+    "sort": "ترتيب",
+    "all": "الكل",
+    "inStock": "متوفر",
+    "outOfStock": "نفذ",
+    "apply": "تطبيق",
+    "loading": "جاري التحميل...",
+    "newest": "الأحدث",
+    "priceAsc": "السعر: منخفض إلى عالي",
+    "priceDesc": "السعر: عالي إلى منخفض",
+    "nameAsc": "الاسم أ–ي",
+    "nameDesc": "الاسم ي–أ"
+  },
+  "product": {
+    "notFound": "المنتج غير موجود",
+    "size": "المقاس",
+    "color": "اللون",
+    "quantity": "الكمية",
+    "addToCart": "أضف إلى السلة",
+    "added": "تمت الإضافة",
+    "outOfStock": "نفذ من المخزون",
+    "stylingTip": "نصيحة styling",
+    "details": "التفاصيل",
+    "related": "منتجات ذات صلة"
+  },
+  "sale": "خصم",
+  "soldOut": "نفذ",
+  "orders": {
+    "myOrders": "طلباتي",
+    "loading": "جاري التحميل...",
+    "empty": "لا توجد طلبات."
+  },
+  "orderDetail": {
+    "order": "تفاصيل الطلب",
+    "shipping": "العنوان",
+    "status": "الحالة",
+    "items": "المنتجات",
+    "total": "الإجمالي",
+    "notFound": "الطلب غير موجود",
+    "backToOrders": "عودة للطلبات"
+  },
+  "page": {
+    "notFound": "الصفحة غير موجودة"
+  },
+  "home": {
+    "newArrivals": "وصل حديثاً",
+    "collections": "المجموعات",
+    "ourCollection": "مجموعتنا",
+    "testimonials": "آراء العملاء",
+    "newCollection": "المجموعة الجديدة"
+  },
+  "chatbot": {
+    "placeholder": "اكتب رسالتك...",
+    "send": "إرسال"
+  },
+  "storeName": "Al-Noon"
+}
