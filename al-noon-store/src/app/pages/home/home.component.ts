@@ -31,7 +31,7 @@ export class HomeComponent implements OnInit {
     this.storeService.getStore().subscribe((s) => {
       const limit = s?.newArrivalsLimit ?? 12;
       this.productsService
-        .getProducts({ newArrival: true, limit, status: 'ACTIVE' })
+        .getProducts({ newArrival: true, limit, status: 'PUBLISHED' })
         .subscribe((res) => this.newArrivals.set(res.data));
     });
   }

@@ -14,7 +14,11 @@ export const routes: Routes = [
       {
         path: 'checkout',
         loadComponent: () => import('./pages/checkout/checkout.component').then((m) => m.CheckoutComponent),
-        canActivate: [authGuard],
+      },
+      {
+        path: 'order-confirmation',
+        loadComponent: () =>
+          import('./pages/order-confirmation/order-confirmation.component').then((m) => m.OrderConfirmationComponent),
       },
       { path: 'contact', loadComponent: () => import('./pages/contact/contact.component').then((m) => m.ContactComponent) },
       { path: 'page/:slug', loadComponent: () => import('./pages/page/page.component').then((m) => m.PageComponent) },

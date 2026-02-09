@@ -166,11 +166,12 @@ export type ProductSort =
 
 export type ProductAvailability = 'inStock' | 'outOfStock' | 'all';
 
-/** List products query (OpenAPI: status may be DRAFT | PUBLISHED on some endpoints) */
+/** List products query (OpenAPI: GET /products uses status DRAFT | PUBLISHED) */
 export interface ProductsQuery {
   page?: number;
   limit?: number;
   search?: string;
+  /** Storefront should use PUBLISHED; ProductData.status is ACTIVE | INACTIVE */
   status?: 'ACTIVE' | 'INACTIVE' | 'DRAFT' | 'PUBLISHED';
   category?: string;
   newArrival?: boolean;
@@ -215,6 +216,10 @@ export interface CreateOrderBody {
   paymentMethod?: PaymentMethod;
   shippingAddress?: string;
   deliveryFee?: number;
+  /** Guest checkout: contact details when user is not logged in */
+  guestName?: string;
+  guestEmail?: string;
+  guestPhone?: string;
 }
 
 export interface OrderItem {

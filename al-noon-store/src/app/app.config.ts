@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 
 import { routes } from './app.routes';
 import { apiInterceptor } from './core/interceptors/api.interceptor';
+import { authProfileInterceptor } from './core/interceptors/auth-profile.interceptor';
 
 export function createTranslateLoader(http: HttpClient): TranslateHttpLoader {
   return new TranslateHttpLoader(http, '/i18n/', '.json');
@@ -16,7 +17,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([apiInterceptor])),
+    provideHttpClient(withInterceptors([apiInterceptor, authProfileInterceptor])),
     importProvidersFrom(
       TranslateModule.forRoot({
         defaultLanguage: 'en',

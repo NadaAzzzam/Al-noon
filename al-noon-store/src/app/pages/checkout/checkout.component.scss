@@ -21,6 +21,18 @@
   max-width: 500px;
 }
 
+.guest-section {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--color-border);
+
+  .guest-section-title {
+    font-size: 1rem;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+}
+
 .checkout-summary {
   padding: 24px;
   background: var(--color-surface);

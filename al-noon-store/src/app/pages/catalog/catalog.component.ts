@@ -68,7 +68,7 @@ export class CatalogComponent implements OnInit {
 
   ngOnInit(): void {
     this.categoriesService.getCategories().subscribe((c) =>
-      this.categories.set(Array.isArray(c) ? c.filter((x) => x.status === 'visible') : [])
+      this.categories.set(Array.isArray(c) ? c.filter((x) => x.status === 'PUBLISHED') : [])
     );
   }
 
@@ -77,7 +77,7 @@ export class CatalogComponent implements OnInit {
     const params: Record<string, unknown> = {
       page: this.page(),
       limit: this.limit,
-      status: 'ACTIVE',
+      status: 'PUBLISHED',
       sort: this.sort(),
       availability: this.availability(),
     };

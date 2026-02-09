@@ -32,7 +32,11 @@
         @if (p.id) {
           <a [routerLink]="['/product', p.id]" class="product-card">
             <div class="product-image-wrap">
-              <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
+              @if (p.images.length) {
+                <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
+              } @else {
+                <div class="product-image-placeholder"></div>
+              }
               @if (p.discountPrice != null && p.discountPrice < p.price) {
                 <span class="sale-badge">{{ 'sale' | translate }}</span>
               }
@@ -53,7 +57,11 @@
         } @else {
           <div class="product-card">
             <div class="product-image-wrap">
-              <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
+              @if (p.images.length) {
+                <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
+              } @else {
+                <div class="product-image-placeholder"></div>
+              }
               @if (p.discountPrice != null && p.discountPrice < p.price) {
                 <span class="sale-badge">{{ 'sale' | translate }}</span>
               }

@@ -1,0 +1,39 @@
+<div class="container order-confirmation-page">
+  @if (!order()) {
+    <p class="not-found">{{ 'orderConfirmation.notFound' | translate }}</p>
+    <a [routerLink]="['/catalog']" class="btn">{{ 'orderConfirmation.continueShopping' | translate }}</a>
+  } @else {
+    @let o = order()!;
+    <div class="confirmation-card">
+      <h1 class="page-title">{{ 'orderConfirmation.thankYou' | translate }}</h1>
+      <p class="confirmation-message">{{ 'orderConfirmation.message' | translate }}</p>
+      <p class="order-id">{{ 'orderConfirmation.orderId' | translate }}: <strong>#{{ o.id }}</strong></p>
+      <p class="order-status">{{ 'orderDetail.status' | translate }}: {{ o.status }}</p>
+      @if (o.shippingAddress) {
+        <p class="shipping-address">{{ 'orderDetail.shipping' | translate }}: {{ o.shippingAddress }}</p>
+      }
+      <div class="order-items">
+        <h2>{{ 'orderDetail.items' | translate }}</h2>
+        @for (item of o.items; track $index) {
+          <div class="order-item">
+            @if (item.product?.images?.length) {
+              <img [src]="api.imageUrl(item.product.images[0])" [alt]="getLocalized(item.product.name)" class="item-image" />
+            }
+            <div class="item-details">
+              <span>{{ getLocalized(item.product?.name) || ('cart.product' | translate) }}</span>
+              <p>× {{ item.quantity }} — LE {{ item.price }} EGP</p>
+            </div>
+            <span class="item-total">LE {{ item.quantity * item.price }} EGP</span>
+          </div>
+        }
+      </div>
+      <div class="order-totals">
+        @if (o.deliveryFee != null && o.deliveryFee > 0) {
+          <p><span>{{ 'checkout.delivery' | translate }}</span><span>LE {{ o.deliveryFee }} EGP</span></p>
+        }
+        <p class="total"><span>{{ 'orderDetail.total' | translate }}</span><span>LE {{ o.total }} EGP</span></p>
+      </div>
+      <a [routerLink]="['/catalog']" class="btn btn-block">{{ 'orderConfirmation.continueShopping' | translate }}</a>
+    </div>
+  }
+</div>

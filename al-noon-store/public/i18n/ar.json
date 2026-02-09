@@ -37,6 +37,11 @@
     "title": "إتمام الطلب",
     "cartEmpty": "سلتك فارغة.",
     "viewCart": "عرض السلة",
+    "guestDetails": "بيانات التواصل",
+    "guestName": "الاسم الكامل",
+    "guestEmail": "البريد الإلكتروني",
+    "guestPhone": "الهاتف",
+    "guestPhoneOptional": "اختياري",
     "city": "المدينة",
     "selectCity": "اختر المدينة",
     "shippingAddress": "عنوان الشحن",
@@ -68,6 +73,7 @@
     "subscribeDesc": "كن أول من يعرف عن المجموعات والعروض الحصرية.",
     "emailPlaceholder": "البريد الإلكتروني",
     "subscribeBtn": "اشترك",
+    "subscribing": "جاري الاشتراك…",
     "subscribedSuccess": "تم الاشتراك بنجاح.",
     "alreadySubscribed": "هذا البريد مشترك مسبقاً.",
     "subscribeError": "حدث خطأ. حاول لاحقاً."
@@ -116,6 +122,13 @@
     "total": "الإجمالي",
     "notFound": "الطلب غير موجود",
     "backToOrders": "عودة للطلبات"
+  },
+  "orderConfirmation": {
+    "thankYou": "شكراً لطلبك",
+    "message": "تم استلام طلبك وسنقوم بمعالجته قريباً.",
+    "orderId": "رقم الطلب",
+    "continueShopping": "متابعة التسوق",
+    "notFound": "تعذر تحميل تفاصيل الطلب."
   },
   "page": {
     "notFound": "الصفحة غير موجودة"

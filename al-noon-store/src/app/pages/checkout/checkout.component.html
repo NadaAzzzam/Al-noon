@@ -7,6 +7,29 @@
   } @else {
     <form (ngSubmit)="submit()" class="checkout-layout">
       <div class="checkout-form">
+        @if (!isLoggedIn()) {
+          <div class="guest-section">
+            <h2 class="guest-section-title">{{ 'checkout.guestDetails' | translate }}</h2>
+            <div class="form-group">
+              <label>{{ 'checkout.guestName' | translate }} *</label>
+              <input type="text" [value]="guestName()" (input)="guestName.set($any($event.target).value)" />
+              @if (guestNameError()) {
+                <span class="field-error">{{ guestNameError() }}</span>
+              }
+            </div>
+            <div class="form-group">
+              <label>{{ 'checkout.guestEmail' | translate }} *</label>
+              <input type="email" [value]="guestEmail()" (input)="guestEmail.set($any($event.target).value)" />
+              @if (guestEmailError()) {
+                <span class="field-error">{{ guestEmailError() }}</span>
+              }
+            </div>
+            <div class="form-group">
+              <label>{{ 'checkout.guestPhone' | translate }}</label>
+              <input type="tel" [value]="guestPhone()" (input)="guestPhone.set($any($event.target).value)" placeholder="{{ 'checkout.guestPhoneOptional' | translate }}" />
+            </div>
+          </div>
+        }
         <div class="form-group">
           <label>{{ 'checkout.city' | translate }} *</label>
           <select [value]="cityId()" (change)="cityId.set($any($event.target).value)">

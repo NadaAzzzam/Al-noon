@@ -37,6 +37,11 @@
     "title": "Checkout",
     "cartEmpty": "Your cart is empty.",
     "viewCart": "View cart",
+    "guestDetails": "Your contact details",
+    "guestName": "Full name",
+    "guestEmail": "Email",
+    "guestPhone": "Phone",
+    "guestPhoneOptional": "Optional",
     "city": "City",
     "selectCity": "Select city",
     "shippingAddress": "Shipping address",
@@ -68,6 +73,7 @@
     "subscribeDesc": "Be the first to know about new collections and exclusive offers.",
     "emailPlaceholder": "Email",
     "subscribeBtn": "Subscribe",
+    "subscribing": "Subscribing…",
     "subscribedSuccess": "Subscribed successfully.",
     "alreadySubscribed": "This email is already subscribed.",
     "subscribeError": "Something went wrong. Try again later."
@@ -116,6 +122,13 @@
     "total": "Total",
     "notFound": "Order not found",
     "backToOrders": "Back to orders"
+  },
+  "orderConfirmation": {
+    "thankYou": "Thank you for your order",
+    "message": "We have received your order and will process it shortly.",
+    "orderId": "Order number",
+    "continueShopping": "Continue shopping",
+    "notFound": "Order details could not be loaded."
   },
   "page": {
     "notFound": "Page not found"

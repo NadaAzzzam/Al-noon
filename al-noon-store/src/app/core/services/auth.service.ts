@@ -4,6 +4,21 @@ import { Router } from '@angular/router';
 import { Observable, tap, catchError, of } from 'rxjs';
 import type { ApiSuccess, ApiError, AuthUser, AuthTokens } from '../types/api.types';
 
+const SESSION_HINT_KEY = 'al_noon_auth_session';
+
+function hasSessionHint(): boolean {
+  if (typeof sessionStorage === 'undefined') return false;
+  return !!sessionStorage.getItem(SESSION_HINT_KEY);
+}
+
+function setSessionHint(): void {
+  if (typeof sessionStorage !== 'undefined') sessionStorage.setItem(SESSION_HINT_KEY, '1');
+}
+
+function clearSessionHint(): void {
+  if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem(SESSION_HINT_KEY);
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -18,7 +33,10 @@ export class AuthService {
   signUp(body: { name: string; email: string; password: string }): Observable<AuthTokens> {
     return this.http.post<ApiSuccess<AuthTokens>>('auth/sign-up', body).pipe(
       tap((r) => {
-        if (r.success && r.data) this.userSignal.set(r.data.user);
+        if (r.success && r.data) {
+          this.userSignal.set(r.data.user);
+          setSessionHint();
+        }
       }),
       (o) =>
         new Observable<AuthTokens>((sub) => {
@@ -37,7 +55,10 @@ export class AuthService {
   signIn(body: { email: string; password: string }): Observable<AuthTokens> {
     return this.http.post<ApiSuccess<AuthTokens>>('auth/sign-in', body).pipe(
       tap((r) => {
-        if (r.success && r.data) this.userSignal.set(r.data.user);
+        if (r.success && r.data) {
+          this.userSignal.set(r.data.user);
+          setSessionHint();
+        }
       }),
       (o) =>
         new Observable<AuthTokens>((sub) => {
@@ -54,16 +75,27 @@ export class AuthService {
   }
 
   loadProfile(): Observable<AuthUser | null> {
+    if (!hasSessionHint()) {
+      this.loadedSignal.set(true);
+      this.userSignal.set(null);
+      return of(null);
+    }
     return this.http.get<ApiSuccess<{ user: AuthUser }>>('auth/profile').pipe(
       tap((r) => {
         this.loadedSignal.set(true);
-        if (r.success && r.data) this.userSignal.set(r.data.user);
-        else this.userSignal.set(null);
+        if (r.success && r.data && r.data.user) {
+          this.userSignal.set(r.data.user);
+          setSessionHint();
+        } else {
+          this.userSignal.set(null);
+          clearSessionHint();
+        }
       }),
       catchError((_err) => {
         // Not logged in (401/403) or network error: treat as no user
         this.loadedSignal.set(true);
         this.userSignal.set(null);
+        clearSessionHint();
         return of(null);
       }),
       (o) =>
@@ -84,7 +116,10 @@ export class AuthService {
 
   signOut(): Observable<void> {
     return this.http.post<ApiSuccess<unknown>>('auth/sign-out', {}).pipe(
-      tap(() => this.userSignal.set(null)),
+      tap(() => {
+        this.userSignal.set(null);
+        clearSessionHint();
+      }),
       (o) =>
         new Observable<void>((sub) => {
           o.subscribe({

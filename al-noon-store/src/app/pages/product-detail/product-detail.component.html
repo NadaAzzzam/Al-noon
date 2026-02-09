@@ -6,7 +6,11 @@
     <div class="product-main">
       <div class="gallery">
         <div class="gallery-main">
-          <img [src]="api.imageUrl(images()[selectedImageIndex()])" [alt]="getLocalized(p.name)" />
+          @if (images().length) {
+            <img [src]="api.imageUrl(images()[selectedImageIndex()])" [alt]="getLocalized(p.name)" />
+          } @else {
+            <div class="product-image-placeholder"></div>
+          }
         </div>
         @if (images().length > 1) {
           <div class="gallery-thumbs">
@@ -87,7 +91,11 @@
           @for (r of related(); track $index) {
             <a [routerLink]="['/product', r.id]" class="product-card">
               <div class="product-image-wrap">
-                <img [src]="api.imageUrl(r.images[0])" [alt]="getLocalized(r.name)" />
+                @if (r.images.length) {
+                  <img [src]="api.imageUrl(r.images[0])" [alt]="getLocalized(r.name)" />
+                } @else {
+                  <div class="product-image-placeholder"></div>
+                }
               </div>
               <h3 class="product-name">{{ getLocalized(r.name) }}</h3>
               <div class="price">

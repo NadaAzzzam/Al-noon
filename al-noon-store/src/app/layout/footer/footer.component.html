@@ -7,11 +7,11 @@
           <a [routerLink]="['/']">{{ 'nav.home' | translate }}</a>
           <a routerLink="/catalog">{{ 'nav.search' | translate }}</a>
           @for (link of quickLinksArray(); track link.url) {
-            @if (link.url.startsWith('/')) {
-              <a [routerLink]="link.url">{{ getLocalized(link.title) }}</a>
-            } @else {
-              <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ getLocalized(link.title) }}</a>
-            }
+          @if (link.url.startsWith('/')) {
+          <a [routerLink]="link.url">{{ getLocalized(link.title) }}</a>
+          } @else {
+          <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ getLocalized(link.title) }}</a>
+          }
           }
           <a [routerLink]="['/page', 'privacy']">{{ 'footer.privacy' | translate }}</a>
           <a [routerLink]="['/page', 'shipping-policy']">{{ 'footer.shipping' | translate }}</a>
@@ -22,32 +22,33 @@
       </div>
 
       @if (store()?.newsletterEnabled) {
-        <div class="footer-col newsletter-col">
-          <h3 class="footer-title">{{ 'footer.subscribe' | translate }}</h3>
-          <p class="footer-desc">{{ 'footer.subscribeDesc' | translate }}</p>
-          <form (ngSubmit)="submitNewsletter()" class="newsletter-form">
-            <input type="email" [value]="newsletterEmail()" (input)="newsletterEmail.set($any($event.target).value)" [placeholder]="'footer.emailPlaceholder' | translate" />
-            <button type="submit" class="btn" [disabled]="!newsletterValid()">
-              {{ 'footer.subscribeBtn' | translate }}
-            </button>
-            @if (newsletterMessage() === 'success') {
-              <p class="newsletter-msg success">{{ 'footer.subscribedSuccess' | translate }}</p>
-            }
-            @if (newsletterMessage() === 'already') {
-              <p class="newsletter-msg">{{ 'footer.alreadySubscribed' | translate }}</p>
-            }
-            @if (newsletterMessage() === 'error') {
-              <p class="newsletter-msg error">{{ 'footer.subscribeError' | translate }}</p>
-            }
-          </form>
-        </div>
+      <div class="footer-col newsletter-col">
+        <h3 class="footer-title">{{ 'footer.subscribe' | translate }}</h3>
+        <p class="footer-desc">{{ 'footer.subscribeDesc' | translate }}</p>
+        <form class="newsletter-form" (ngSubmit)="submitNewsletter($event)">
+          <input type="email" [value]="newsletterEmail()" (input)="newsletterEmail.set($any($event.target).value)"
+            [placeholder]="'footer.emailPlaceholder' | translate" />
+          <button type="submit" class="btn" [disabled]="!newsletterValid() || newsletterLoading()">
+            {{ newsletterLoading() ? ('footer.subscribing' | translate) : ('footer.subscribeBtn' | translate) }}
+          </button>
+          @if (newsletterMessage() === 'success') {
+          <p class="newsletter-msg success">{{ 'footer.subscribedSuccess' | translate }}</p>
+          }
+          @if (newsletterMessage() === 'already') {
+          <p class="newsletter-msg">{{ 'footer.alreadySubscribed' | translate }}</p>
+          }
+          @if (newsletterMessage() === 'error') {
+          <p class="newsletter-msg error">{{ 'footer.subscribeError' | translate }}</p>
+          }
+        </form>
+      </div>
       }
 
       <div class="footer-col social-col">
         @for (social of socialLinksArray(); track social.url) {
-          <a [href]="social.url" target="_blank" rel="noopener noreferrer" class="social-link">
-            {{ social.platform }}
-          </a>
+        <a [href]="social.url" target="_blank" rel="noopener noreferrer" class="social-link">
+          {{ social.platform }}
+        </a>
         }
       </div>
     </div>

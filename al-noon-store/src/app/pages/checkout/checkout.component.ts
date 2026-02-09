@@ -6,9 +6,10 @@ import { OrdersService } from '../../core/services/orders.service';
 import { CitiesService } from '../../core/services/cities.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
+import { AuthService } from '../../core/services/auth.service';
 import { TranslateModule } from '@ngx-translate/core';
-import { requiredError } from '../../shared/utils/form-validators';
-import type { City } from '../../core/types/api.types';
+import { requiredError, emailError } from '../../shared/utils/form-validators';
+import type { City, CreateOrderBody } from '../../core/types/api.types';
 import type { PaymentMethod } from '../../core/types/api.types';
 
 @Component({
@@ -23,6 +24,7 @@ export class CheckoutComponent implements OnInit {
   private readonly cart = inject(CartService);
   private readonly ordersService = inject(OrdersService);
   private readonly citiesService = inject(CitiesService);
+  private readonly auth = inject(AuthService);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
 
@@ -30,11 +32,16 @@ export class CheckoutComponent implements OnInit {
   cityId = signal('');
   shippingAddress = signal('');
   paymentMethod = signal<PaymentMethod>('COD');
+  /** Guest checkout contact fields (used when not logged in) */
+  guestName = signal('');
+  guestEmail = signal('');
+  guestPhone = signal('');
   submitting = signal(false);
   error = signal<string | null>(null);
 
   items = this.cart.items;
   subtotal = this.cart.subtotal;
+  isLoggedIn = this.auth.isLoggedIn;
 
   selectedCity = computed(() => {
     const id = this.cityId();
@@ -42,7 +49,16 @@ export class CheckoutComponent implements OnInit {
   });
   cityError = computed(() => requiredError(this.cityId(), 'City'));
   shippingError = computed(() => requiredError(this.shippingAddress(), 'Shipping address'));
-  formValid = computed(() => !this.cityError() && !this.shippingError());
+  guestNameError = computed(() => requiredError(this.guestName(), 'Name'));
+  guestEmailError = computed(() => {
+    const v = this.guestEmail();
+    return requiredError(v, 'Email') || emailError(v);
+  });
+  formValid = computed(() => {
+    const base = !this.cityError() && !this.shippingError();
+    if (this.isLoggedIn()) return base;
+    return base && !this.guestNameError() && !this.guestEmailError();
+  });
   deliveryFee = computed(() => this.selectedCity()?.deliveryFee ?? 0);
   total = computed(() => this.subtotal() + this.deliveryFee());
 
@@ -60,23 +76,32 @@ export class CheckoutComponent implements OnInit {
     if (!this.formValid() || this.items().length === 0) return;
     this.error.set(null);
     this.submitting.set(true);
-    this.ordersService
-      .createOrder({
-        items: this.cart.getItemsForOrder(),
-        paymentMethod: this.paymentMethod(),
-        shippingAddress: this.shippingAddress().trim(),
-        deliveryFee: this.deliveryFee(),
-      })
-      .subscribe({
-        next: (order) => {
-          this.cart.clear();
-          this.submitting.set(false);
+    const body: CreateOrderBody = {
+      items: this.cart.getItemsForOrder(),
+      paymentMethod: this.paymentMethod(),
+      shippingAddress: this.shippingAddress().trim(),
+      deliveryFee: this.deliveryFee(),
+    };
+    if (!this.isLoggedIn()) {
+      body.guestName = this.guestName().trim();
+      body.guestEmail = this.guestEmail().trim();
+      const phone = this.guestPhone().trim();
+      if (phone) body.guestPhone = phone;
+    }
+    this.ordersService.createOrder(body).subscribe({
+      next: (order) => {
+        this.cart.clear();
+        this.submitting.set(false);
+        if (this.isLoggedIn()) {
           this.router.navigate(['/account', 'orders', order.id]);
-        },
-        error: (err) => {
-          this.error.set(err?.message ?? 'Failed to place order');
-          this.submitting.set(false);
-        },
-      });
+        } else {
+          this.router.navigate(['/order-confirmation'], { state: { order } });
+        }
+      },
+      error: (err) => {
+        this.error.set(err?.message ?? 'Failed to place order');
+        this.submitting.set(false);
+      },
+    });
   }
 }
