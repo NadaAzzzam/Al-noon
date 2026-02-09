@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://al-noon.com/sitemap.xml
+
+# Disallow admin/private paths
+Disallow: /account/
+Disallow: /checkout
+Disallow: /order-confirmation

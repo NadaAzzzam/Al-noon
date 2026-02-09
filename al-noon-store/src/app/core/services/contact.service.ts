@@ -3,13 +3,17 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type { ApiSuccess, ContactBody } from '../types/api.types';
 
+/** POST /api/store/contact – Submit Contact Us form (public). Body: { name, email, phone?, comment }. */
 @Injectable({ providedIn: 'root' })
 export class ContactService {
   private readonly http = inject(HttpClient);
 
+  /** POST /api/store/contact – application/json body per API spec. */
   send(body: ContactBody): Observable<{ message?: string }> {
     return this.http
-      .post<ApiSuccess<unknown>>('store/contact', body)
+      .post<ApiSuccess<unknown>>('store/contact', body, {
+        headers: { 'Content-Type': 'application/json' },
+      })
       .pipe(
         (o) =>
           new Observable<{ message?: string }>((sub) => {

@@ -1,8 +1,73 @@
 <div class="catalog container">
-  <h1 class="page-title">{{ 'catalog.shop' | translate }}</h1>
+  <div class="catalog-header">
+    <h1 class="page-title">{{ 'catalog.shop' | translate }}</h1>
+    <div class="catalog-meta">
+      @if (!loading()) {
+        <span class="result-count">{{ total() }} {{ 'catalog.results' | translate }}</span>
+      }
+      <button type="button" class="btn btn-outline filter-toggle" (click)="toggleFilters()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+          <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>
+        </svg>
+        {{ 'catalog.filters' | translate }}
+        @if (activeFilterCount() > 0) {
+          <span class="filter-badge">{{ activeFilterCount() }}</span>
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- Active filter chips -->
+  @if (activeFilterCount() > 0) {
+    <div class="active-filters">
+      @if (search()) {
+        <button type="button" class="filter-chip" (click)="removeFilter('search')">
+          {{ 'catalog.search' | translate }}: {{ search() }} <span class="chip-close">&times;</span>
+        </button>
+      }
+      @if (categoryId()) {
+        <button type="button" class="filter-chip" (click)="removeFilter('category')">
+          {{ getCategoryName(categoryId()!) }} <span class="chip-close">&times;</span>
+        </button>
+      }
+      @if (availability() !== 'all') {
+        <button type="button" class="filter-chip" (click)="removeFilter('availability')">
+          {{ availability() }} <span class="chip-close">&times;</span>
+        </button>
+      }
+      @if (minPrice() != null) {
+        <button type="button" class="filter-chip" (click)="removeFilter('minPrice')">
+          {{ 'catalog.minPrice' | translate }}: {{ minPrice() }} <span class="chip-close">&times;</span>
+        </button>
+      }
+      @if (maxPrice() != null) {
+        <button type="button" class="filter-chip" (click)="removeFilter('maxPrice')">
+          {{ 'catalog.maxPrice' | translate }}: {{ maxPrice() }} <span class="chip-close">&times;</span>
+        </button>
+      }
+      @if (color()) {
+        <button type="button" class="filter-chip" (click)="removeFilter('color')">
+          {{ color() }} <span class="chip-close">&times;</span>
+        </button>
+      }
+      @if (minRating() != null) {
+        <button type="button" class="filter-chip" (click)="removeFilter('minRating')">
+          {{ 'catalog.minRating' | translate }}: {{ minRating() }}★ <span class="chip-close">&times;</span>
+        </button>
+      }
+      <button type="button" class="filter-chip clear-all" (click)="clearFilters()">
+        {{ 'catalog.clearAll' | translate }}
+      </button>
+    </div>
+  }
 
   <div class="catalog-layout">
-    <aside class="filters">
+    <aside class="filters" [class.filters-open]="filtersOpen()">
+      <div class="filters-header">
+        <h2>{{ 'catalog.filters' | translate }}</h2>
+        <button type="button" class="filters-close" (click)="filtersOpen.set(false)" aria-label="Close filters">&times;</button>
+      </div>
       <form (ngSubmit)="applyFilters()" class="filters-form">
         <div class="form-group">
           <label>{{ 'catalog.search' | translate }}</label>
@@ -35,15 +100,15 @@
             }
           </select>
         </div>
-        <div class="form-group">
-          <label>{{ 'catalog.minPrice' | translate }} (EGP)</label>
-          <input type="number" min="0" step="1" [value]="minPrice() ?? ''"
-            (input)="minPrice.set($any($event.target).value ? +$any($event.target).value : undefined)" />
-        </div>
-        <div class="form-group">
-          <label>{{ 'catalog.maxPrice' | translate }} (EGP)</label>
-          <input type="number" min="0" step="1" [value]="maxPrice() ?? ''"
-            (input)="maxPrice.set($any($event.target).value ? +$any($event.target).value : undefined)" />
+        <div class="form-group price-range">
+          <label>{{ 'catalog.priceRange' | translate }} (EGP)</label>
+          <div class="price-inputs">
+            <input type="number" min="0" step="1" [value]="minPrice() ?? ''" [placeholder]="'catalog.min' | translate"
+              (input)="minPrice.set($any($event.target).value ? +$any($event.target).value : undefined)" />
+            <span class="price-sep">–</span>
+            <input type="number" min="0" step="1" [value]="maxPrice() ?? ''" [placeholder]="'catalog.max' | translate"
+              (input)="maxPrice.set($any($event.target).value ? +$any($event.target).value : undefined)" />
+          </div>
         </div>
         <div class="form-group">
           <label>{{ 'catalog.color' | translate }}</label>
@@ -55,78 +120,50 @@
             (input)="minRating.set($any($event.target).value ? +$any($event.target).value : undefined)" />
         </div>
         <button type="submit" class="btn btn-block">{{ 'catalog.apply' | translate }}</button>
-        <button type="button" class="btn btn-block btn-outline" (click)="clearFilters()">{{ 'catalog.clear' | translate
-          }}</button>
+        <button type="button" class="btn btn-block btn-outline" (click)="clearFilters()">{{ 'catalog.clear' | translate }}</button>
       </form>
     </aside>
 
     <div class="products-wrap">
       @if (loading()) {
-      <p class="loading">{{ 'catalog.loading' | translate }}</p>
-      } @else {
-      <div class="product-grid">
-        @for (p of products(); track $index) {
-        @if (p.id) {
-        <a [routerLink]="['/product', p.id]" class="product-card">
-          <div class="product-image-wrap">
-            @if (p.images.length) {
-            <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
-            } @else {
-            <div class="product-image-placeholder"></div>
-            }
-            @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="sale-badge">{{ 'sale' | translate
-              }}</span>
-              }
-              @if (p.stock <= 0) { <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
-                }
-          </div>
-          <h3 class="product-name">{{ getLocalized(p.name) }}</h3>
-          <div class="price">
-            @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="original">LE {{ p.price }}
-              EGP</span>
-              <span class="current">LE {{ p.discountPrice }} EGP</span>
-              } @else {
-              <span class="current">LE {{ p.price }} EGP</span>
-              }
-          </div>
-        </a>
-        } @else {
-        <div class="product-card">
-          <div class="product-image-wrap">
-            @if (p.images.length) {
-            <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
-            } @else {
-            <div class="product-image-placeholder"></div>
-            }
-            @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="sale-badge">{{ 'sale' | translate
-              }}</span>
-              }
-              @if (p.stock <= 0) { <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
-                }
-          </div>
-          <h3 class="product-name">{{ getLocalized(p.name) }}</h3>
-          <div class="price">
-            @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="original">LE {{ p.price }}
-              EGP</span>
-              <span class="current">LE {{ p.discountPrice }} EGP</span>
-              } @else {
-              <span class="current">LE {{ p.price }} EGP</span>
-              }
-          </div>
+        <app-loading-skeleton type="card" [count]="8" />
+      } @else if (products().length === 0) {
+        <div class="empty-state">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <p>{{ 'catalog.noProducts' | translate }}</p>
+          @if (activeFilterCount() > 0) {
+            <button type="button" class="btn btn-outline" (click)="clearFilters()">{{ 'catalog.clearAll' | translate }}</button>
+          }
         </div>
+      } @else {
+        <div class="product-grid">
+          @for (p of products(); track p.id || $index) {
+            <app-product-card [product]="p" />
+          }
+        </div>
+        @if (totalPages() > 1) {
+        <nav class="pagination" aria-label="Pages">
+          <button type="button" class="btn btn-outline page-btn" [disabled]="page() <= 1" (click)="goToPage(page() - 1)" aria-label="Previous page">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          @for (p of pageNumbers(); track p) {
+          <button type="button" class="btn btn-outline page-btn" [class.active]="page() === p" (click)="goToPage(p)">
+            {{ p }}
+          </button>
+          }
+          <button type="button" class="btn btn-outline page-btn" [disabled]="page() >= totalPages()" (click)="goToPage(page() + 1)" aria-label="Next page">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </nav>
         }
-        }
-      </div>
-      @if (totalPages() > 1) {
-      <nav class="pagination">
-        @for (p of pages(); track p) {
-        <button type="button" class="btn btn-outline" [class.active]="page() === p" (click)="goToPage(p)">
-          {{ p }}
-        </button>
-        }
-      </nav>
-      }
       }
     </div>
   </div>
 </div>
+
+<!-- Mobile filter overlay -->
+@if (filtersOpen()) {
+  <div class="filter-overlay" (click)="filtersOpen.set(false)"></div>
+}

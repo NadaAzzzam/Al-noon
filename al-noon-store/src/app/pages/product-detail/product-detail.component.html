@@ -1,41 +1,70 @@
 @let p = product();
 @if (!p) {
-  <div class="container"><p class="not-found">{{ 'product.notFound' | translate }}</p></div>
+  <div class="container">
+    <app-loading-skeleton type="card" [count]="1" />
+  </div>
 } @else {
   <div class="container product-detail">
+    <!-- Breadcrumb -->
+    <app-breadcrumb [items]="[
+      { label: ('nav.home' | translate), url: '/' },
+      { label: ('nav.shop' | translate), url: '/catalog' },
+      { label: getLocalized(p.name) }
+    ]" />
+
     <div class="product-main">
       <div class="gallery">
         <div class="gallery-main">
           @if (images().length) {
             <img [src]="api.imageUrl(images()[selectedImageIndex()])" [alt]="getLocalized(p.name)" />
+            @if (p.discountPrice != null && p.discountPrice < p.price) {
+              <span class="sale-badge">{{ 'sale' | translate }}</span>
+            }
           } @else {
-            <div class="product-image-placeholder"></div>
+            <div class="product-image-placeholder">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
+              </svg>
+            </div>
           }
         </div>
         @if (images().length > 1) {
           <div class="gallery-thumbs">
             @for (img of images(); track img; let i = $index) {
               <button type="button" class="thumb" [class.active]="selectedImageIndex() === i" (click)="selectedImageIndex.set(i)">
-                <img [src]="api.imageUrl(img)" alt="" />
+                <img [src]="api.imageUrl(img)" alt="" loading="lazy" />
               </button>
             }
           </div>
         }
       </div>
+
       <div class="product-info">
         <h1 class="product-title">{{ getLocalized(p.name) }}</h1>
+
+        <!-- Rating -->
+        @if (p.averageRating) {
+          <div class="product-rating">
+            <app-star-rating [rating]="p.averageRating" [showCount]="true" [count]="p.ratingCount ?? 0" />
+          </div>
+        }
+
+        <!-- Price -->
         <div class="price">
           @if (p.discountPrice != null && p.discountPrice < p.price) {
-            <span class="original">LE {{ p.price }} EGP</span>
-            <span class="current">LE {{ p.discountPrice }} EGP</span>
+            <span class="original">{{ p.price }} EGP</span>
+            <span class="current">{{ p.discountPrice }} EGP</span>
+            <span class="discount-tag">-{{ discountPercent() }}%</span>
           } @else {
-            <span class="current">LE {{ p.price }} EGP</span>
+            <span class="current">{{ p.price }} EGP</span>
           }
         </div>
+
         @if (getLocalized(p.description)) {
           <div class="description" [innerHTML]="getLocalized(p.description)"></div>
         }
 
+        <!-- Sizes -->
         @if (p.sizes?.length) {
           <div class="form-group">
             <label>{{ 'product.size' | translate }}</label>
@@ -49,37 +78,62 @@
           </div>
         }
 
+        <!-- Color swatches -->
         @if (p.colors?.length) {
           <div class="form-group">
-            <label>{{ 'product.color' | translate }}</label>
-            <p class="colors">{{ p.colors?.join(', ') ?? '' }}</p>
+            <label>{{ 'product.color' | translate }}@if (selectedColor()) {: <strong>{{ selectedColor() }}</strong>}</label>
+            <div class="color-swatches">
+              @for (c of p.colors; track c) {
+                <button type="button"
+                  class="color-swatch"
+                  [class.selected]="selectedColor() === c"
+                  [style.background-color]="c"
+                  [attr.aria-label]="c"
+                  (click)="selectedColor.set(c)">
+                </button>
+              }
+            </div>
           </div>
         }
 
+        <!-- Quantity +/- -->
         <div class="form-group">
           <label>{{ 'product.quantity' | translate }}</label>
-          <input type="number" [value]="quantity()" (input)="quantity.set(+$any($event.target).value || 1)" min="1" [max]="p.stock" />
+          <div class="quantity-control">
+            <button type="button" class="qty-btn" (click)="quantity.set(Math.max(1, quantity() - 1))" [disabled]="quantity() <= 1" aria-label="Decrease quantity">−</button>
+            <span class="qty-value">{{ quantity() }}</span>
+            <button type="button" class="qty-btn" (click)="quantity.set(Math.min(p.stock, quantity() + 1))" [disabled]="quantity() >= p.stock" aria-label="Increase quantity">+</button>
+          </div>
+          @if (p.stock > 0 && p.stock <= 5) {
+            <p class="low-stock">{{ 'product.lowStock' | translate: { count: p.stock } }}</p>
+          }
         </div>
 
         @if (p.stock <= 0) {
           <p class="out-of-stock">{{ 'product.outOfStock' | translate }}</p>
         } @else {
-          <button type="button" class="btn" (click)="addToCart()" [disabled]="added()">
-            {{ added() ? ('product.added' | translate) : ('product.addToCart' | translate) }}
+          <button type="button" class="btn add-to-cart-btn" (click)="addToCart()" [disabled]="added()">
+            @if (added()) {
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              {{ 'product.added' | translate }}
+            } @else {
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              {{ 'product.addToCart' | translate }}
+            }
           </button>
         }
 
         @if (getLocalized(p.stylingTip)) {
-          <div class="styling-tip">
-            <strong>{{ 'product.stylingTip' | translate }}</strong>
+          <details class="info-accordion">
+            <summary>{{ 'product.stylingTip' | translate }}</summary>
             <p>{{ getLocalized(p.stylingTip) }}</p>
-          </div>
+          </details>
         }
         @if (getLocalized(p.details)) {
-          <div class="details">
-            <strong>{{ 'product.details' | translate }}</strong>
+          <details class="info-accordion" open>
+            <summary>{{ 'product.details' | translate }}</summary>
             <p>{{ getLocalized(p.details) }}</p>
-          </div>
+          </details>
         }
       </div>
     </div>
@@ -88,25 +142,8 @@
       <section class="related">
         <h2>{{ 'product.related' | translate }}</h2>
         <div class="product-grid">
-          @for (r of related(); track $index) {
-            <a [routerLink]="['/product', r.id]" class="product-card">
-              <div class="product-image-wrap">
-                @if (r.images.length) {
-                  <img [src]="api.imageUrl(r.images[0])" [alt]="getLocalized(r.name)" />
-                } @else {
-                  <div class="product-image-placeholder"></div>
-                }
-              </div>
-              <h3 class="product-name">{{ getLocalized(r.name) }}</h3>
-              <div class="price">
-                @if (r.discountPrice != null && r.discountPrice < r.price) {
-                  <span class="original">LE {{ r.price }}</span>
-                  <span class="current">LE {{ r.discountPrice }} EGP</span>
-                } @else {
-                  <span class="current">LE {{ r.price }} EGP</span>
-                }
-              </div>
-            </a>
+          @for (r of related(); track r.id || $index) {
+            <app-product-card [product]="r" />
           }
         </div>
       </section>

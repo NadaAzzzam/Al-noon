@@ -1,24 +1,32 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { switchMap, tap } from 'rxjs';
 import { StoreService } from '../../core/services/store.service';
 import { ProductsService } from '../../core/services/products.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
+import { SeoService } from '../../core/services/seo.service';
 import { TranslateModule } from '@ngx-translate/core';
-import type { StoreData } from '../../core/types/api.types';
-import type { Product } from '../../core/types/api.types';
+import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
+import { LoadingSkeletonComponent } from '../../shared/components/loading-skeleton/loading-skeleton.component';
+import { StarRatingComponent } from '../../shared/components/star-rating/star-rating.component';
+import type { StoreData, Product } from '../../core/types/api.types';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [CommonModule, RouterLink, TranslateModule, ProductCardComponent, LoadingSkeletonComponent, StarRatingComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit {
   private readonly storeService = inject(StoreService);
   private readonly productsService = inject(ProductsService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly seo = inject(SeoService);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
 
@@ -26,33 +34,47 @@ export class HomeComponent implements OnInit {
   newArrivals = signal<Product[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
+  heroImageIndex = signal(0);
 
   limit = computed(() => Math.max(1, this.store()?.newArrivalsLimit ?? 12));
   currentLocale = computed(() => this.locale.getLocale());
+  heroImages = computed(() => this.store()?.hero?.images ?? []);
 
   ngOnInit(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.storeService.getStore().subscribe({
-      next: (s) => {
-        this.store.set(s);
+    this.seo.setPage({ title: 'Home', description: 'Al-Noon — Fashion & lifestyle store. Explore new arrivals, collections, and exclusive offers.' });
+    this.storeService.getStore().pipe(
+      tap((s) => this.store.set(s)),
+      switchMap((s) => {
         const limit = Math.max(1, s?.newArrivalsLimit ?? 12);
-        this.productsService
-          .getProducts({ newArrival: true, limit, status: 'ACTIVE' })
-          .subscribe({
-            next: (res) => this.newArrivals.set(res.data ?? []),
-            error: () => {
-              this.error.set('Failed to load new arrivals.');
-              this.loading.set(false);
-            },
-            complete: () => this.loading.set(false),
-          });
+        return this.productsService.getProducts({ newArrival: true, limit, status: 'ACTIVE' });
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (res) => {
+        this.newArrivals.set(res.data ?? []);
+        this.loading.set(false);
       },
       error: () => {
         this.error.set('Failed to load store.');
         this.loading.set(false);
       },
     });
+  }
+
+  nextHeroImage(): void {
+    const imgs = this.heroImages();
+    if (imgs.length > 1) {
+      this.heroImageIndex.update((i) => (i + 1) % imgs.length);
+    }
+  }
+
+  prevHeroImage(): void {
+    const imgs = this.heroImages();
+    if (imgs.length > 1) {
+      this.heroImageIndex.update((i) => (i - 1 + imgs.length) % imgs.length);
+    }
   }
 
   getLocalized(obj: { en?: string; ar?: string } | undefined): string {

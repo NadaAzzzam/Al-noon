@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AiChatService } from '../../core/services/ai-chat.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { ApiService } from '../../core/services/api.service';
@@ -19,9 +20,11 @@ interface ChatMessage {
   imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './chatbot.component.html',
   styleUrl: './chatbot.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatbotComponent implements OnInit {
   private readonly aiService = inject(AiChatService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly locale = inject(LocaleService);
   readonly api = inject(ApiService);
 
@@ -31,10 +34,12 @@ export class ChatbotComponent implements OnInit {
   input = signal('');
   loading = signal(false);
   error = signal<string | null>(null);
-  private sessionId: string | null = null;
+  sessionId = signal<string | null>(null);
 
   ngOnInit(): void {
-    this.aiService.getSettings().subscribe((s) => {
+    this.aiService.getSettings().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((s) => {
       this.settings.set(s);
       if (s.enabled && s.greeting) {
         const greeting = this.getLocalized(s.greeting);
@@ -75,12 +80,13 @@ export class ChatbotComponent implements OnInit {
     this.aiService
       .chat({
         message: text,
-        sessionId: this.sessionId ?? undefined,
+        sessionId: this.sessionId() ?? undefined,
         locale: lang,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          this.sessionId = res.sessionId;
+          this.sessionId.set(res.sessionId);
           this.messages.update((list) => [
             ...list,
             {

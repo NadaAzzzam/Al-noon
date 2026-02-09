@@ -7,7 +7,9 @@
     "logOut": "خروج",
     "myOrders": "طلباتي",
     "search": "بحث",
-    "searchPlaceholder": "بحث..."
+    "searchPlaceholder": "ابحث عن منتجات...",
+    "menu": "القائمة",
+    "contact": "اتصل بنا"
   },
   "auth": {
     "logIn": "تسجيل الدخول",
@@ -61,7 +63,8 @@
     "name": "الاسم",
     "phone": "الهاتف",
     "message": "الرسالة",
-    "send": "إرسال"
+    "send": "إرسال",
+    "sending": "جاري الإرسال…"
   },
   "footer": {
     "privacy": "الخصوصية",
@@ -89,6 +92,10 @@
     "outOfStock": "نفذ",
     "apply": "تطبيق",
     "clear": "مسح الفلاتر",
+    "clearAll": "مسح الكل",
+    "filters": "الفلاتر",
+    "results": "منتجات",
+    "noProducts": "لا توجد منتجات.",
     "loading": "جاري التحميل...",
     "newest": "الأحدث",
     "priceAsc": "السعر: منخفض إلى عالي",
@@ -100,6 +107,9 @@
     "lowSelling": "الأقل مبيعاً",
     "minPrice": "السعر الأدنى",
     "maxPrice": "السعر الأعلى",
+    "priceRange": "نطاق السعر",
+    "min": "أدنى",
+    "max": "أعلى",
     "color": "اللون",
     "minRating": "التقييم الأدنى"
   },
@@ -109,11 +119,12 @@
     "color": "اللون",
     "quantity": "الكمية",
     "addToCart": "أضف إلى السلة",
-    "added": "تمت الإضافة",
+    "added": "تمت الإضافة!",
     "outOfStock": "نفذ من المخزون",
-    "stylingTip": "نصيحة styling",
+    "lowStock": "متبقي {{count}} فقط",
+    "stylingTip": "نصيحة تنسيق",
     "details": "التفاصيل",
-    "related": "منتجات ذات صلة"
+    "related": "قد يعجبك أيضاً"
   },
   "sale": "خصم",
   "soldOut": "نفذ",
@@ -135,7 +146,7 @@
     "guestContact": "التواصل"
   },
   "orderConfirmation": {
-    "thankYou": "شكراً لطلبك",
+    "thankYou": "شكراً لطلبك!",
     "message": "تم استلام طلبك وسنقوم بمعالجته قريباً.",
     "orderId": "رقم الطلب",
     "continueShopping": "متابعة التسوق",

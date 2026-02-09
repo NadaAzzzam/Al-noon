@@ -7,7 +7,9 @@
     "logOut": "Log out",
     "myOrders": "My orders",
     "search": "Search",
-    "searchPlaceholder": "Search..."
+    "searchPlaceholder": "Search products...",
+    "menu": "Menu",
+    "contact": "Contact"
   },
   "auth": {
     "logIn": "Log in",
@@ -61,7 +63,8 @@
     "name": "Name",
     "phone": "Phone",
     "message": "Message",
-    "send": "Send"
+    "send": "Send",
+    "sending": "Sending…"
   },
   "footer": {
     "privacy": "Privacy",
@@ -89,6 +92,10 @@
     "outOfStock": "Out of stock",
     "apply": "Apply",
     "clear": "Clear filters",
+    "clearAll": "Clear all",
+    "filters": "Filters",
+    "results": "products",
+    "noProducts": "No products found.",
     "loading": "Loading...",
     "newest": "Newest",
     "priceAsc": "Price: Low to High",
@@ -100,6 +107,9 @@
     "lowSelling": "Lowest selling",
     "minPrice": "Min price",
     "maxPrice": "Max price",
+    "priceRange": "Price range",
+    "min": "Min",
+    "max": "Max",
     "color": "Color",
     "minRating": "Min rating"
   },
@@ -111,9 +121,10 @@
     "addToCart": "Add to cart",
     "added": "Added!",
     "outOfStock": "Out of stock",
+    "lowStock": "Only {{count}} left in stock",
     "stylingTip": "Styling tip",
     "details": "Details",
-    "related": "Related products"
+    "related": "You may also like"
   },
   "sale": "Sale",
   "soldOut": "Sold out",
@@ -135,7 +146,7 @@
     "guestContact": "Contact"
   },
   "orderConfirmation": {
-    "thankYou": "Thank you for your order",
+    "thankYou": "Thank you for your order!",
     "message": "We have received your order and will process it shortly.",
     "orderId": "Order number",
     "continueShopping": "Continue shopping",

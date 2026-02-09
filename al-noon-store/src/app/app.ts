@@ -1,23 +1,27 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from './core/services/auth.service';
 import { LocaleService } from './core/services/locale.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ChatbotComponent } from './shared/chatbot/chatbot.component';
+import { ToastComponent } from './shared/components/toast/toast.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ChatbotComponent],
+  imports: [RouterOutlet, ChatbotComponent, ToastComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly locale = inject(LocaleService);
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    this.auth.loadProfile().subscribe({
+    this.auth.loadProfile().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {},
       error: () => {},
     });

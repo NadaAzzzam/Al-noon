@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StoreService } from '../../core/services/store.service';
@@ -16,6 +17,7 @@ import type { StoreData } from '../../core/types/api.types';
   imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule, LocalizedPipe],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent implements OnInit {
   private readonly storeService = inject(StoreService);
@@ -23,6 +25,7 @@ export class HeaderComponent implements OnInit {
   private readonly cart = inject(CartService);
   private readonly locale = inject(LocaleService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
   readonly api = inject(ApiService);
 
   store = signal<StoreData | null>(null);
@@ -31,11 +34,10 @@ export class HeaderComponent implements OnInit {
   currentLocale = computed(() => this.locale.getLocale());
   searchOpen = signal(false);
   searchQuery = signal('');
+  mobileMenuOpen = signal(false);
 
   ngOnInit(): void {
-    this.storeService.getStore().subscribe((s) => this.store.set(s));
-    if (typeof document !== 'undefined')
-      document.documentElement.dir = this.locale.getLocale() === 'ar' ? 'rtl' : 'ltr';
+    this.storeService.getStore().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((s) => this.store.set(s));
   }
 
   toggleSearch(): void {
@@ -46,12 +48,21 @@ export class HeaderComponent implements OnInit {
     this.locale.setLocale(this.currentLocale() === 'ar' ? 'en' : 'ar');
   }
 
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update((v) => !v);
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
+  }
+
   signOut(): void {
-    this.auth.signOut().subscribe(() => {});
+    this.auth.signOut().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {});
   }
 
   submitSearch(): void {
     this.searchOpen.set(false);
+    this.mobileMenuOpen.set(false);
     const q = this.searchQuery().trim();
     this.router.navigate(['/catalog'], { queryParams: q ? { search: q } : {} });
   }

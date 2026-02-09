@@ -1,6 +1,7 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { LocaleService } from '../../../core/services/locale.service';
@@ -12,11 +13,13 @@ import { emailError, passwordError } from '../../../shared/utils/form-validators
   imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly locale = inject(LocaleService);
 
   email = signal('');
@@ -32,7 +35,9 @@ export class LoginComponent {
   submit(): void {
     this.error.set(null);
     if (!this.valid()) return;
-    this.auth.signIn({ email: this.email().trim(), password: this.password() }).subscribe({
+    this.auth.signIn({ email: this.email().trim(), password: this.password() }).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => this.router.navigateByUrl(this.returnUrl()),
       error: (err) => this.error.set(err?.message ?? 'Login failed'),
     });

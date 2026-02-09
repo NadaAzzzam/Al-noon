@@ -14,7 +14,7 @@
 @if (loading() && !s) {
 <section class="section">
   <div class="container">
-    <p class="loading-msg">{{ 'catalog.loading' | translate }}</p>
+    <app-loading-skeleton type="card" [count]="4" />
   </div>
 </section>
 }
@@ -22,9 +22,22 @@
 <!-- Hero -->
 @if (s?.heroEnabled && hero) {
 <section class="hero">
-  @if (hero.images?.length) {
+  @if (heroImages().length) {
   <div class="hero-media">
-    <img [src]="api.imageUrl(hero.images?.[0])" [alt]="getLocalized(hero.title)" />
+    <img [src]="api.imageUrl(heroImages()[heroImageIndex()])" [alt]="getLocalized(hero.title)" />
+    @if (heroImages().length > 1) {
+      <button type="button" class="hero-nav hero-prev" (click)="prevHeroImage()" aria-label="Previous slide">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button type="button" class="hero-nav hero-next" (click)="nextHeroImage()" aria-label="Next slide">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="hero-dots">
+        @for (img of heroImages(); track $index; let i = $index) {
+          <button type="button" class="hero-dot" [class.active]="heroImageIndex() === i" (click)="heroImageIndex.set(i)" [attr.aria-label]="'Slide ' + (i + 1)"></button>
+        }
+      </div>
+    }
   </div>
   }
   <div class="hero-content">
@@ -44,61 +57,15 @@
   <div class="container">
     <h2 class="section-title">{{ 'home.newArrivals' | translate }}</h2>
     @if (loading()) {
-    <p class="loading-msg">{{ 'catalog.loading' | translate }}</p>
+      <app-loading-skeleton type="card" [count]="4" />
+    } @else if (newArrivals().length === 0) {
+      <p class="empty-msg">{{ 'catalog.noProducts' | translate }}</p>
     } @else {
-    <div class="product-grid">
-      @for (p of newArrivals(); track p.id || $index) {
-      @if (p.id) {
-      <a [routerLink]="['/product', p.id]" class="product-card">
-        <div class="product-image-wrap">
-          @if (p.images.length) {
-          <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
-          } @else {
-          <div class="product-image-placeholder"></div>
-          }
-          @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="sale-badge">{{ 'sale' | translate
-            }}</span>
-            }
-            @if (p.stock <= 0) { <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
-              }
-        </div>
-        <h3 class="product-name">{{ getLocalized(p.name) }}</h3>
-        <div class="price">
-          @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="original">LE {{ p.price }}
-            EGP</span>
-            <span class="current">LE {{ p.discountPrice }} EGP</span>
-            } @else {
-            <span class="current">LE {{ p.price }} EGP</span>
-            }
-        </div>
-      </a>
-      } @else {
-      <div class="product-card">
-        <div class="product-image-wrap">
-          @if (p.images.length) {
-          <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
-          } @else {
-          <div class="product-image-placeholder"></div>
-          }
-          @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="sale-badge">{{ 'sale' | translate
-            }}</span>
-            }
-            @if (p.stock <= 0) { <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
-              }
-        </div>
-        <h3 class="product-name">{{ getLocalized(p.name) }}</h3>
-        <div class="price">
-          @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="original">LE {{ p.price }}
-            EGP</span>
-            <span class="current">LE {{ p.discountPrice }} EGP</span>
-            } @else {
-            <span class="current">LE {{ p.price }} EGP</span>
-            }
-        </div>
+      <div class="product-grid">
+        @for (p of newArrivals(); track p.id || $index) {
+          <app-product-card [product]="p" />
+        }
       </div>
-      }
-      }
-    </div>
     }
   </div>
 </section>
@@ -112,7 +79,7 @@
       @for (col of collections; track col.url || getLocalized(col.title)) {
       <a [routerLink]="col.url" class="collection-card">
         @if (col.image) {
-        <img [src]="api.imageUrl(col.image)" [alt]="getLocalized(col.title)" />
+        <img [src]="api.imageUrl(col.image)" [alt]="getLocalized(col.title)" loading="lazy" />
         }
         <div class="collection-card-content">
           <h3>{{ getLocalized(col.title) }}</h3>
@@ -132,7 +99,7 @@
     <div class="media-grid">
       @for (img of s?.ourCollectionSectionImages ?? []; track img) {
       <div class="media-item">
-        <img [src]="api.imageUrl(img)" alt="" />
+        <img [src]="api.imageUrl(img)" alt="" loading="lazy" />
       </div>
       }
       @for (vid of s?.ourCollectionSectionVideos ?? []; track vid) {
@@ -154,7 +121,7 @@
       @for (f of feedbacks; track f.id) {
       <blockquote class="testimonial-card">
         @if (f.rating) {
-        <div class="rating">★ {{ f.rating }}</div>
+          <app-star-rating [rating]="f.rating" />
         }
         @if (f.comment) {
         <p>{{ f.comment }}</p>

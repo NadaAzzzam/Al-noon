@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../core/services/api.service';
@@ -78,6 +78,7 @@ import type { Order } from '../../core/types/api.types';
 .order-totals .total { font-weight: 600; font-size: 1.1rem; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--color-border); }
 .btn-block { margin-top: 8px; }
 `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrderConfirmationComponent {
   private readonly router = inject(Router);

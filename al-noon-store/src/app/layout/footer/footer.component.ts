@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,20 +16,36 @@ import type { StoreData } from '../../core/types/api.types';
   imports: [CommonModule, FormsModule, RouterLink, TranslateModule],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FooterComponent implements OnInit {
   private readonly storeService = inject(StoreService);
   private readonly newsletterService = inject(NewsletterService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly locale = inject(LocaleService);
 
   store = signal<StoreData | null>(null);
   newsletterEmail = signal('');
   newsletterMessage = signal<'idle' | 'success' | 'error' | 'already'>('idle');
   newsletterLoading = signal(false);
-  currentYear = new Date().getFullYear();
+  readonly currentYear = new Date().getFullYear();
 
   newsletterValid = computed(() => !emailError(this.newsletterEmail()));
   currentLocale = computed(() => this.locale.getLocale());
+
+  socialLinks = computed(() => {
+    const links = this.store()?.socialLinks;
+    if (Array.isArray(links)) return links;
+    if (links && typeof links === 'object' && !Array.isArray(links)) {
+      return Object.entries(links).map(([platform, url]) => ({ platform, url: String(url ?? '') }));
+    }
+    return [];
+  });
+
+  quickLinks = computed(() => {
+    const links = this.store()?.quickLinks;
+    return Array.isArray(links) ? links : [];
+  });
 
   getLocalized(obj: { en?: string; ar?: string } | undefined | null): string {
     if (!obj || typeof obj !== 'object') return '';
@@ -36,24 +53,8 @@ export class FooterComponent implements OnInit {
     return (obj[lang] ?? obj.en ?? obj.ar ?? '') as string;
   }
 
-  /** Always an array (API may return socialLinks as object). */
-  socialLinksArray(): { platform: string; url: string }[] {
-    const links = this.store()?.socialLinks;
-    if (Array.isArray(links)) return links;
-    if (links && typeof links === 'object' && !Array.isArray(links)) {
-      return Object.entries(links).map(([platform, url]) => ({ platform, url: String(url ?? '') }));
-    }
-    return [];
-  }
-
-  /** Always an array (API may return quickLinks as object). */
-  quickLinksArray(): { title: { en?: string; ar?: string }; url: string; order?: number }[] {
-    const links = this.store()?.quickLinks;
-    return Array.isArray(links) ? links : [];
-  }
-
   ngOnInit(): void {
-    this.storeService.getStore().subscribe((s) => this.store.set(s));
+    this.storeService.getStore().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((s) => this.store.set(s));
   }
 
   submitNewsletter(event?: Event): void {
@@ -61,7 +62,7 @@ export class FooterComponent implements OnInit {
     if (!this.newsletterValid()) return;
     this.newsletterMessage.set('idle');
     this.newsletterLoading.set(true);
-    this.newsletterService.subscribe(this.newsletterEmail().trim()).subscribe({
+    this.newsletterService.subscribe(this.newsletterEmail().trim()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.newsletterMessage.set('success');
         this.newsletterEmail.set('');

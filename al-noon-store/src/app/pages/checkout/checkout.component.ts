@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CartService } from '../../core/services/cart.service';
 import { OrdersService } from '../../core/services/orders.service';
 import { CitiesService } from '../../core/services/cities.service';
@@ -18,6 +19,7 @@ import type { PaymentMethod } from '../../core/types/api.types';
   imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CheckoutComponent implements OnInit {
   private readonly router = inject(Router);
@@ -25,6 +27,7 @@ export class CheckoutComponent implements OnInit {
   private readonly ordersService = inject(OrdersService);
   private readonly citiesService = inject(CitiesService);
   private readonly auth = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
 
@@ -63,7 +66,9 @@ export class CheckoutComponent implements OnInit {
   total = computed(() => this.subtotal() + this.deliveryFee());
 
   ngOnInit(): void {
-    this.citiesService.getCities().subscribe((c) => this.cities.set(c));
+    this.citiesService.getCities().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((c) => this.cities.set(c));
   }
 
   getLocalized(obj: { en?: string; ar?: string } | undefined): string {
@@ -88,7 +93,9 @@ export class CheckoutComponent implements OnInit {
       const phone = this.guestPhone().trim();
       if (phone) body.guestPhone = phone;
     }
-    this.ordersService.createOrder(body).subscribe({
+    this.ordersService.createOrder(body).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (order) => {
         this.cart.clear();
         this.submitting.set(false);

@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OrdersService } from '../../../core/services/orders.service';
 import { ApiService } from '../../../core/services/api.service';
 import { LocaleService } from '../../../core/services/locale.service';
@@ -13,10 +14,12 @@ import type { Order } from '../../../core/types/api.types';
   imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './order-detail.component.html',
   styleUrl: './order-detail.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrderDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly ordersService = inject(OrdersService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
 
@@ -26,7 +29,9 @@ export class OrderDetailComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
-    this.ordersService.getOrder(id).subscribe({
+    this.ordersService.getOrder(id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (o) => {
         this.order.set(o);
         this.loading.set(false);

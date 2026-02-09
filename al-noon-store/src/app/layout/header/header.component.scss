@@ -15,6 +15,16 @@
   gap: 24px;
 }
 
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--color-text);
+  line-height: 0;
+}
+
 .logo {
   flex-shrink: 0;
 
@@ -41,10 +51,22 @@
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.02em;
+    position: relative;
 
-    &:hover,
-    &.active {
-      text-decoration: underline;
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      inset-inline-start: 0;
+      width: 0;
+      height: 1.5px;
+      background: var(--color-accent);
+      transition: width 0.2s ease;
+    }
+
+    &:hover::after,
+    &.active::after {
+      width: 100%;
     }
   }
 }
@@ -52,21 +74,33 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 4px;
 }
 
 .icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   font-family: var(--font-body);
   font-size: 14px;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: 8px;
   color: var(--color-text);
+  border-radius: 50%;
+  transition: background 0.15s;
 
   &:hover {
-    text-decoration: underline;
+    background: var(--color-bg);
   }
+}
+
+.lang-btn {
+  font-weight: 600;
+  font-size: 13px;
+  min-width: 36px;
+  height: 36px;
 }
 
 .cart-link {
@@ -75,8 +109,8 @@
 
 .cart-count {
   position: absolute;
-  top: -4px;
-  inset-inline-end: 0;
+  top: -2px;
+  inset-inline-end: -2px;
   min-width: 18px;
   height: 18px;
   padding: 0 4px;
@@ -92,6 +126,7 @@
   padding: 12px 0;
   background: var(--color-bg);
   border-bottom: 1px solid var(--color-border);
+  animation: slide-down 0.2s ease;
 }
 
 .search-form {
@@ -105,11 +140,75 @@
     padding: 10px 14px;
     border: 1px solid var(--color-border);
     font-size: 15px;
+    font-family: var(--font-body);
   }
 }
 
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ──── Mobile ──── */
 @media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+    order: -1;
+  }
+
   .nav {
     display: none;
+    position: fixed;
+    top: var(--header-height);
+    inset-inline-start: 0;
+    width: 280px;
+    height: calc(100vh - var(--header-height));
+    background: var(--color-surface);
+    border-inline-end: 1px solid var(--color-border);
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 24px 20px;
+    gap: 0;
+    z-index: 100;
+    overflow-y: auto;
+    animation: slide-in 0.25s ease;
+
+    a {
+      padding: 12px 0;
+      width: 100%;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 15px;
+
+      &::after {
+        display: none;
+      }
+    }
+  }
+
+  .nav.nav-open {
+    display: flex;
+  }
+
+  .actions .icon-btn:not(.cart-link):not(.lang-btn) {
+    display: none;
+  }
+
+  @media (max-width: 480px) {
+    .actions .icon-btn:not(.cart-link) {
+      display: none;
+    }
+  }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+[dir='rtl'] {
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
   }
 }

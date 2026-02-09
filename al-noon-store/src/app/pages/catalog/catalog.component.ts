@@ -1,26 +1,29 @@
-import { Component, OnInit, inject, signal, effect, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, OnInit, inject, signal, computed, effect, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductsService } from '../../core/services/products.service';
 import { CategoriesService } from '../../core/services/categories.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
+import { SeoService } from '../../core/services/seo.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
+import { LoadingSkeletonComponent } from '../../shared/components/loading-skeleton/loading-skeleton.component';
 import type {
   Product,
   ProductSort,
   ProductAvailability,
   ProductFilterOption,
   ProductsQuery,
+  Category,
 } from '../../core/types/api.types';
-import type { Category } from '../../core/types/api.types';
 
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslateModule],
+  imports: [CommonModule, FormsModule, TranslateModule, ProductCardComponent, LoadingSkeletonComponent],
   templateUrl: './catalog.component.html',
   styleUrl: './catalog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,6 +33,8 @@ export class CatalogComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly productsService = inject(ProductsService);
   private readonly categoriesService = inject(CategoriesService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly seo = inject(SeoService);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
 
@@ -48,17 +53,13 @@ export class CatalogComponent implements OnInit {
   minPrice = signal<number | undefined>(undefined);
   maxPrice = signal<number | undefined>(undefined);
   color = signal<string | undefined>(undefined);
-  /** API: newArrival (string query, e.g. "true") – home page uses true */
   newArrival = signal<boolean | undefined>(undefined);
-  /** API: minRating (number 1–5) */
   minRating = signal<number | undefined>(undefined);
 
-  /** From GET /api/products/filters/availability */
   availabilityOptions = signal<ProductFilterOption[]>([]);
-  /** From GET /api/products/filters/sort */
   sortOptions = signal<ProductFilterOption[]>([]);
+  filtersOpen = signal(false);
 
-  /** Fallback when filter options haven't loaded yet – so URL params still map correctly on first load */
   private static readonly FALLBACK_SORTS: ProductSort[] = [
     'newest', 'priceAsc', 'priceDesc', 'nameAsc', 'nameDesc', 'bestSelling', 'highestSelling', 'lowSelling',
   ];
@@ -66,11 +67,24 @@ export class CatalogComponent implements OnInit {
 
   private readonly queryParams = toSignal(this.route.queryParams, { initialValue: {} as Record<string, string> });
 
+  activeFilterCount = computed(() => {
+    let count = 0;
+    if (this.search()) count++;
+    if (this.categoryId()) count++;
+    if (this.availability() !== 'all') count++;
+    if (this.minPrice() != null) count++;
+    if (this.maxPrice() != null) count++;
+    if (this.color()) count++;
+    if (this.minRating() != null) count++;
+    return count;
+  });
+
+  pageNumbers = computed(() => {
+    const n = this.totalPages();
+    return Array.from({ length: n }, (_, i) => i + 1);
+  });
+
   constructor() {
-    // Effect must only read queryParams() so it runs only when the URL changes.
-    // If we called load() here, the effect would also depend on every signal load() reads
-    // (search, sort, categoryId, etc.), so typing or changing a select would re-run the effect
-    // and overwrite the form with URL values again.
     effect(
       () => {
         const qp = this.queryParams();
@@ -93,14 +107,12 @@ export class CatalogComponent implements OnInit {
         this.minRating.set(Number.isFinite(minRatingNum) && minRatingNum >= 1 && minRatingNum <= 5 ? minRatingNum : undefined);
         const pageNum = qp['page'] != null && qp['page'] !== '' ? Number(qp['page']) : NaN;
         this.page.set(Number.isInteger(pageNum) && pageNum >= 1 ? pageNum : 1);
-        // Build query from URL only and load; do not read filter signals here so effect stays dependent only on queryParams.
         this.loadWithQuery(this.buildQueryFromParams(qp));
       },
       { allowSignalWrites: true }
     );
   }
 
-  /** Build ProductsQuery from URL params only (used inside effect so we don't read filter signals). */
   private buildQueryFromParams(qp: Record<string, string>): ProductsQuery {
     const pageNum = qp['page'] != null && qp['page'] !== '' ? Number(qp['page']) : NaN;
     const page = Number.isInteger(pageNum) && pageNum >= 1 ? pageNum : 1;
@@ -128,10 +140,9 @@ export class CatalogComponent implements OnInit {
     return query;
   }
 
-  /** Load products with a given query (does not read filter signals). */
   private loadWithQuery(query: ProductsQuery): void {
     this.loading.set(true);
-    this.productsService.getProducts(query).subscribe({
+    this.productsService.getProducts(query).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.products.set(res.data ?? []);
         this.total.set(res.pagination?.total ?? 0);
@@ -143,24 +154,18 @@ export class CatalogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // OpenAPI: status=PUBLISHED is alias for visible; filter client-side for both for compatibility
-    this.categoriesService.getCategories({ status: 'PUBLISHED' }).subscribe((c) =>
+    this.seo.setPage({ title: 'Shop', description: 'Browse our full catalog of products. Filter by category, price, and more.' });
+    this.categoriesService.getCategories({ status: 'PUBLISHED' }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((c) =>
       this.categories.set(
         Array.isArray(c) ? c.filter((x) => x.status === 'PUBLISHED' || x.status === 'visible') : []
       )
     );
-    this.productsService.getAvailabilityFilters().subscribe((opts) => this.availabilityOptions.set(opts));
-    this.productsService.getSortFilters().subscribe((opts) => this.sortOptions.set(opts));
+    this.productsService.getAvailabilityFilters().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((opts) => this.availabilityOptions.set(opts));
+    this.productsService.getSortFilters().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((opts) => this.sortOptions.set(opts));
   }
 
-  /** Load products using current filter signals (e.g. for a refresh). Normal flow: Apply → navigate → effect runs → loadWithQuery. */
   load(): void {
-    const query: ProductsQuery = {
-      page: this.page(),
-      limit: this.limit,
-      status: 'ACTIVE',
-      sort: this.sort(),
-    };
+    const query: ProductsQuery = { page: this.page(), limit: this.limit, status: 'ACTIVE', sort: this.sort() };
     const cat = this.categoryId();
     if (cat) query.category = cat;
     const searchVal = this.search()?.trim();
@@ -181,11 +186,8 @@ export class CatalogComponent implements OnInit {
   }
 
   applyFilters(): void {
-    const qp: Record<string, string | number> = {
-      page: 1,
-      sort: this.sort(),
-      availability: this.availability(),
-    };
+    this.filtersOpen.set(false);
+    const qp: Record<string, string | number> = { page: 1, sort: this.sort(), availability: this.availability() };
     const searchVal = this.search()?.trim();
     if (searchVal) qp['search'] = searchVal;
     const cat = this.categoryId();
@@ -203,9 +205,20 @@ export class CatalogComponent implements OnInit {
   }
 
   goToPage(p: number): void {
-    this.router.navigate(['/catalog'], {
-      queryParams: { ...this.route.snapshot.queryParams, page: p },
-    });
+    this.router.navigate(['/catalog'], { queryParams: { ...this.route.snapshot.queryParams, page: p } });
+  }
+
+  removeFilter(key: string): void {
+    switch (key) {
+      case 'search': this.search.set(''); break;
+      case 'category': this.categoryId.set(undefined); break;
+      case 'availability': this.availability.set('all'); break;
+      case 'minPrice': this.minPrice.set(undefined); break;
+      case 'maxPrice': this.maxPrice.set(undefined); break;
+      case 'color': this.color.set(undefined); break;
+      case 'minRating': this.minRating.set(undefined); break;
+    }
+    this.applyFilters();
   }
 
   clearFilters(): void {
@@ -221,9 +234,13 @@ export class CatalogComponent implements OnInit {
     this.router.navigate(['/catalog'], { queryParams: { page: 1 } });
   }
 
-  pages(): number[] {
-    const n = this.totalPages();
-    return Array.from({ length: n }, (_, i) => i + 1);
+  toggleFilters(): void {
+    this.filtersOpen.update((v) => !v);
+  }
+
+  getCategoryName(id: string): string {
+    const cat = this.categories().find((c) => c.id === id);
+    return cat ? this.getLocalized(cat.name) : id;
   }
 
   getLocalized(obj: { en?: string; ar?: string } | undefined): string {

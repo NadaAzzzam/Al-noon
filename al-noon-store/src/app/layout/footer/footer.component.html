@@ -6,7 +6,7 @@
         <nav class="footer-links">
           <a [routerLink]="['/']">{{ 'nav.home' | translate }}</a>
           <a routerLink="/catalog">{{ 'nav.search' | translate }}</a>
-          @for (link of quickLinksArray(); track link.url) {
+          @for (link of quickLinks(); track link.url) {
           @if (link.url.startsWith('/')) {
           <a [routerLink]="link.url">{{ getLocalized(link.title) }}</a>
           } @else {
@@ -40,7 +40,7 @@
       }
 
       <div class="footer-col social-col">
-        @for (social of socialLinksArray(); track social.url) {
+        @for (social of socialLinks(); track social.url) {
         <a [href]="social.url" target="_blank" rel="noopener noreferrer" class="social-link">
           {{ social.platform }}
         </a>

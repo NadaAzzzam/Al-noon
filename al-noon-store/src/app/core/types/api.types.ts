@@ -302,11 +302,12 @@ export interface NewsletterConflictResponse {
 }
 
 /** Contact (OpenAPI submitStoreContact: required email only) */
+/** Request body for POST /api/store/contact (Contact Us form). */
 export interface ContactBody {
-  name?: string;
+  name: string;
   email: string;
   phone?: string;
-  comment?: string;
+  comment: string;
 }
 
 /** AI Chat */

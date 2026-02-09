@@ -1,6 +1,17 @@
 <header class="header">
   <div class="container header-inner">
-    <a [routerLink]="['/']" class="logo">
+    <!-- Mobile hamburger -->
+    <button type="button" class="hamburger" (click)="toggleMobileMenu()" [attr.aria-label]="'nav.menu' | translate" [attr.aria-expanded]="mobileMenuOpen()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        @if (mobileMenuOpen()) {
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        } @else {
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        }
+      </svg>
+    </button>
+
+    <a [routerLink]="['/']" class="logo" (click)="closeMobileMenu()">
       @if (store()?.logo) {
         <img [src]="api.imageUrl(store()!.logo)" [alt]="store()!.storeName.en || 'Store'" />
       } @else {
@@ -8,35 +19,59 @@
       }
     </a>
 
-    <nav class="nav">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+    <nav class="nav" [class.nav-open]="mobileMenuOpen()">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileMenu()">
         {{ 'nav.home' | translate }}
       </a>
       @for (link of store()?.quickLinks ?? []; track link.url) {
         @if (link.url.startsWith('/')) {
-          <a [routerLink]="link.url" routerLinkActive="active">{{ link.title | localized }}</a>
+          <a [routerLink]="link.url" routerLinkActive="active" (click)="closeMobileMenu()">{{ link.title | localized }}</a>
         } @else {
           <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.title | localized }}</a>
         }
       }
-      <a routerLink="/catalog">{{ 'nav.shop' | translate }}</a>
+      <a routerLink="/catalog" routerLinkActive="active" (click)="closeMobileMenu()">{{ 'nav.shop' | translate }}</a>
+      <a routerLink="/contact" routerLinkActive="active" (click)="closeMobileMenu()">{{ 'nav.contact' | translate }}</a>
     </nav>
 
     <div class="actions">
+      <!-- Search toggle -->
       <button type="button" class="icon-btn" (click)="toggleSearch()" [attr.aria-label]="'nav.search' | translate">
-        {{ 'nav.search' | translate }}
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
       </button>
-      <button type="button" class="icon-btn" (click)="toggleLocale()" [attr.aria-label]="'nav.search' | translate">
+
+      <!-- Language toggle -->
+      <button type="button" class="icon-btn lang-btn" (click)="toggleLocale()" [attr.aria-label]="'Toggle language'">
         {{ currentLocale() === 'ar' ? 'EN' : 'ع' }}
       </button>
+
+      <!-- Auth actions -->
       @if (isLoggedIn()) {
-        <a [routerLink]="['/account', 'orders']" class="icon-btn">{{ 'nav.myOrders' | translate }}</a>
-        <button type="button" class="icon-btn" (click)="signOut()">{{ 'nav.logOut' | translate }}</button>
+        <a [routerLink]="['/account', 'orders']" class="icon-btn" [attr.aria-label]="'nav.myOrders' | translate">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+        </a>
+        <button type="button" class="icon-btn" (click)="signOut()" [attr.aria-label]="'nav.logOut' | translate">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </button>
       } @else {
-        <a [routerLink]="['/account', 'login']" class="icon-btn">{{ 'nav.logIn' | translate }}</a>
+        <a [routerLink]="['/account', 'login']" class="icon-btn" [attr.aria-label]="'nav.logIn' | translate">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+        </a>
       }
-      <a [routerLink]="['/cart']" class="icon-btn cart-link">
-        {{ 'nav.cart' | translate }}
+
+      <!-- Cart -->
+      <a [routerLink]="['/cart']" class="icon-btn cart-link" [attr.aria-label]="'nav.cart' | translate">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
         @if (cartCount() > 0) {
           <span class="cart-count">{{ cartCount() }}</span>
         }
@@ -48,10 +83,15 @@
     <div class="search-bar">
       <div class="container">
         <form class="search-form" (ngSubmit)="submitSearch()">
-          <input type="search" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)" [placeholder]="'nav.searchPlaceholder' | translate" />
+          <input type="search" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)" [placeholder]="'nav.searchPlaceholder' | translate" autofocus />
           <button type="submit" class="btn">{{ 'nav.search' | translate }}</button>
         </form>
       </div>
     </div>
   }
 </header>
+
+<!-- Mobile overlay -->
+@if (mobileMenuOpen()) {
+  <div class="mobile-overlay" (click)="closeMobileMenu()"></div>
+}
