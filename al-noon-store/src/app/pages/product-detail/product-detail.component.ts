@@ -119,6 +119,14 @@ export class ProductDetailComponent implements OnInit {
     timer(2000).pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => this.added.set(false));
   }
 
+  scrollSlider(container: HTMLElement, direction: 'left' | 'right'): void {
+    const scrollAmount = container.clientWidth * 0.8;
+    container.scrollBy({
+      left: direction === 'right' ? scrollAmount : -scrollAmount,
+      behavior: 'smooth',
+    });
+  }
+
   getLocalized(obj: { en?: string; ar?: string } | undefined): string {
     if (!obj) return '';
     const lang = this.locale.getLocale();

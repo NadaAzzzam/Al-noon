@@ -1,3 +1,7 @@
+/* ══════════════════════════════════════════════════════
+   Header — Premium Navigation
+   ══════════════════════════════════════════════════════ */
+
 .header {
   position: sticky;
   top: 0;
@@ -5,6 +9,11 @@
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   height: var(--header-height);
+  transition: box-shadow 0.3s, background 0.3s;
+
+  &:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  }
 }
 
 .header-inner {
@@ -23,45 +32,58 @@
   cursor: pointer;
   color: var(--color-text);
   line-height: 0;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
 }
 
 .logo {
   flex-shrink: 0;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
 
   img {
-    max-height: 40px;
+    max-height: 42px;
     width: auto;
   }
 }
 
 .logo-text {
   font-family: var(--font-heading);
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .nav {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 32px;
   flex: 1;
   justify-content: center;
 
   a {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     position: relative;
+    padding: 4px 0;
 
     &::after {
       content: '';
       position: absolute;
-      bottom: -4px;
+      bottom: -2px;
       inset-inline-start: 0;
       width: 0;
       height: 1.5px;
       background: var(--color-accent);
-      transition: width 0.2s ease;
+      transition: width 0.3s var(--transition-smooth, cubic-bezier(0.16, 1, 0.3, 1));
     }
 
     &:hover::after,
@@ -89,10 +111,11 @@
   padding: 8px;
   color: var(--color-text);
   border-radius: 50%;
-  transition: background 0.15s;
+  transition: background 0.2s, transform 0.2s;
 
   &:hover {
     background: var(--color-bg);
+    transform: scale(1.05);
   }
 }
 
@@ -101,6 +124,14 @@
   font-size: 13px;
   min-width: 36px;
   height: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    border-color: var(--color-accent);
+    background: var(--color-bg);
+  }
 }
 
 .cart-link {
@@ -117,16 +148,23 @@
   font-size: 11px;
   line-height: 18px;
   text-align: center;
-  background: var(--color-accent);
-  color: var(--color-surface);
+  background: var(--color-sale);
+  color: #fff;
   border-radius: 9px;
+  animation: cartBounce 0.3s var(--transition-smooth, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+@keyframes cartBounce {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 .search-bar {
   padding: 12px 0;
   background: var(--color-bg);
   border-bottom: 1px solid var(--color-border);
-  animation: slide-down 0.2s ease;
+  animation: slide-down 0.25s var(--transition-smooth, ease);
 }
 
 .search-form {
@@ -137,10 +175,17 @@
 
   input {
     flex: 1;
-    padding: 10px 14px;
+    padding: 10px 16px;
     border: 1px solid var(--color-border);
     font-size: 15px;
     font-family: var(--font-body);
+    border-radius: 4px;
+    transition: border-color 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-accent);
+    }
   }
 }
 
@@ -161,7 +206,7 @@
     position: fixed;
     top: var(--header-height);
     inset-inline-start: 0;
-    width: 280px;
+    width: 300px;
     height: calc(100vh - var(--header-height));
     background: var(--color-surface);
     border-inline-end: 1px solid var(--color-border);
@@ -172,13 +217,14 @@
     gap: 0;
     z-index: 100;
     overflow-y: auto;
-    animation: slide-in 0.25s ease;
+    animation: slide-in 0.3s var(--transition-smooth, ease);
 
     a {
-      padding: 12px 0;
+      padding: 14px 0;
       width: 100%;
       border-bottom: 1px solid var(--color-border);
       font-size: 15px;
+      text-transform: none;
 
       &::after {
         display: none;

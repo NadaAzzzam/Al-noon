@@ -34,6 +34,7 @@ import type { Product } from '../../../core/types/api.types';
           @if (discountPercent() > 0) {
             <span class="discount-badge">-{{ discountPercent() }}%</span>
           }
+          <span class="quick-view">View</span>
         </div>
         <div class="product-card-body">
           <h3 class="product-name">{{ name() }}</h3>
@@ -53,17 +54,24 @@ import type { Product } from '../../../core/types/api.types';
     }
   `,
   styles: [`
+    :host {
+      display: block;
+    }
     .product-card {
       display: block;
       text-decoration: none;
       color: inherit;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .product-card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-6px);
     }
     .product-card:hover .product-image-wrap img {
-      transform: scale(1.03);
+      transform: scale(1.06);
+    }
+    .product-card:hover .quick-view {
+      opacity: 1;
+      transform: translateY(0);
     }
     .product-image-wrap {
       position: relative;
@@ -71,12 +79,13 @@ import type { Product } from '../../../core/types/api.types';
       aspect-ratio: 3 / 4;
       background: var(--color-surface, #fff);
       border: 1px solid var(--color-border, #e8e6e3);
+      border-radius: 4px;
     }
     .product-image-wrap img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.4s ease;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .product-image-placeholder {
       width: 100%;
@@ -87,6 +96,24 @@ import type { Product } from '../../../core/types/api.types';
       background: var(--color-bg, #faf9f7);
       color: var(--color-text-muted, #5c5c5c);
     }
+    .quick-view {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(4px);
+      color: var(--color-text, #1a1a1a);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 8px 20px;
+      border-radius: 2px;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+    }
     .sale-badge {
       position: absolute;
       top: 10px;
@@ -95,9 +122,10 @@ import type { Product } from '../../../core/types/api.types';
       color: #fff;
       font-size: 11px;
       font-weight: 600;
-      padding: 4px 8px;
+      padding: 4px 10px;
       letter-spacing: 0.05em;
       text-transform: uppercase;
+      border-radius: 2px;
     }
     .sold-out-badge {
       position: absolute;
@@ -107,7 +135,8 @@ import type { Product } from '../../../core/types/api.types';
       color: #fff;
       font-size: 11px;
       font-weight: 600;
-      padding: 4px 8px;
+      padding: 4px 10px;
+      border-radius: 2px;
     }
     .discount-badge {
       position: absolute;
@@ -117,10 +146,11 @@ import type { Product } from '../../../core/types/api.types';
       color: #fff;
       font-size: 11px;
       font-weight: 600;
-      padding: 4px 8px;
+      padding: 4px 10px;
+      border-radius: 2px;
     }
     .product-card-body {
-      padding: 12px 0 0;
+      padding: 14px 2px 0;
     }
     .product-name {
       font-family: var(--font-body, sans-serif);
@@ -133,6 +163,10 @@ import type { Product } from '../../../core/types/api.types';
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
+      transition: color 0.2s;
+    }
+    .product-card:hover .product-name {
+      color: var(--color-text-muted, #5c5c5c);
     }
     .price {
       margin-top: 6px;

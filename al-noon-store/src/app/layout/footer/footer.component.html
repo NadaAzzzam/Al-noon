@@ -1,11 +1,12 @@
 <footer class="footer">
   <div class="container">
     <div class="footer-grid">
+      <!-- Quick Links -->
       <div class="footer-col">
         <h3 class="footer-title">{{ getLocalized(store()?.storeName) || ('storeName' | translate) }}</h3>
         <nav class="footer-links">
           <a [routerLink]="['/']">{{ 'nav.home' | translate }}</a>
-          <a routerLink="/catalog">{{ 'nav.search' | translate }}</a>
+          <a routerLink="/catalog">{{ 'nav.shop' | translate }}</a>
           @for (link of quickLinks(); track link.url) {
           @if (link.url.startsWith('/')) {
           <a [routerLink]="link.url">{{ getLocalized(link.title) }}</a>
@@ -13,19 +14,23 @@
           <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ getLocalized(link.title) }}</a>
           }
           }
+          <a routerLink="/contact">{{ 'nav.contact' | translate }}</a>
         </nav>
       </div>
 
+      <!-- Newsletter -->
       @if (store()?.newsletterEnabled) {
       <div class="footer-col newsletter-col">
         <h3 class="footer-title">{{ 'footer.subscribe' | translate }}</h3>
         <p class="footer-desc">{{ 'footer.subscribeDesc' | translate }}</p>
         <form class="newsletter-form" (ngSubmit)="submitNewsletter($event)">
-          <input type="email" [value]="newsletterEmail()" (input)="newsletterEmail.set($any($event.target).value)"
-            [placeholder]="'footer.emailPlaceholder' | translate" />
-          <button type="submit" class="btn" [disabled]="!newsletterValid() || newsletterLoading()">
-            {{ newsletterLoading() ? ('footer.subscribing' | translate) : ('footer.subscribeBtn' | translate) }}
-          </button>
+          <div class="newsletter-input-wrap">
+            <input type="email" [value]="newsletterEmail()" (input)="newsletterEmail.set($any($event.target).value)"
+              [placeholder]="'footer.emailPlaceholder' | translate" />
+            <button type="submit" class="btn newsletter-btn" [disabled]="!newsletterValid() || newsletterLoading()">
+              {{ newsletterLoading() ? ('footer.subscribing' | translate) : ('footer.subscribeBtn' | translate) }}
+            </button>
+          </div>
           @if (newsletterMessage() === 'success') {
           <p class="newsletter-msg success">{{ 'footer.subscribedSuccess' | translate }}</p>
           }
@@ -39,16 +44,86 @@
       </div>
       }
 
-      <div class="footer-col social-col">
-        @for (social of socialLinks(); track social.url) {
-        <a [href]="social.url" target="_blank" rel="noopener noreferrer" class="social-link">
-          {{ social.platform }}
-        </a>
-        }
+      <!-- Social Links -->
+      <div class="footer-col">
+        <h3 class="footer-title">{{ currentLocale() === 'ar' ? 'تابعنا' : 'Follow Us' }}</h3>
+        <div class="social-links">
+          @for (social of socialLinks(); track social.url) {
+          <a [href]="social.url" target="_blank" rel="noopener noreferrer" class="social-link" [attr.aria-label]="social.platform">
+            <!-- Instagram -->
+            @if (social.platform.toLowerCase() === 'instagram') {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </svg>
+            }
+            <!-- Facebook -->
+            @else if (social.platform.toLowerCase() === 'facebook') {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+              </svg>
+            }
+            <!-- Twitter / X -->
+            @else if (social.platform.toLowerCase() === 'twitter' || social.platform.toLowerCase() === 'x') {
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+            }
+            <!-- TikTok -->
+            @else if (social.platform.toLowerCase() === 'tiktok') {
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15.2a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.88a8.28 8.28 0 0 0 4.76 1.5v-3.4a4.85 4.85 0 0 1-1-.29z"/>
+              </svg>
+            }
+            <!-- YouTube -->
+            @else if (social.platform.toLowerCase() === 'youtube') {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+            }
+            <!-- Snapchat -->
+            @else if (social.platform.toLowerCase() === 'snapchat') {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12.922-.254.195-.098.39-.18.592-.18.18 0 .33.06.45.164.18.165.24.397.2.629-.06.309-.209.465-.434.589-.334.18-.633.27-.91.375-.145.054-.3.12-.432.194-.225.119-.45.389-.509.596-.045.15-.03.3.015.449.135.45.33.99.51 1.5.129.359.257.749.392 1.117.09.254.24.508.4.677.258.27.48.47 1.068.648.12.03.24.06.36.09.15.03.3.06.45.09.21.04.36.09.486.18.165.12.255.33.255.54v.012c0 .21-.09.42-.261.54-.27.18-.602.254-.98.299-.54.06-1.12.12-1.442.31-.39.225-.645.645-.945 1.095l-.008.015c-.165.27-.33.54-.51.795-.405.57-.87.96-1.485 1.125-.539.135-1.08.195-1.665.255-.405.03-.81.075-1.215.135-.21.03-.42.08-.615.15-.42.149-.84.449-1.5.855-.57.36-1.275.735-2.325.735-.03 0-.06 0-.09-.002h-.045c-1.05 0-1.755-.375-2.325-.735-.66-.405-1.08-.705-1.5-.854a4.543 4.543 0 0 0-.615-.15c-.405-.06-.81-.105-1.215-.136-.585-.06-1.125-.119-1.665-.254-.615-.165-1.08-.555-1.485-1.125a9.39 9.39 0 0 1-.51-.795l-.009-.015c-.3-.449-.555-.87-.944-1.095-.33-.18-.9-.24-1.443-.3-.375-.044-.705-.12-.975-.3A.63.63 0 0 1 0 18.18v-.012c0-.21.09-.42.255-.54.126-.09.27-.135.48-.18.15-.03.3-.06.45-.09.12-.03.24-.06.36-.09.585-.18.81-.375 1.065-.645.165-.18.314-.434.404-.69.135-.36.263-.75.39-1.11.18-.51.375-1.05.51-1.5.047-.149.062-.3.016-.449-.06-.207-.285-.477-.51-.596-.132-.074-.287-.14-.43-.194-.278-.105-.577-.195-.91-.375-.226-.124-.376-.28-.434-.59-.04-.23.02-.464.2-.628a.605.605 0 0 1 .45-.164c.202 0 .397.082.593.18.262.135.62.27.92.254.199 0 .326-.045.4-.09a11.92 11.92 0 0 1-.033-.57c-.104-1.628-.23-3.654.3-4.847C6.64 1.07 9.997.793 10.987.793h.633z"/>
+              </svg>
+            }
+            <!-- WhatsApp -->
+            @else if (social.platform.toLowerCase() === 'whatsapp') {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+              </svg>
+            }
+            <!-- Pinterest -->
+            @else if (social.platform.toLowerCase() === 'pinterest') {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z"/>
+              </svg>
+            }
+            <!-- Telegram -->
+            @else if (social.platform.toLowerCase() === 'telegram') {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.492-1.302.48-.428-.012-1.252-.242-1.865-.44-.751-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+              </svg>
+            }
+            <!-- LinkedIn -->
+            @else if (social.platform.toLowerCase() === 'linkedin') {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+              </svg>
+            }
+            <!-- Fallback: show first letter in circle -->
+            @else {
+              <span class="social-letter">{{ social.platform.charAt(0).toUpperCase() }}</span>
+            }
+          </a>
+          }
+        </div>
       </div>
     </div>
+
     <div class="footer-bottom">
-      <p class="copyright">© {{ currentYear }} {{ getLocalized(store()?.storeName) || ('storeName' | translate) }}</p>
+      <p class="copyright">© {{ currentYear }} {{ getLocalized(store()?.storeName) || ('storeName' | translate) }}. {{ currentLocale() === 'ar' ? 'جميع الحقوق محفوظة' : 'All rights reserved' }}.</p>
     </div>
   </div>
 </footer>

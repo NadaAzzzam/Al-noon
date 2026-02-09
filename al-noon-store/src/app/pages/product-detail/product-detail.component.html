@@ -12,13 +12,23 @@
       { label: getLocalized(p.name) }
     ]" />
 
-    <div class="product-main">
+    <div class="product-main fade-in-up">
+      <!-- Gallery -->
       <div class="gallery">
         <div class="gallery-main">
           @if (images().length) {
-            <img [src]="api.imageUrl(images()[selectedImageIndex()])" [alt]="getLocalized(p.name)" />
+            <img [src]="api.imageUrl(images()[selectedImageIndex()])" [alt]="getLocalized(p.name)" class="gallery-main-img" />
             @if (p.discountPrice != null && p.discountPrice < p.price) {
               <span class="sale-badge">{{ 'sale' | translate }}</span>
+            }
+            <!-- Gallery nav arrows -->
+            @if (images().length > 1) {
+              <button type="button" class="gallery-nav gallery-prev" (click)="selectedImageIndex.set((selectedImageIndex() - 1 + images().length) % images().length)" aria-label="Previous image">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button type="button" class="gallery-nav gallery-next" (click)="selectedImageIndex.set((selectedImageIndex() + 1) % images().length)" aria-label="Next image">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
             }
           } @else {
             <div class="product-image-placeholder">
@@ -39,6 +49,7 @@
         }
       </div>
 
+      <!-- Product Info -->
       <div class="product-info">
         <h1 class="product-title">{{ getLocalized(p.name) }}</h1>
 
@@ -138,13 +149,29 @@
       </div>
     </div>
 
+    <!-- ═══ Related Products Slider ═══ -->
     @if (related().length) {
       <section class="related">
-        <h2>{{ 'product.related' | translate }}</h2>
-        <div class="product-grid">
-          @for (r of related(); track r.id || $index) {
-            <app-product-card [product]="r" />
-          }
+        <div class="section-header">
+          <div>
+            <span class="section-label">{{ 'product.related' | translate }}</span>
+            <h2>{{ 'product.related' | translate }}</h2>
+          </div>
+        </div>
+        <div class="slider-wrapper">
+          <button type="button" class="slider-arrow slider-arrow-left" (click)="scrollSlider(relatedTrack, 'left')" aria-label="Scroll left">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="slider-track" #relatedTrack>
+            @for (r of related(); track r.id || $index) {
+              <div class="slider-item">
+                <app-product-card [product]="r" />
+              </div>
+            }
+          </div>
+          <button type="button" class="slider-arrow slider-arrow-right" (click)="scrollSlider(relatedTrack, 'right')" aria-label="Scroll right">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
         </div>
       </section>
     }
