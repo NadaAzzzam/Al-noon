@@ -60,7 +60,8 @@ export class AuthService {
         if (r.success && r.data) this.userSignal.set(r.data.user);
         else this.userSignal.set(null);
       }),
-      catchError(() => {
+      catchError((_err) => {
+        // Not logged in (401/403) or network error: treat as no user
         this.loadedSignal.set(true);
         this.userSignal.set(null);
         return of(null);
@@ -69,7 +70,12 @@ export class AuthService {
         new Observable<AuthUser | null>((sub) => {
           o.subscribe({
             next: (n) => sub.next(n && typeof n === 'object' && 'data' in n && n.data ? n.data.user : null),
-            error: () => sub.next(null),
+            error: () => {
+              this.loadedSignal.set(true);
+              this.userSignal.set(null);
+              sub.next(null);
+              sub.complete();
+            },
             complete: () => sub.complete(),
           });
         })

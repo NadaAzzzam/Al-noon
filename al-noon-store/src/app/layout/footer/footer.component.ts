@@ -34,6 +34,22 @@ export class FooterComponent implements OnInit {
     return (obj[lang] ?? obj.en ?? obj.ar ?? '') as string;
   }
 
+  /** Always an array (API may return socialLinks as object). */
+  socialLinksArray(): { platform: string; url: string }[] {
+    const links = this.store()?.socialLinks;
+    if (Array.isArray(links)) return links;
+    if (links && typeof links === 'object' && !Array.isArray(links)) {
+      return Object.entries(links).map(([platform, url]) => ({ platform, url: String(url ?? '') }));
+    }
+    return [];
+  }
+
+  /** Always an array (API may return quickLinks as object). */
+  quickLinksArray(): { title: { en?: string; ar?: string }; url: string; order?: number }[] {
+    const links = this.store()?.quickLinks;
+    return Array.isArray(links) ? links : [];
+  }
+
   ngOnInit(): void {
     this.storeService.getStore().subscribe((s) => this.store.set(s));
   }

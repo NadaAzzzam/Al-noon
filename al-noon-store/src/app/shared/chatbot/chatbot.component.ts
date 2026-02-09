@@ -49,6 +49,11 @@ export class ChatbotComponent implements OnInit {
     return (obj[lang] ?? obj.en ?? obj.ar ?? '') as string;
   }
 
+  /** Product card name (API may return string or LocalizedText) */
+  getCardName(card: { name: string | { en?: string; ar?: string } }): string {
+    return typeof card.name === 'string' ? card.name : this.getLocalized(card.name);
+  }
+
   toggle(): void {
     this.open.update((v) => !v);
     this.error.set(null);

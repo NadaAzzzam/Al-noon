@@ -6,12 +6,12 @@ export interface ApiSuccess<T> {
   pagination?: Pagination;
 }
 
-/** Generic API error response */
+/** Generic API error response (matches OpenAPI ApiError) */
 export interface ApiError {
   success: false;
   message: string;
-  code: string;
-  data: null;
+  code?: string | null;
+  data: object | null;
   details?: unknown;
 }
 
@@ -30,7 +30,7 @@ export interface HealthData {
   dbConnected: boolean;
 }
 
-/** Store – localized text */
+/** Store – localized text (OpenAPI LocalizedString) */
 export interface LocalizedText {
   en: string;
   ar: string;
@@ -117,11 +117,13 @@ export interface ProductCategory {
   status?: string;
 }
 
+/** API may return imageColors as string[] (URLs) or { color?, imageUrl? }[] */
 export interface ProductImageColor {
   color?: string;
   imageUrl?: string;
 }
 
+/** Product (OpenAPI ProductData). API uses _id; normalized to id in client. */
 export interface Product {
   id: string;
   name: LocalizedText;
@@ -129,17 +131,26 @@ export interface Product {
   price: number;
   discountPrice?: number;
   images: string[];
-  imageColors?: ProductImageColor[];
+  /** API may return string[] (URLs) or { color?, imageUrl? }[] */
+  imageColors?: (string | ProductImageColor)[];
   videos?: string[];
   stock: number;
   status: string;
   isNewArrival?: boolean;
   sizes?: string[];
-  sizeDescriptions?: LocalizedText;
+  /** API: string[]; may also be LocalizedText */
+  sizeDescriptions?: LocalizedText | string[];
   colors?: string[];
   details?: LocalizedText;
   stylingTip?: LocalizedText;
   category?: ProductCategory;
+  /** Present on list when ratings exist (OpenAPI) */
+  averageRating?: number | null;
+  ratingCount?: number | null;
+  soldQty?: number | null;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
   [key: string]: unknown;
 }
 
@@ -155,11 +166,12 @@ export type ProductSort =
 
 export type ProductAvailability = 'inStock' | 'outOfStock' | 'all';
 
+/** List products query (OpenAPI: status may be DRAFT | PUBLISHED on some endpoints) */
 export interface ProductsQuery {
   page?: number;
   limit?: number;
   search?: string;
-  status?: 'ACTIVE' | 'INACTIVE';
+  status?: 'ACTIVE' | 'INACTIVE' | 'DRAFT' | 'PUBLISHED';
   category?: string;
   newArrival?: boolean;
   availability?: ProductAvailability;
@@ -175,7 +187,7 @@ export interface ProductsListResponse {
   pagination: Pagination;
 }
 
-/** Category */
+/** Category (OpenAPI: status DRAFT | PUBLISHED) */
 export interface Category {
   id: string;
   name: LocalizedText;
@@ -229,6 +241,12 @@ export interface Order {
   createdAt?: string;
 }
 
+/** Client shape for list orders (after mapping from API) */
+export interface OrdersListResponse {
+  data: Order[];
+  pagination: Pagination;
+}
+
 /** Newsletter */
 export interface NewsletterSubscribeBody {
   email: string;
@@ -255,9 +273,11 @@ export interface AiChatRequest {
   locale?: 'en' | 'ar';
 }
 
+/** AI product card (OpenAPI: name may be LocalizedText) */
 export interface AiProductCard {
   id: string;
-  name: string;
+  /** API may return LocalizedText; display layer can use localized pipe */
+  name: string | LocalizedText;
   image?: string;
   productUrl: string;
 }
@@ -266,4 +286,57 @@ export interface AiChatResponse {
   sessionId: string;
   response: string;
   productCards?: AiProductCard[];
+}
+
+// ----- API response wrappers (OpenAPI spec shapes; map in services) -----
+
+/** GET /orders – PaginatedOrdersResponse */
+export interface PaginatedOrdersApiResponse {
+  success: true;
+  data: { orders: Order[]; pagination: Pagination };
+  message?: string;
+}
+
+/** GET/POST /orders/:id – OrderResponse */
+export interface OrderApiResponse {
+  success: true;
+  data: { order: Order };
+  message?: string;
+}
+
+/** GET /cities – CitiesResponse */
+export interface CitiesApiResponse {
+  success: true;
+  data: { cities: City[] };
+}
+
+/** GET /cities/:id – CityResponse */
+export interface CityApiResponse {
+  success: true;
+  data: { city: City };
+}
+
+/** GET /categories – CategoriesResponse */
+export interface CategoriesApiResponse {
+  success: true;
+  data: { categories: Category[] };
+}
+
+/** GET /store – StoreResponse (data may be nested under .store) */
+export interface StoreApiResponse {
+  success: true;
+  data: StoreData | { store: StoreData };
+}
+
+/** GET /store/page/:slug – PageResponse */
+export interface PageApiResponse {
+  success: true;
+  data: { page: ContentPage };
+}
+
+/** GET/POST/PUT /products/:id – ProductResponse */
+export interface ProductApiResponse {
+  success: true;
+  data: { product: Product & { _id?: string } };
+  message?: string;
 }

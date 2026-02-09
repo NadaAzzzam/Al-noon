@@ -33,7 +33,7 @@ export class ProductDetailComponent implements OnInit {
     const p = this.product();
     if (!p) return [];
     const list = p.images ?? [];
-    const byColor = p.imageColors?.map((c) => c.imageUrl).filter(Boolean) as string[] | undefined;
+    const byColor = p.imageColors?.map((c) => (typeof c === 'string' ? c : c.imageUrl)).filter(Boolean) as string[] | undefined;
     return byColor?.length ? byColor : list;
   });
 
@@ -45,7 +45,7 @@ export class ProductDetailComponent implements OnInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    if (!id) return;
+    if (!id || id === 'undefined' || id === '') return;
     this.productsService.getProduct(id).subscribe({
       next: (p) => this.product.set(p),
       error: () => this.product.set(null),

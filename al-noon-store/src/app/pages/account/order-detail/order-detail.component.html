@@ -12,7 +12,7 @@
     }
     <div class="order-items">
       <h2>{{ 'orderDetail.items' | translate }}</h2>
-      @for (item of o.items; track item.product.id) {
+      @for (item of o.items; track $index) {
         <div class="order-item">
           <img [src]="api.imageUrl(item.product.images[0])" [alt]="getLocalized(item.product.name)" class="item-image" />
           <div class="item-details">

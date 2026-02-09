@@ -11,7 +11,7 @@
           <label>{{ 'checkout.city' | translate }} *</label>
           <select [value]="cityId()" (change)="cityId.set($any($event.target).value)">
             <option value="">{{ 'checkout.selectCity' | translate }}</option>
-            @for (c of cities(); track c.id) {
+            @for (c of cities(); track $index) {
               <option [value]="c.id">{{ getLocalized(c.name) }}</option>
             }
           </select>
@@ -37,7 +37,7 @@
       <div class="checkout-summary">
         <h2>{{ 'checkout.orderSummary' | translate }}</h2>
         <div class="summary-items">
-          @for (item of items(); track item.productId) {
+          @for (item of items(); track $index) {
             <div class="summary-item">
               <span>{{ item.name ?? ('cart.product' | translate) }} × {{ item.quantity }}</span>
               <span>LE {{ item.price * item.quantity }} EGP</span>

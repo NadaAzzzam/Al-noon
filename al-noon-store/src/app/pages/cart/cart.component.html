@@ -7,7 +7,7 @@
   } @else {
     <div class="cart-layout">
       <div class="cart-items">
-        @for (item of items(); track item.productId) {
+        @for (item of items(); track $index) {
           <div class="cart-item">
             <div class="cart-item-image">
               <img [src]="api.imageUrl(item.image)" [alt]="item.name ?? ''" />

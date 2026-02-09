@@ -17,7 +17,10 @@ export class App implements OnInit {
   private readonly translate = inject(TranslateService);
 
   ngOnInit(): void {
-    this.auth.loadProfile().subscribe();
+    this.auth.loadProfile().subscribe({
+      next: () => {},
+      error: () => {},
+    });
     const lang = this.locale.getLocale();
     this.translate.use(lang);
     if (typeof document !== 'undefined' && document.documentElement) {

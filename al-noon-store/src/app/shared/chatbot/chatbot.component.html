@@ -14,9 +14,9 @@
                   @for (card of msg.productCards; track card.id) {
                     <a [routerLink]="['/product', card.id]" class="product-card-link">
                       @if (card.image) {
-                        <img [src]="api.imageUrl(card.image)" [alt]="card.name" />
+                        <img [src]="api.imageUrl(card.image)" [alt]="getCardName(card)" />
                       }
-                      <span>{{ card.name }}</span>
+                      <span>{{ getCardName(card) }}</span>
                     </a>
                   }
                 </div>

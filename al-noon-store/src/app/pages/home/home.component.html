@@ -28,27 +28,50 @@
   <div class="container">
     <h2 class="section-title">{{ 'home.newArrivals' | translate }}</h2>
     <div class="product-grid">
-      @for (p of newArrivals(); track p.id) {
-        <a [routerLink]="['/product', p.id]" class="product-card">
-          <div class="product-image-wrap">
-            <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
-            @if (p.discountPrice != null && p.discountPrice < p.price) {
-              <span class="sale-badge">{{ 'sale' | translate }}</span>
-            }
-            @if (p.stock <= 0) {
-              <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
-            }
+      @for (p of newArrivals(); track $index) {
+        @if (p.id) {
+          <a [routerLink]="['/product', p.id]" class="product-card">
+            <div class="product-image-wrap">
+              <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
+              @if (p.discountPrice != null && p.discountPrice < p.price) {
+                <span class="sale-badge">{{ 'sale' | translate }}</span>
+              }
+              @if (p.stock <= 0) {
+                <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
+              }
+            </div>
+            <h3 class="product-name">{{ getLocalized(p.name) }}</h3>
+            <div class="price">
+              @if (p.discountPrice != null && p.discountPrice < p.price) {
+                <span class="original">LE {{ p.price }} EGP</span>
+                <span class="current">LE {{ p.discountPrice }} EGP</span>
+              } @else {
+                <span class="current">LE {{ p.price }} EGP</span>
+              }
+            </div>
+          </a>
+        } @else {
+          <div class="product-card">
+            <div class="product-image-wrap">
+              <img [src]="api.imageUrl(p.images[0])" [alt]="getLocalized(p.name)" />
+              @if (p.discountPrice != null && p.discountPrice < p.price) {
+                <span class="sale-badge">{{ 'sale' | translate }}</span>
+              }
+              @if (p.stock <= 0) {
+                <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
+              }
+            </div>
+            <h3 class="product-name">{{ getLocalized(p.name) }}</h3>
+            <div class="price">
+              @if (p.discountPrice != null && p.discountPrice < p.price) {
+                <span class="original">LE {{ p.price }} EGP</span>
+                <span class="current">LE {{ p.discountPrice }} EGP</span>
+              } @else {
+                <span class="current">LE {{ p.price }} EGP</span>
+              }
+            </div>
           </div>
-          <h3 class="product-name">{{ getLocalized(p.name) }}</h3>
-          <div class="price">
-            @if (p.discountPrice != null && p.discountPrice < p.price) {
-              <span class="original">LE {{ p.price }} EGP</span>
-              <span class="current">LE {{ p.discountPrice }} EGP</span>
-            } @else {
-              <span class="current">LE {{ p.price }} EGP</span>
-            }
-          </div>
-        </a>
+        }
       }
     </div>
   </div>

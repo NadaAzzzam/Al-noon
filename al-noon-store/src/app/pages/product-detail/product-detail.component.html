@@ -84,7 +84,7 @@
       <section class="related">
         <h2>{{ 'product.related' | translate }}</h2>
         <div class="product-grid">
-          @for (r of related(); track r.id) {
+          @for (r of related(); track $index) {
             <a [routerLink]="['/product', r.id]" class="product-card">
               <div class="product-image-wrap">
                 <img [src]="api.imageUrl(r.images[0])" [alt]="getLocalized(r.name)" />
