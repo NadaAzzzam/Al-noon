@@ -24,19 +24,36 @@ export class HomeComponent implements OnInit {
 
   store = signal<StoreData | null>(null);
   newArrivals = signal<Product[]>([]);
+  loading = signal(true);
+  error = signal<string | null>(null);
+
   limit = computed(() => Math.max(1, this.store()?.newArrivalsLimit ?? 12));
+  currentLocale = computed(() => this.locale.getLocale());
 
   ngOnInit(): void {
-    this.storeService.getStore().subscribe((s) => this.store.set(s));
-    this.storeService.getStore().subscribe((s) => {
-      const limit = s?.newArrivalsLimit ?? 12;
-      this.productsService
-        .getProducts({ newArrival: true, limit, status: 'PUBLISHED' })
-        .subscribe((res) => this.newArrivals.set(res.data));
+    this.loading.set(true);
+    this.error.set(null);
+    this.storeService.getStore().subscribe({
+      next: (s) => {
+        this.store.set(s);
+        const limit = Math.max(1, s?.newArrivalsLimit ?? 12);
+        this.productsService
+          .getProducts({ newArrival: true, limit, status: 'ACTIVE' })
+          .subscribe({
+            next: (res) => this.newArrivals.set(res.data ?? []),
+            error: () => {
+              this.error.set('Failed to load new arrivals.');
+              this.loading.set(false);
+            },
+            complete: () => this.loading.set(false),
+          });
+      },
+      error: () => {
+        this.error.set('Failed to load store.');
+        this.loading.set(false);
+      },
     });
   }
-
-  currentLocale = computed(() => this.locale.getLocale());
 
   getLocalized(obj: { en?: string; ar?: string } | undefined): string {
     if (!obj) return '';

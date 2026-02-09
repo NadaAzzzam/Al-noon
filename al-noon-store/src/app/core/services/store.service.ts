@@ -4,6 +4,7 @@ import { Observable, tap } from 'rxjs';
 import type {
   ApiSuccess,
   StoreData,
+  StoreFeedback,
   ContentPage,
   StoreApiResponse,
   PageApiResponse,
@@ -23,10 +24,27 @@ function normalizeSocialLinks(raw: unknown): StoreSocialLink[] {
   return [];
 }
 
-/** Ensure quickLinks is always an array. */
+/** Ensure quickLinks is always an array; BE sends label, FE uses title. */
 function normalizeQuickLinks(raw: unknown): StoreQuickLink[] {
-  if (Array.isArray(raw)) return raw as StoreQuickLink[];
-  return [];
+  if (!Array.isArray(raw)) return [];
+  return raw.map((link: Record<string, unknown>) => {
+    const title = (link['title'] ?? link['label']) as StoreQuickLink['title'];
+    return { ...link, title: title ?? { en: '', ar: '' }, url: link['url'] ?? '' } as StoreQuickLink;
+  });
+}
+
+/** BE returns feedback with _id, message; FE uses id, comment. */
+function normalizeFeedbacks(raw: unknown): StoreFeedback[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((f: Record<string, unknown>) => ({
+    id: String(f['_id'] ?? f['id'] ?? ''),
+    product: f['product'] as StoreFeedback['product'],
+    rating: typeof f['rating'] === 'number' ? f['rating'] : undefined,
+    comment: (f['comment'] ?? f['message']) as string | undefined,
+    message: f['message'] as string | undefined,
+    customerName: f['customerName'] as string | undefined,
+    image: f['image'] as string | undefined,
+  }));
 }
 
 function normalizeStore(store: Record<string, unknown>): StoreData {
@@ -34,6 +52,7 @@ function normalizeStore(store: Record<string, unknown>): StoreData {
     ...store,
     quickLinks: normalizeQuickLinks(store['quickLinks']),
     socialLinks: normalizeSocialLinks(store['socialLinks']),
+    feedbacks: normalizeFeedbacks(store['feedbacks']),
   } as StoreData;
 }
 

@@ -36,8 +36,11 @@ export interface LocalizedText {
   ar: string;
 }
 
+/** BE sends label; FE uses title. Store service normalizes label → title. */
 export interface StoreQuickLink {
   title: LocalizedText;
+  /** Backend may send label instead of title */
+  label?: LocalizedText;
   url: string;
   order?: number;
 }
@@ -63,12 +66,18 @@ export interface StoreHero {
   ctaUrl?: string;
 }
 
+/** BE returns _id, message, customerName; FE uses id, comment. Store service normalizes. */
 export interface StoreFeedback {
   id: string;
   product?: { name?: LocalizedText };
   rating?: number;
+  /** Display text (normalized from BE message) */
   comment?: string;
+  /** Backend field name */
+  message?: string;
+  customerName?: string;
   approved?: boolean;
+  image?: string;
 }
 
 export interface StoreData {
@@ -135,6 +144,7 @@ export interface Product {
   imageColors?: (string | ProductImageColor)[];
   videos?: string[];
   stock: number;
+  /** Products API: low stock = ACTIVE (visible); out of stock = INACTIVE (hidden). */
   status: string;
   isNewArrival?: boolean;
   sizes?: string[];
@@ -166,13 +176,13 @@ export type ProductSort =
 
 export type ProductAvailability = 'inStock' | 'outOfStock' | 'all';
 
-/** List products query (OpenAPI: GET /products uses status DRAFT | PUBLISHED) */
+/** List products query (GET /products: status is ACTIVE | INACTIVE) */
 export interface ProductsQuery {
   page?: number;
   limit?: number;
   search?: string;
-  /** Storefront should use PUBLISHED; ProductData.status is ACTIVE | INACTIVE */
-  status?: 'ACTIVE' | 'INACTIVE' | 'DRAFT' | 'PUBLISHED';
+  /** Use ACTIVE for storefront. API convention: low stock = ACTIVE, out of stock = INACTIVE. */
+  status?: 'ACTIVE' | 'INACTIVE';
   category?: string;
   newArrival?: boolean;
   availability?: ProductAvailability;

@@ -40,6 +40,17 @@
   margin-inline: auto;
 }
 
+.error-msg,
+.loading-msg {
+  text-align: center;
+  padding: 24px;
+  color: var(--color-text-muted, #666);
+}
+
+.error-msg {
+  color: var(--color-error, #c00);
+}
+
 .section {
   padding: 48px 0;
 }
@@ -176,5 +187,12 @@
     font-size: 13px;
     font-style: normal;
     color: var(--color-text);
+  }
+
+  .testimonial-author {
+    display: block;
+    font-size: 12px;
+    margin-top: 8px;
+    color: var(--color-text-muted);
   }
 }

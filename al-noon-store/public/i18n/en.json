@@ -93,7 +93,10 @@
     "priceAsc": "Price: Low to High",
     "priceDesc": "Price: High to Low",
     "nameAsc": "Name A–Z",
-    "nameDesc": "Name Z–A"
+    "nameDesc": "Name Z–A",
+    "bestSelling": "Best selling",
+    "highestSelling": "Highest selling",
+    "lowSelling": "Lowest selling"
   },
   "product": {
     "notFound": "Product not found",

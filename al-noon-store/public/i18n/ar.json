@@ -93,7 +93,10 @@
     "priceAsc": "السعر: منخفض إلى عالي",
     "priceDesc": "السعر: عالي إلى منخفض",
     "nameAsc": "الاسم أ–ي",
-    "nameDesc": "الاسم ي–أ"
+    "nameDesc": "الاسم ي–أ",
+    "bestSelling": "الأكثر مبيعاً",
+    "highestSelling": "الأعلى مبيعاً",
+    "lowSelling": "الأقل مبيعاً"
   },
   "product": {
     "notFound": "المنتج غير موجود",
