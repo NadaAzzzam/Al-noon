@@ -1,10 +1,15 @@
 import type { Product, ProductApiShape, ProductCategory } from '../types/api.types';
 
 /**
- * Build images array from API media object (default + hover image URLs).
- * Falls back to existing images array if no media.
+ * Build images array: use full API images[] when present (product detail); else viewImage/hoverImage or media.default/hover for cards.
  */
 function imagesFromMedia(raw: ProductApiShape): string[] {
+  if (Array.isArray(raw.images) && raw.images.length > 0) return raw.images;
+  if (raw.viewImage) {
+    const urls = [raw.viewImage];
+    if (raw.hoverImage && raw.hoverImage !== raw.viewImage) urls.push(raw.hoverImage);
+    return urls;
+  }
   const media = raw.media;
   if (media) {
     const urls: string[] = [];
@@ -12,13 +17,14 @@ function imagesFromMedia(raw: ProductApiShape): string[] {
     if (media.hover?.url && media.hover.url !== media.default?.url) urls.push(media.hover.url);
     if (urls.length) return urls;
   }
-  return Array.isArray(raw.images) ? raw.images : [];
+  return [];
 }
 
 /**
- * Build videos array from API media.previewVideo.
+ * Build videos array: prefer API shape video, else media.previewVideo, else videos[].
  */
 function videosFromMedia(raw: ProductApiShape): string[] {
+  if (raw.video) return [raw.video];
   const url = raw.media?.previewVideo?.url;
   if (url) return [url];
   return Array.isArray(raw.videos) ? raw.videos : [];
@@ -36,8 +42,8 @@ function normalizeCategory(cat: (ProductCategory & { _id?: string }) | undefined
 /**
  * Normalize raw product from API to client Product shape:
  * - _id -> id
- * - media.default/hover -> images[]
- * - media.previewVideo -> videos[]
+ * - viewImage/hoverImage (or media.default/hover) -> images[] and media
+ * - video (or media.previewVideo) -> videos[]
  * - category._id -> category.id
  */
 export function normalizeProductFromApi(raw: ProductApiShape & { _id?: string }): Product {
@@ -46,15 +52,25 @@ export function normalizeProductFromApi(raw: ProductApiShape & { _id?: string })
   const videos = videosFromMedia(raw);
   const category = normalizeCategory(raw.category);
 
-  const { _id, media, images: _img, videos: _vid, ...rest } = raw;
+  const { _id, media, images: _img, videos: _vid, viewImage, hoverImage, video, ...rest } = raw;
   void _img;
   void _vid;
+
+  const mediaNormalized =
+    media ??
+    (raw.viewImage || raw.hoverImage
+      ? {
+          default: raw.viewImage ? { type: 'image' as const, url: raw.viewImage } : undefined,
+          hover: raw.hoverImage ? { type: 'image' as const, url: raw.hoverImage } : undefined,
+          previewVideo: raw.video ? { type: 'video' as const, url: raw.video } : undefined,
+        }
+      : undefined);
 
   return {
     ...rest,
     id,
     images,
-    ...(media ? { media } : {}),
+    ...(mediaNormalized ? { media: mediaNormalized } : {}),
     ...(videos.length ? { videos } : {}),
     ...(category ? { category } : {}),
   } as Product;

@@ -15,7 +15,7 @@ import { StarRatingComponent } from '../../shared/components/star-rating/star-ra
 import { LoadingSkeletonComponent } from '../../shared/components/loading-skeleton/loading-skeleton.component';
 import { SeoService } from '../../core/services/seo.service';
 import { ToastService } from '../../core/services/toast.service';
-import type { Product } from '../../core/types/api.types';
+import type { Product, ProductAvailabilityColor, ProductAvailabilitySize, FormattedDetails } from '../../core/types/api.types';
 
 @Component({
   selector: 'app-product-detail',
@@ -43,13 +43,62 @@ export class ProductDetailComponent implements OnInit {
   selectedColor = signal<string | null>(null);
   quantity = signal(1);
   added = signal(false);
+  loadingColor = signal(false);
 
+  /** Effective stock: selected variant stock when both color and size match, else global product.stock. */
+  effectiveStock = computed(() => {
+    const p = this.product();
+    if (!p) return 0;
+    const av = p.availability;
+    const color = this.selectedColor();
+    const size = this.selectedSize();
+    if (av?.variants?.length && color != null && size != null) {
+      const v = av.variants.find((x) => x.color === color && x.size === size);
+      if (v) return v.outOfStock ? 0 : v.stock;
+    }
+    return p.stock;
+  });
+
+  /** Formatted details blocks for current locale (or fallback to plain details). */
+  detailBlocks = computed(() => {
+    const p = this.product();
+    if (!p) return null;
+    const fd = p.formattedDetails as FormattedDetails | undefined;
+    const lang = this.locale.getLocale();
+    const blocks = fd?.[lang] ?? fd?.['en'] ?? null;
+    return blocks ?? null;
+  });
+
+  isColorOutOfStock = (color: string): boolean => {
+    const p = this.product();
+    const info = p?.availability?.colors?.find((c) => c.color === color);
+    return info?.outOfStock ?? false;
+  };
+
+  isSizeOutOfStock = (size: string): boolean => {
+    const p = this.product();
+    const info = p?.availability?.sizes?.find((s) => s.size === size);
+    return info?.outOfStock ?? false;
+  };
+
+  /** Image URLs only (for backward compatibility). */
   images = computed(() => {
     const p = this.product();
     if (!p) return [];
     const list = p.images ?? [];
-    const byColor = p.imageColors?.map((c) => (typeof c === 'string' ? c : c.imageUrl)).filter(Boolean) as string[] | undefined;
+    const byColor = p.imageColors?.map((c) => (typeof c === 'string' ? c : (c as { imageUrl?: string }).imageUrl)).filter(Boolean) as string[] | undefined;
     return byColor?.length ? byColor : list;
+  });
+
+  /** Gallery items: images first, then videos (each { type, url }) so we can show both in the gallery. */
+  galleryItems = computed(() => {
+    const p = this.product();
+    if (!p) return [] as { type: 'image' | 'video'; url: string }[];
+    const imgs = this.images();
+    const items: { type: 'image' | 'video'; url: string }[] = imgs.map((url) => ({ type: 'image' as const, url }));
+    const videos = p.videos ?? [];
+    videos.forEach((url) => items.push({ type: 'video', url }));
+    return items;
   });
 
   currentPrice = computed(() => {
@@ -73,6 +122,7 @@ export class ProductDetailComponent implements OnInit {
         this.related.set([]);
         this.selectedImageIndex.set(0);
         this.selectedSize.set(null);
+        this.selectedColor.set(null);
         this.quantity.set(1);
         if (!id || id === 'undefined' || id === '') return [];
         this.productsService.getRelated(id).pipe(
@@ -84,36 +134,61 @@ export class ProductDetailComponent implements OnInit {
     ).subscribe({
       next: (p) => {
         this.product.set(p);
-        if (p) {
-          const name = this.getLocalized(p.name);
-          const desc = this.getLocalized(p.description);
-          this.seo.setPage({ title: name, description: desc?.slice(0, 160), type: 'product' });
-          this.seo.setProductJsonLd({
-            name,
-            description: desc,
-            image: p.images?.[0] ? this.api.imageUrl(p.images[0]) : undefined,
-            price: p.discountPrice != null && p.discountPrice < p.price ? p.discountPrice : p.price,
-            availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-            averageRating: p.averageRating ?? undefined,
-            ratingCount: p.ratingCount ?? undefined,
-          });
-        }
+        this.updateProductMeta(p);
       },
       error: () => this.product.set(null),
     });
   }
 
+  private updateProductMeta(p: Product | null): void {
+    if (!p) return;
+    const name = this.getLocalized(p.name);
+    const desc = this.getLocalized(p.description);
+    this.seo.setPage({ title: name, description: desc?.slice(0, 160), type: 'product' });
+    this.seo.setProductJsonLd({
+      name,
+      description: desc,
+      image: p.images?.[0] ? this.api.imageUrl(p.images[0]) : undefined,
+      price: p.discountPrice != null && p.discountPrice < p.price ? p.discountPrice : p.price,
+      availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      averageRating: p.averageRating ?? undefined,
+      ratingCount: p.ratingCount ?? undefined,
+    });
+  }
+
+  /** Select color and fetch product with color-specific images (GET ?color=...). */
+  selectColor(color: string): void {
+    if (this.isColorOutOfStock(color)) return;
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) return;
+    this.selectedColor.set(color);
+    this.loadingColor.set(true);
+    this.productsService.getProduct(id, { color: color }).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (p) => {
+        this.product.set(p);
+        this.selectedImageIndex.set(0);
+        this.loadingColor.set(false);
+      },
+      error: () => this.loadingColor.set(false),
+    });
+  }
+
   addToCart(): void {
     const p = this.product();
-    if (!p || p.stock < 1) return;
+    const stock = this.effectiveStock();
+    if (!p || stock < 1) return;
+    const qty = Math.min(this.quantity(), stock);
     const price = this.currentPrice();
+    const variant = [this.selectedColor(), this.selectedSize()].filter(Boolean).join(' / ') || undefined;
     this.cart.add({
       productId: p.id,
-      quantity: this.quantity(),
+      quantity: qty,
       price,
       name: this.getLocalized(p.name),
       image: p.images?.[0],
-      variant: this.selectedSize() ?? undefined,
+      variant: variant ?? undefined,
     });
     this.added.set(true);
     this.toast.show(this.getLocalized(p.name) + ' added to cart', 'success');

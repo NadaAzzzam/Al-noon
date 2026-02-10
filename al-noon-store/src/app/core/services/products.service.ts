@@ -71,8 +71,11 @@ export class ProductsService {
       );
   }
 
-  getProduct(id: string): Observable<Product> {
-    return this.http.get<ProductApiResponse | ApiSuccess<ProductApiShape & { _id?: string }>>(`products/${id}`).pipe(
+  /** GET /api/products/:id – optional color query for color-specific images. */
+  getProduct(id: string, options?: { color?: string }): Observable<Product> {
+    let params = new HttpParams();
+    if (options?.color?.trim()) params = params.set('color', options.color.trim());
+    return this.http.get<ProductApiResponse | ApiSuccess<ProductApiShape & { _id?: string }>>(`products/${id}`, { params }).pipe(
       (o) =>
         new Observable<Product>((sub) => {
           o.subscribe({

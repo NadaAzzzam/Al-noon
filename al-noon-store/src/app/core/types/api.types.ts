@@ -1,9 +1,11 @@
-/** Generic API success response */
+/** Generic API success response (list endpoints may include pagination + appliedFilters). */
 export interface ApiSuccess<T> {
   success: true;
   data?: T;
   message?: string;
   pagination?: Pagination;
+  /** Present on list endpoints that support filters. */
+  appliedFilters?: Record<string, unknown>;
 }
 
 /** Generic API error response (matches OpenAPI ApiError) */
@@ -94,6 +96,8 @@ export interface StoreData {
   hero: StoreHero;
   heroEnabled: boolean;
   newArrivalsLimit: number;
+  /** New arrival products from store API (e.g. GET /api/store). */
+  newArrivals?: Product[];
   newArrivalsSectionImages?: string[];
   newArrivalsSectionVideos?: string[];
   ourCollectionSectionImages?: string[];
@@ -150,7 +154,45 @@ export interface ProductImageColor {
   imageUrl?: string;
 }
 
-/** Raw product from API (may have _id and media instead of id and images). */
+/** Variant stock (color/size combination). */
+export interface ProductVariantStock {
+  color?: string;
+  size?: string;
+  stock: number;
+  outOfStock?: boolean;
+}
+
+/** Per-color availability (GET product with variant support). */
+export interface ProductAvailabilityColor {
+  color: string;
+  available: boolean;
+  outOfStock: boolean;
+}
+
+/** Per-size availability (GET product with variant support). */
+export interface ProductAvailabilitySize {
+  size: string;
+  available: boolean;
+  outOfStock: boolean;
+}
+
+/** Variant availability (colors, sizes, and per-variant stock). */
+export interface ProductAvailabilityInfo {
+  colors?: ProductAvailabilityColor[];
+  sizes?: ProductAvailabilitySize[];
+  variants?: ProductVariantStock[];
+}
+
+/** Rich text block for formattedDetails (title, paragraph, list). */
+export type FormattedDetailBlock =
+  | { type: 'title'; text: string }
+  | { type: 'paragraph'; text: string }
+  | { type: 'list'; items: string[] };
+
+/** Formatted product details by locale (e.g. en, ar). */
+export type FormattedDetails = Record<string, FormattedDetailBlock[]>;
+
+/** Raw product from API (may have _id, media, or viewImage/hoverImage/video). */
 export interface ProductApiShape extends Omit<Product, 'id' | 'images' | 'videos' | 'category'> {
   _id?: string;
   id?: string;
@@ -158,6 +200,10 @@ export interface ProductApiShape extends Omit<Product, 'id' | 'images' | 'videos
   media?: ProductMedia;
   images?: string[];
   videos?: string[];
+  /** Single-home / product APIs: main image (required in API), hover image, optional video. */
+  viewImage?: string;
+  hoverImage?: string;
+  video?: string;
   category?: ProductCategory & { _id?: string };
 }
 
@@ -171,6 +217,10 @@ export interface Product {
   images: string[];
   /** When present, catalog/card uses media.default for main image and media.hover on hover (previewVideo ignored in card). */
   media?: ProductMedia;
+  /** Top-level product API shape: viewImage (main), hoverImage (hover), video (optional). Normalizer maps these to images/media/videos. */
+  viewImage?: string;
+  hoverImage?: string;
+  video?: string;
   /** API may return string[] (URLs) or { color?, imageUrl? }[] */
   imageColors?: (string | ProductImageColor)[];
   videos?: string[];
@@ -183,8 +233,12 @@ export interface Product {
   sizeDescriptions?: LocalizedText | string[];
   colors?: string[];
   details?: LocalizedText;
+  /** Parsed rich text (title/paragraph/list blocks) when API provides it. */
+  formattedDetails?: FormattedDetails;
   stylingTip?: LocalizedText;
   category?: ProductCategory;
+  /** Variant availability (colors/sizes/variants with stock). */
+  availability?: ProductAvailabilityInfo;
   /** Present on list when ratings exist (OpenAPI) */
   averageRating?: number | null;
   ratingCount?: number | null;
@@ -462,6 +516,41 @@ export interface CategoriesApiResponse {
 export interface StoreApiResponse {
   success: true;
   data: StoreData | { store: StoreData };
+}
+
+/** Raw home payload from API (data.home). */
+export interface HomeDataRaw {
+  store: Record<string, unknown>;
+  hero: StoreHero;
+  heroEnabled: boolean;
+  newArrivals: (ProductApiShape & { _id?: string })[];
+  homeCollections: unknown;
+  feedbackSectionEnabled: boolean;
+  feedbackDisplayLimit: number;
+  feedbacks: unknown;
+  announcementBar?: { text?: LocalizedText; enabled?: boolean; backgroundColor?: string };
+  promoBanner?: { enabled?: boolean; image?: string; title?: LocalizedText; subtitle?: LocalizedText; ctaLabel?: LocalizedText; ctaUrl?: string };
+}
+
+/** Normalized home data for the app (store and newArrivals normalized). */
+export interface HomeData {
+  store: StoreData;
+  hero: StoreHero;
+  heroEnabled: boolean;
+  newArrivals: Product[];
+  homeCollections: HomeCollection[];
+  feedbackSectionEnabled: boolean;
+  feedbackDisplayLimit: number;
+  feedbacks: StoreFeedback[];
+  announcementBar?: HomeDataRaw['announcementBar'];
+  promoBanner?: HomeDataRaw['promoBanner'];
+}
+
+/** GET /store/home – response envelope. */
+export interface HomeApiResponse {
+  success: true;
+  data: { home: HomeDataRaw };
+  message?: string;
 }
 
 /** GET /store/page/:slug – PageResponse */

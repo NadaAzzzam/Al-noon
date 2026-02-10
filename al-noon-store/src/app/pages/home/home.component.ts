@@ -2,9 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, ChangeDetection
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { switchMap, tap } from 'rxjs';
 import { StoreService } from '../../core/services/store.service';
-import { ProductsService } from '../../core/services/products.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { SeoService } from '../../core/services/seo.service';
@@ -24,7 +22,6 @@ import type { StoreData, Product } from '../../core/types/api.types';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private readonly storeService = inject(StoreService);
-  private readonly productsService = inject(ProductsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly seo = inject(SeoService);
   readonly api = inject(ApiService);
@@ -36,7 +33,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   error = signal<string | null>(null);
   heroImageIndex = signal(0);
 
-  limit = computed(() => Math.max(1, this.store()?.newArrivalsLimit ?? 12));
   currentLocale = computed(() => this.locale.getLocale());
   heroImages = computed(() => this.store()?.hero?.images ?? []);
 
@@ -51,15 +47,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.error.set(null);
     this.seo.setPage({ title: 'Home', description: 'Al-Noon — Fashion & lifestyle store. Explore new arrivals, collections, and exclusive offers.' });
     this.storeService.getStore().pipe(
-      tap((s) => this.store.set(s)),
-      switchMap((s) => {
-        const limit = Math.max(1, s?.newArrivalsLimit ?? 12);
-        return this.productsService.getProducts({ newArrival: true, limit, status: 'ACTIVE' });
-      }),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
-      next: (res) => {
-        this.newArrivals.set(res.data ?? []);
+      next: (s) => {
+        this.store.set(s);
+        this.newArrivals.set(s?.newArrivals ?? []);
         this.loading.set(false);
       },
       error: () => {

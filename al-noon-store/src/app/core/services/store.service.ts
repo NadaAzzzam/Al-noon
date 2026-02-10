@@ -12,6 +12,7 @@ import type {
   StoreQuickLink,
   HomeCollection,
 } from '../types/api.types';
+import { normalizeProductFromApi } from '../utils/product-normalizer';
 
 /** API may return socialLinks as object (e.g. { Facebook: url }) or array; ensure array. */
 function normalizeSocialLinks(raw: unknown): StoreSocialLink[] {
@@ -97,12 +98,17 @@ function normalizeHomeCollections(raw: unknown): HomeCollection[] {
 }
 
 function normalizeStore(store: Record<string, unknown>): StoreData {
+  const rawNewArrivals = store['newArrivals'];
+  const newArrivals = Array.isArray(rawNewArrivals)
+    ? rawNewArrivals.map((p: unknown) => normalizeProductFromApi(p as Parameters<typeof normalizeProductFromApi>[0]))
+    : undefined;
   return {
     ...store,
     quickLinks: normalizeQuickLinks(store['quickLinks']),
     socialLinks: normalizeSocialLinks(store['socialLinks']),
     feedbacks: normalizeFeedbacks(store['feedbacks']),
     homeCollections: normalizeHomeCollections(store['homeCollections']),
+    ...(newArrivals != null ? { newArrivals } : {}),
   } as StoreData;
 }
 
