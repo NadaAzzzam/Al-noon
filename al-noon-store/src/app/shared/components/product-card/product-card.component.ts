@@ -1,4 +1,4 @@
-import { Component, input, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, inject, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ApiService } from '../../../core/services/api.service';
@@ -14,10 +14,25 @@ import type { Product } from '../../../core/types/api.types';
   template: `
     @let p = product();
     @if (p) {
-      <a [routerLink]="['/product', p.id]" class="product-card" [attr.aria-label]="name()">
-        <div class="product-image-wrap">
+      <a [routerLink]="['/product', p.id]" class="product-card">
+        <div class="product-image-wrap"
+             (mouseenter)="hovered.set(true)"
+             (mouseleave)="hovered.set(false)">
           @if (p.images.length) {
-            <img [src]="api.imageUrl(p.images[0])" [alt]="name()" loading="lazy" />
+            <img
+              [src]="api.imageUrl(p.images[0])"
+              [alt]="name()"
+              loading="lazy"
+              class="product-img product-img-main"
+              [class.hidden]="hovered() && hasSecondImage()" />
+            @if (hasSecondImage()) {
+              <img
+                [src]="api.imageUrl(p.images[1])"
+                [alt]="name()"
+                loading="lazy"
+                class="product-img product-img-hover"
+                [class.visible]="hovered()" />
+            }
           } @else {
             <div class="product-image-placeholder">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
@@ -66,12 +81,9 @@ import type { Product } from '../../../core/types/api.types';
     .product-card:hover {
       transform: translateY(-6px);
     }
-    .product-card:hover .product-image-wrap img {
-      transform: scale(1.06);
-    }
     .product-card:hover .quick-view {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateX(-50%) translateY(0);
     }
     .product-image-wrap {
       position: relative;
@@ -81,11 +93,29 @@ import type { Product } from '../../../core/types/api.types';
       border: 1px solid var(--color-border, #e8e6e3);
       border-radius: 4px;
     }
-    .product-image-wrap img {
+    /* ── Image swap on hover ── */
+    .product-img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .product-img-main {
+      opacity: 1;
+      z-index: 1;
+    }
+    .product-img-main.hidden {
+      opacity: 0;
+    }
+    .product-img-hover {
+      opacity: 0;
+      z-index: 2;
+    }
+    .product-img-hover.visible {
+      opacity: 1;
+      transform: scale(1.03);
     }
     .product-image-placeholder {
       width: 100%;
@@ -113,6 +143,7 @@ import type { Product } from '../../../core/types/api.types';
       opacity: 0;
       transition: opacity 0.3s, transform 0.3s;
       pointer-events: none;
+      z-index: 5;
     }
     .sale-badge {
       position: absolute;
@@ -126,6 +157,7 @@ import type { Product } from '../../../core/types/api.types';
       letter-spacing: 0.05em;
       text-transform: uppercase;
       border-radius: 2px;
+      z-index: 5;
     }
     .sold-out-badge {
       position: absolute;
@@ -137,6 +169,7 @@ import type { Product } from '../../../core/types/api.types';
       font-weight: 600;
       padding: 4px 10px;
       border-radius: 2px;
+      z-index: 5;
     }
     .discount-badge {
       position: absolute;
@@ -148,6 +181,7 @@ import type { Product } from '../../../core/types/api.types';
       font-weight: 600;
       padding: 4px 10px;
       border-radius: 2px;
+      z-index: 5;
     }
     .product-card-body {
       padding: 14px 2px 0;
@@ -187,12 +221,18 @@ export class ProductCardComponent {
   private readonly locale = inject(LocaleService);
 
   product = input.required<Product>();
+  hovered = signal(false);
 
   name = computed(() => {
     const p = this.product();
     if (!p?.name) return '';
     const lang = this.locale.getLocale();
     return (p.name[lang] ?? p.name.en ?? p.name.ar ?? '') as string;
+  });
+
+  hasSecondImage = computed(() => {
+    const p = this.product();
+    return p?.images?.length > 1;
   });
 
   hasSale = computed(() => {

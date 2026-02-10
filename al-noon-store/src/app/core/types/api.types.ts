@@ -53,6 +53,8 @@ export interface StoreSocialLink {
 export interface HomeCollection {
   title: LocalizedText;
   image?: string;
+  /** Optional video URL; when present, show video instead of image */
+  video?: string;
   url: string;
   order?: number;
 }

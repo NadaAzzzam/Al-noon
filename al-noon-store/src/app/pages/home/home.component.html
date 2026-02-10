@@ -25,32 +25,32 @@
   @if (heroImages().length) {
   <div class="hero-media">
     @for (img of heroImages(); track img; let i = $index) {
-      <img
-        [src]="api.imageUrl(img)"
-        [alt]="getLocalized(hero.title)"
-        class="hero-img"
-        [class.active]="heroImageIndex() === i"
-        [class.prev]="heroImageIndex() !== i" />
+    <img [src]="api.imageUrl(img)" [alt]="getLocalized(hero.title)" class="hero-img"
+      [class.active]="heroImageIndex() === i" [class.prev]="heroImageIndex() !== i" />
     }
     @if (heroImages().length > 1) {
-      <button type="button" class="hero-nav hero-prev" (click)="prevHeroImage()" aria-label="Previous slide">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    <button type="button" class="hero-nav hero-prev" (click)="prevHeroImage()" aria-label="Previous slide">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+    </button>
+    <button type="button" class="hero-nav hero-next" (click)="nextHeroImage()" aria-label="Next slide">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6" />
+      </svg>
+    </button>
+    <div class="hero-dots">
+      @for (img of heroImages(); track $index; let i = $index) {
+      <button type="button" class="hero-dot" [class.active]="heroImageIndex() === i" (click)="heroImageIndex.set(i)"
+        [attr.aria-label]="'Slide ' + (i + 1)">
+        <span class="hero-dot-progress" [class.running]="heroImageIndex() === i"></span>
       </button>
-      <button type="button" class="hero-nav hero-next" (click)="nextHeroImage()" aria-label="Next slide">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-      <div class="hero-dots">
-        @for (img of heroImages(); track $index; let i = $index) {
-          <button type="button" class="hero-dot" [class.active]="heroImageIndex() === i" (click)="heroImageIndex.set(i)" [attr.aria-label]="'Slide ' + (i + 1)">
-            <span class="hero-dot-progress" [class.running]="heroImageIndex() === i"></span>
-          </button>
-        }
-      </div>
+      }
+    </div>
     }
   </div>
   }
   <div class="hero-content">
-    <span class="hero-label">{{ 'home.newCollection' | translate }}</span>
     <h1 class="hero-title">{{ getLocalized(hero.title) || ('home.newCollection' | translate) }}</h1>
     @if (getLocalized(hero.subtitle)) {
     <p class="hero-subtitle">{{ getLocalized(hero.subtitle) }}</p>
@@ -58,7 +58,6 @@
     @if (hero.ctaUrl && getLocalized(hero.ctaLabel)) {
     <a [routerLink]="hero.ctaUrl" class="btn hero-btn">
       {{ getLocalized(hero.ctaLabel) }}
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
     }
   </div>
@@ -70,62 +69,66 @@
 <section class="section new-arrivals">
   <div class="container">
     <div class="section-header">
-      <div>
-        <span class="section-label">{{ 'home.newArrivals' | translate }}</span>
-        <h2 class="section-title">{{ 'home.newArrivals' | translate }}</h2>
-      </div>
+      <h2 class="section-title">{{ 'home.newArrivals' | translate }}</h2>
       <a routerLink="/catalog" class="section-link">
         {{ 'nav.shop' | translate }}
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
       </a>
     </div>
     @if (loading()) {
-      <app-loading-skeleton type="card" [count]="4" />
+    <app-loading-skeleton type="card" [count]="4" />
     } @else if (newArrivals().length === 0) {
-      <p class="empty-msg">{{ 'catalog.noProducts' | translate }}</p>
+    <p class="empty-msg">{{ 'catalog.noProducts' | translate }}</p>
     } @else {
-      <div class="slider-wrapper">
-        <button type="button" class="slider-arrow slider-arrow-left" (click)="scrollSlider(arrivalsTrack, 'left')" aria-label="Scroll left">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div class="slider-track" #arrivalsTrack>
-          @for (p of newArrivals(); track p.id || $index) {
-            <div class="slider-item">
-              <app-product-card [product]="p" />
-            </div>
-          }
+    <div class="slider-wrapper">
+      <button type="button" class="slider-arrow slider-arrow-left" (click)="scrollSlider(arrivalsTrack, 'left')"
+        aria-label="Scroll left">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+      <div class="slider-track" #arrivalsTrack>
+        @for (p of newArrivals(); track p.id || $index) {
+        <div class="slider-item">
+          <app-product-card [product]="p" />
         </div>
-        <button type="button" class="slider-arrow slider-arrow-right" (click)="scrollSlider(arrivalsTrack, 'right')" aria-label="Scroll right">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+        }
       </div>
+      <button type="button" class="slider-arrow slider-arrow-right" (click)="scrollSlider(arrivalsTrack, 'right')"
+        aria-label="Scroll right">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </button>
+    </div>
     }
   </div>
 </section>
 
-<!-- ═══════ Collections ═══════ -->
+<!-- ═══════ Collections (Bento Grid) ═══════ -->
 @if (collections.length) {
 <section class="section collections-section">
   <div class="container">
-    <div class="section-header">
-      <div>
-        <span class="section-label">{{ 'home.collections' | translate }}</span>
-        <h2 class="section-title">{{ 'home.collections' | translate }}</h2>
-      </div>
-    </div>
-    <div class="collections-grid">
+    <h2 class="section-title collections-title">{{ 'home.collections' | translate }}</h2>
+    <div class="collections-bento" [class.collections-single]="collections.length === 1"
+      [class.collections-two]="collections.length === 2">
       @for (col of collections; track col.url || getLocalized(col.title); let i = $index) {
-      <a [routerLink]="col.url" class="collection-card">
-        @if (col.image) {
-        <img [src]="api.imageUrl(col.image)" [alt]="getLocalized(col.title)" loading="lazy" />
+      <a [routerLink]="col.url" class="collection-card"
+        [class.collection-featured]="i === 0 && collections.length >= 3">
+        @if (col.video) {
+        <video [src]="api.imageUrl(col.video)" muted loop playsinline autoplay class="collection-media"></video>
+        } @else if (col.image) {
+        <img [src]="api.imageUrl(col.image)" [alt]="getLocalized(col.title)" loading="lazy" class="collection-media" />
         }
         <div class="collection-card-overlay"></div>
         <div class="collection-card-content">
-          <span class="collection-label">Collection</span>
           <h3>{{ getLocalized(col.title) }}</h3>
           <span class="collection-cta">
-            Shop Now
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
           </span>
         </div>
       </a>
@@ -135,45 +138,20 @@
 </section>
 }
 
-<!-- ═══════ Our Collection Media ═══════ -->
-@if (s?.ourCollectionSectionImages?.length || s?.ourCollectionSectionVideos?.length) {
-<section class="section our-collection">
-  <div class="container">
-    <div class="section-header">
-      <div>
-        <span class="section-label">{{ 'home.ourCollection' | translate }}</span>
-        <h2 class="section-title">{{ 'home.ourCollection' | translate }}</h2>
-      </div>
-    </div>
-    <div class="media-grid">
-      @for (img of s?.ourCollectionSectionImages ?? []; track img; let i = $index) {
-      <div class="media-item">
-        <img [src]="api.imageUrl(img)" alt="" loading="lazy" />
-      </div>
-      }
-      @for (vid of s?.ourCollectionSectionVideos ?? []; track vid) {
-      <div class="media-item">
-        <video [src]="api.imageUrl(vid)" muted loop playsinline autoplay></video>
-      </div>
-      }
-    </div>
-  </div>
-</section>
-}
 
 <!-- ═══════ Testimonials Slider ═══════ -->
 @if (feedbacks.length) {
 <section class="section testimonials">
   <div class="container">
     <div class="section-header">
-      <div>
-        <span class="section-label">{{ 'home.testimonials' | translate }}</span>
-        <h2 class="section-title">{{ 'home.testimonials' | translate }}</h2>
-      </div>
+      <h2 class="section-title">{{ 'home.testimonials' | translate }}</h2>
     </div>
     <div class="slider-wrapper testimonials-slider">
-      <button type="button" class="slider-arrow slider-arrow-left" (click)="scrollSlider(testimonialsTrack, 'left')" aria-label="Scroll left">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      <button type="button" class="slider-arrow slider-arrow-left" (click)="scrollSlider(testimonialsTrack, 'left')"
+        aria-label="Scroll left">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
       </button>
       <div class="slider-track testimonials-track" #testimonialsTrack>
         @for (f of feedbacks; track f.id) {
@@ -181,11 +159,12 @@
           <blockquote class="testimonial-card">
             <div class="testimonial-quote-icon">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" opacity="0.1">
-                <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                <path
+                  d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
               </svg>
             </div>
             @if (f.rating) {
-              <app-star-rating [rating]="f.rating" />
+            <app-star-rating [rating]="f.rating" />
             }
             @if (f.comment) {
             <p class="testimonial-text">{{ f.comment }}</p>
@@ -202,8 +181,11 @@
         </div>
         }
       </div>
-      <button type="button" class="slider-arrow slider-arrow-right" (click)="scrollSlider(testimonialsTrack, 'right')" aria-label="Scroll right">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <button type="button" class="slider-arrow slider-arrow-right" (click)="scrollSlider(testimonialsTrack, 'right')"
+        aria-label="Scroll right">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
       </button>
     </div>
   </div>

@@ -9,7 +9,7 @@ import { LocaleService } from '../../core/services/locale.service';
 import { ApiService } from '../../core/services/api.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { LocalizedPipe } from '../../shared/pipe/localized.pipe';
-import type { StoreData } from '../../core/types/api.types';
+import type { StoreData, StoreSocialLink } from '../../core/types/api.types';
 
 @Component({
   selector: 'app-header',
@@ -34,7 +34,16 @@ export class HeaderComponent implements OnInit {
   currentLocale = computed(() => this.locale.getLocale());
   searchOpen = signal(false);
   searchQuery = signal('');
-  mobileMenuOpen = signal(false);
+  sidebarOpen = signal(false);
+
+  socialLinks = computed<StoreSocialLink[]>(() => {
+    const links = this.store()?.socialLinks;
+    if (Array.isArray(links)) return links;
+    if (links && typeof links === 'object' && !Array.isArray(links)) {
+      return Object.entries(links).map(([platform, url]) => ({ platform, url: String(url ?? '') }));
+    }
+    return [];
+  });
 
   ngOnInit(): void {
     this.storeService.getStore().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((s) => this.store.set(s));
@@ -48,12 +57,18 @@ export class HeaderComponent implements OnInit {
     this.locale.setLocale(this.currentLocale() === 'ar' ? 'en' : 'ar');
   }
 
-  toggleMobileMenu(): void {
-    this.mobileMenuOpen.update((v) => !v);
+  toggleSidebar(): void {
+    this.sidebarOpen.update((v) => !v);
+    if (this.sidebarOpen()) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
   }
 
-  closeMobileMenu(): void {
-    this.mobileMenuOpen.set(false);
+  closeSidebar(): void {
+    this.sidebarOpen.set(false);
+    document.body.style.overflow = '';
   }
 
   signOut(): void {
@@ -62,7 +77,7 @@ export class HeaderComponent implements OnInit {
 
   submitSearch(): void {
     this.searchOpen.set(false);
-    this.mobileMenuOpen.set(false);
+    this.closeSidebar();
     const q = this.searchQuery().trim();
     this.router.navigate(['/catalog'], { queryParams: q ? { search: q } : {} });
   }
