@@ -4,17 +4,13 @@ import { Observable } from 'rxjs';
 import type {
   ApiSuccess,
   Product,
+  ProductApiShape,
   ProductFilterOption,
   ProductsQuery,
   ProductsListResponse,
   ProductApiResponse,
 } from '../types/api.types';
-
-/** Ensure product has id (API may return _id) */
-function normalizeProduct(p: Product & { _id?: string }): Product {
-  const id = p.id ?? p._id ?? '';
-  return { ...p, id: String(id) };
-}
+import { normalizeProductFromApi } from '../utils/product-normalizer';
 
 @Injectable({ providedIn: 'root' })
 export class ProductsService {
@@ -47,7 +43,7 @@ export class ProductsService {
     set('minRating', query.minRating);
 
     return this.http
-      .get<ApiSuccess<Product[]> & { pagination?: ProductsListResponse['pagination'] }>(
+      .get<ApiSuccess<(ProductApiShape & { _id?: string })[]> & { pagination?: ProductsListResponse['pagination']; appliedFilters?: ProductsListResponse['appliedFilters'] }>(
         'products',
         { params }
       )
@@ -59,11 +55,12 @@ export class ProductsService {
                 if (r.success && r.data != null) {
                   const raw = Array.isArray(r.data)
                     ? r.data
-                    : (r.data as { products?: (Product & { _id?: string })[] })?.products ?? [];
-                  const list = raw.map(normalizeProduct);
+                    : (r.data as { products?: (ProductApiShape & { _id?: string })[] })?.products ?? [];
+                  const list = raw.map((p) => normalizeProductFromApi(p));
                   sub.next({
                     data: list,
                     pagination: r.pagination ?? { total: 0, page: 1, limit: 12, totalPages: 0 },
+                    ...(r.appliedFilters != null ? { appliedFilters: r.appliedFilters } : {}),
                   });
                 }
               },
@@ -75,7 +72,7 @@ export class ProductsService {
   }
 
   getProduct(id: string): Observable<Product> {
-    return this.http.get<ProductApiResponse | ApiSuccess<Product & { _id?: string }>>(`products/${id}`).pipe(
+    return this.http.get<ProductApiResponse | ApiSuccess<ProductApiShape & { _id?: string }>>(`products/${id}`).pipe(
       (o) =>
         new Observable<Product>((sub) => {
           o.subscribe({
@@ -84,12 +81,12 @@ export class ProductsService {
                 sub.error('Product not found');
                 return;
               }
-              const data = r.data as { product?: Product & { _id?: string } } | (Product & { _id?: string });
+              const data = r.data as { product?: ProductApiShape & { _id?: string } } | (ProductApiShape & { _id?: string });
               const raw =
                 data && typeof data === 'object' && 'product' in data
-                  ? (data as { product?: Product & { _id?: string } }).product
-                  : (data as Product & { _id?: string });
-              if (raw) sub.next(normalizeProduct(raw));
+                  ? (data as { product?: ProductApiShape & { _id?: string } }).product
+                  : (data as ProductApiShape & { _id?: string });
+              if (raw) sub.next(normalizeProductFromApi(raw));
               else sub.error('Product not found');
             },
             error: (e) => sub.error(e),
@@ -100,13 +97,13 @@ export class ProductsService {
   }
 
   getRelated(id: string): Observable<Product[]> {
-    return this.http.get<ApiSuccess<(Product & { _id?: string })[]>>(`products/${id}/related`).pipe(
+    return this.http.get<ApiSuccess<(ProductApiShape & { _id?: string })[]>>(`products/${id}/related`).pipe(
       (o) =>
         new Observable<Product[]>((sub) => {
           o.subscribe({
             next: (r) => {
               const raw = r.success && r.data && Array.isArray(r.data) ? r.data : [];
-              sub.next(raw.map(normalizeProduct));
+              sub.next(raw.map((p) => normalizeProductFromApi(p)));
             },
             error: () => sub.next([]),
             complete: () => sub.complete(),

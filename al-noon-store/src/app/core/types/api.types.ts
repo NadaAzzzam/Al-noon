@@ -55,6 +55,8 @@ export interface HomeCollection {
   image?: string;
   /** Optional video URL; when present, show video instead of image */
   video?: string;
+  /** Image to show on hover (image swap); ignored when video is shown */
+  hoverImage?: string;
   url: string;
   order?: number;
 }
@@ -122,10 +124,24 @@ export interface AuthTokens {
 }
 
 /** Product */
+
+/** API media object: default, hover, previewVideo (each has type + url) */
+export interface ProductMediaItem {
+  type?: string;
+  url?: string;
+}
+
+export interface ProductMedia {
+  default?: ProductMediaItem;
+  hover?: ProductMediaItem;
+  previewVideo?: ProductMediaItem;
+}
+
 export interface ProductCategory {
   id: string;
   name: LocalizedText;
   status?: string;
+  _id?: string;
 }
 
 /** API may return imageColors as string[] (URLs) or { color?, imageUrl? }[] */
@@ -134,7 +150,18 @@ export interface ProductImageColor {
   imageUrl?: string;
 }
 
-/** Product (OpenAPI ProductData). API uses _id; normalized to id in client. */
+/** Raw product from API (may have _id and media instead of id and images). */
+export interface ProductApiShape extends Omit<Product, 'id' | 'images' | 'videos' | 'category'> {
+  _id?: string;
+  id?: string;
+  /** New API: media.default, media.hover, media.previewVideo. Old API may still send images. */
+  media?: ProductMedia;
+  images?: string[];
+  videos?: string[];
+  category?: ProductCategory & { _id?: string };
+}
+
+/** Product (normalized for client). API uses _id; normalized to id. Media normalized to images/videos. */
 export interface Product {
   id: string;
   name: LocalizedText;
@@ -142,6 +169,8 @@ export interface Product {
   price: number;
   discountPrice?: number;
   images: string[];
+  /** When present, catalog/card uses media.default for main image and media.hover on hover (previewVideo ignored in card). */
+  media?: ProductMedia;
   /** API may return string[] (URLs) or { color?, imageUrl? }[] */
   imageColors?: (string | ProductImageColor)[];
   videos?: string[];
@@ -202,9 +231,16 @@ export interface ProductsQuery {
   minRating?: number;
 }
 
+export interface ProductsListAppliedFilters {
+  sort?: string;
+  availability?: string;
+  status?: string;
+}
+
 export interface ProductsListResponse {
   data: Product[];
   pagination: Pagination;
+  appliedFilters?: ProductsListAppliedFilters;
 }
 
 /** Category status (OpenAPI: visible | hidden; store may filter by PUBLISHED as alias for visible) */

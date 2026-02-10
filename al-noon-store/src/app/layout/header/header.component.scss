@@ -4,12 +4,13 @@
 
 .header {
   position: sticky;
-  top: 0;
+  top: var(--announcement-height, 0);
   z-index: 100;
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
-  height: var(--header-height);
-  transition: box-shadow 0.3s, background 0.3s;
+  transition:
+    box-shadow 0.3s,
+    background 0.3s;
 }
 
 .header-inner {
@@ -38,10 +39,15 @@
   }
 }
 
-/* ── Logo (centered) ── */
+/* ── Logo (centered, aligned with navbar) ── */
 .logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   justify-self: center;
   flex-shrink: 0;
+  height: 100%;
+  min-height: var(--header-height);
   transition: opacity 0.2s;
 
   &:hover {
@@ -49,8 +55,11 @@
   }
 
   img {
-    max-height: 42px;
-    width: auto;
+    max-height: 7rem;
+    width: 6rem;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
   }
 }
 
@@ -109,9 +118,15 @@
 }
 
 @keyframes cartBounce {
-  0% { transform: scale(0); }
-  60% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0);
+  }
+  60% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* ── Search bar ── */
@@ -145,8 +160,14 @@
 }
 
 @keyframes slide-down {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -313,8 +334,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* ── Responsive: hide user icon on very small screens ── */

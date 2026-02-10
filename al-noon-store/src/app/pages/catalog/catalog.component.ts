@@ -60,6 +60,19 @@ export class CatalogComponent implements OnInit {
   sortOptions = signal<ProductFilterOption[]>([]);
   filtersOpen = signal(false);
 
+  // Collapsible sidebar sections
+  sectionOpen: Record<string, boolean> = {
+    availability: true,
+    category: true,
+    price: true,
+    color: true,
+    rating: true,
+  };
+
+  toggleSection(key: string): void {
+    this.sectionOpen[key] = !this.sectionOpen[key];
+  }
+
   private static readonly FALLBACK_SORTS: ProductSort[] = [
     'newest', 'priceAsc', 'priceDesc', 'nameAsc', 'nameDesc', 'bestSelling', 'highestSelling', 'lowSelling',
   ];

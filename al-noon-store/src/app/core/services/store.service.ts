@@ -10,6 +10,7 @@ import type {
   PageApiResponse,
   StoreSocialLink,
   StoreQuickLink,
+  HomeCollection,
 } from '../types/api.types';
 
 /** API may return socialLinks as object (e.g. { Facebook: url }) or array; ensure array. */
@@ -70,12 +71,38 @@ function normalizeFeedbacks(raw: unknown): StoreFeedback[] {
   }));
 }
 
+/** Map /products to /catalog so collection links match app routes. */
+function normalizeCollectionUrl(url: string): string {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('/products') || trimmed.startsWith('products?')) {
+    const rest = trimmed.replace(/^\/?products\/?/, '');
+    const query = rest.startsWith('?') ? rest : (rest ? `?${rest}` : '');
+    return `/catalog${query}`;
+  }
+  return trimmed.startsWith('/') || trimmed.startsWith('http') ? trimmed : `/${trimmed}`;
+}
+
+/** Ensure homeCollections is an array; normalize URLs and optional hoverImage/video. */
+function normalizeHomeCollections(raw: unknown): HomeCollection[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((col: Record<string, unknown>) => ({
+    title: (col['title'] ?? { en: '', ar: '' }) as HomeCollection['title'],
+    image: col['image'] as string | undefined,
+    video: col['video'] as string | undefined,
+    hoverImage: col['hoverImage'] as string | undefined,
+    url: normalizeCollectionUrl((col['url'] ?? '') as string),
+    order: typeof col['order'] === 'number' ? col['order'] : undefined,
+  }));
+}
+
 function normalizeStore(store: Record<string, unknown>): StoreData {
   return {
     ...store,
     quickLinks: normalizeQuickLinks(store['quickLinks']),
     socialLinks: normalizeSocialLinks(store['socialLinks']),
     feedbacks: normalizeFeedbacks(store['feedbacks']),
+    homeCollections: normalizeHomeCollections(store['homeCollections']),
   } as StoreData;
 }
 

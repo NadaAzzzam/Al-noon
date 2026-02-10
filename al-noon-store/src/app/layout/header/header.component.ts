@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { DOCUMENT, CommonModule } from '@angular/common';
 import { StoreService } from '../../core/services/store.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
@@ -22,14 +22,18 @@ import type { StoreData, StoreSocialLink } from '../../core/types/api.types';
 export class HeaderComponent implements OnInit {
   private readonly storeService = inject(StoreService);
   private readonly auth = inject(AuthService);
-  private readonly cart = inject(CartService);
+  readonly cart = inject(CartService);
   private readonly locale = inject(LocaleService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly doc = inject(DOCUMENT);
   readonly api = inject(ApiService);
 
   store = signal<StoreData | null>(null);
   cartCount = computed(() => this.cart.count());
+  cartItems = this.cart.items;
+  cartSubtotal = this.cart.subtotal;
+  cartDrawerOpen = this.cart.drawerOpen;
   isLoggedIn = computed(() => this.auth.isLoggedIn());
   currentLocale = computed(() => this.locale.getLocale());
   searchOpen = signal(false);
@@ -46,7 +50,24 @@ export class HeaderComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.storeService.getStore().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((s) => this.store.set(s));
+    this.storeService.getStore().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((s) => {
+      this.store.set(s);
+      this.updateFavicon(s?.logo);
+    });
+  }
+
+  private updateFavicon(logoPath: string | undefined | null): void {
+    const url = logoPath ? this.api.imageUrl(logoPath) : null;
+    let link = this.doc.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (url) {
+      if (!link) {
+        link = this.doc.createElement('link');
+        link.setAttribute('rel', 'icon');
+        link.setAttribute('type', 'image/x-icon');
+        this.doc.head.appendChild(link);
+      }
+      link.setAttribute('href', url);
+    }
   }
 
   toggleSearch(): void {
@@ -72,7 +93,7 @@ export class HeaderComponent implements OnInit {
   }
 
   signOut(): void {
-    this.auth.signOut().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {});
+    this.auth.signOut().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => { });
   }
 
   submitSearch(): void {
@@ -80,5 +101,27 @@ export class HeaderComponent implements OnInit {
     this.closeSidebar();
     const q = this.searchQuery().trim();
     this.router.navigate(['/catalog'], { queryParams: q ? { search: q } : {} });
+  }
+
+  /** Cart drawer methods */
+  openCartDrawer(): void {
+    this.cart.openDrawer();
+  }
+
+  closeCartDrawer(): void {
+    this.cart.closeDrawer();
+  }
+
+  updateCartQty(productId: string, qty: number, variant?: string): void {
+    this.cart.setQuantity(productId, qty, variant);
+  }
+
+  removeCartItem(productId: string, variant?: string): void {
+    this.cart.remove(productId, variant);
+  }
+
+  goToCheckout(): void {
+    this.cart.closeDrawer();
+    this.router.navigate(['/checkout']);
   }
 }

@@ -33,12 +33,19 @@ import { LocaleService } from '../core/services/locale.service';
     <app-back-to-top />
   `,
   styles: [`
+    :host {
+      --announcement-height: 36px;
+    }
+
     .main {
       min-height: calc(100vh - var(--header-height) - 200px);
     }
 
-    /* ── Infinite sliding announcement banner ── */
+    /* ── Infinite sliding announcement banner (sticky like header) ── */
     .announcement-bar {
+      position: sticky;
+      top: 0;
+      z-index: 101;
       background: linear-gradient(90deg, #1a1a2e, #16213e, #0f3460, #16213e, #1a1a2e);
       background-size: 200% 100%;
       animation: announcement-bg 8s linear infinite;
@@ -48,9 +55,7 @@ import { LocaleService } from '../core/services/locale.service';
       letter-spacing: 0.04em;
       overflow: hidden;
       white-space: nowrap;
-      position: relative;
-      z-index: 101;
-      height: 36px;
+      height: var(--announcement-height);
       display: flex;
       align-items: center;
     }

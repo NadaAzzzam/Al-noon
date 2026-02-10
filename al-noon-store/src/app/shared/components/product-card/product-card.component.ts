@@ -1,4 +1,4 @@
-import { Component, input, inject, computed, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ApiService } from '../../../core/services/api.service';
@@ -16,22 +16,19 @@ import type { Product } from '../../../core/types/api.types';
     @if (p) {
       <a [routerLink]="['/product', p.id]" class="product-card">
         <div class="product-image-wrap"
-             (mouseenter)="hovered.set(true)"
-             (mouseleave)="hovered.set(false)">
-          @if (p.images.length) {
+             [class.has-hover-image]="hasSecondImage()">
+          @if (mainImageUrl()) {
             <img
-              [src]="api.imageUrl(p.images[0])"
+              [src]="api.imageUrl(mainImageUrl())"
               [alt]="name()"
               loading="lazy"
-              class="product-img product-img-main"
-              [class.hidden]="hovered() && hasSecondImage()" />
+              class="product-img product-img-main" />
             @if (hasSecondImage()) {
               <img
-                [src]="api.imageUrl(p.images[1])"
+                [src]="api.imageUrl(hoverImageUrl())"
                 [alt]="name()"
                 loading="lazy"
-                class="product-img product-img-hover"
-                [class.visible]="hovered()" />
+                class="product-img product-img-hover" />
             }
           } @else {
             <div class="product-image-placeholder">
@@ -93,7 +90,7 @@ import type { Product } from '../../../core/types/api.types';
       border: 1px solid var(--color-border, #e8e6e3);
       border-radius: 4px;
     }
-    /* ── Image swap on hover ── */
+    /* ── Image swap on hover (CSS-only so hover is reliable) ── */
     .product-img {
       position: absolute;
       inset: 0;
@@ -106,14 +103,14 @@ import type { Product } from '../../../core/types/api.types';
       opacity: 1;
       z-index: 1;
     }
-    .product-img-main.hidden {
-      opacity: 0;
-    }
     .product-img-hover {
       opacity: 0;
       z-index: 2;
     }
-    .product-img-hover.visible {
+    .product-image-wrap.has-hover-image:hover .product-img-main {
+      opacity: 0;
+    }
+    .product-image-wrap.has-hover-image:hover .product-img-hover {
       opacity: 1;
       transform: scale(1.03);
     }
@@ -221,7 +218,22 @@ export class ProductCardComponent {
   private readonly locale = inject(LocaleService);
 
   product = input.required<Product>();
-  hovered = signal(false);
+
+  /** Main image: media.default (catalog); fallback images[0]. */
+  mainImageUrl = computed(() => {
+    const p = this.product();
+    if (!p) return undefined;
+    const url = p.media?.default?.type === 'image' ? p.media.default.url : p.media?.default?.url;
+    return url ?? p.images?.[0];
+  });
+
+  /** Hover image: media.hover only (previewVideo ignored). Fallback images[1]. */
+  hoverImageUrl = computed(() => {
+    const p = this.product();
+    if (!p) return undefined;
+    const url = p.media?.hover?.type === 'image' ? p.media.hover.url : p.media?.hover?.url;
+    return url ?? p.images?.[1];
+  });
 
   name = computed(() => {
     const p = this.product();
@@ -232,7 +244,9 @@ export class ProductCardComponent {
 
   hasSecondImage = computed(() => {
     const p = this.product();
-    return p?.images?.length > 1;
+    if (!p) return false;
+    const hover = this.hoverImageUrl();
+    return !!hover && hover !== this.mainImageUrl();
   });
 
   hasSale = computed(() => {

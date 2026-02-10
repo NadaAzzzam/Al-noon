@@ -75,7 +75,9 @@
   object-fit: cover;
   opacity: 0;
   transform: scale(1.05);
-  transition: opacity 1s ease, transform 6s ease;
+  transition:
+    opacity 1s ease,
+    transform 6s ease;
 
   &.active {
     opacity: 1;
@@ -112,7 +114,9 @@
   cursor: pointer;
   z-index: 3;
   color: #fff;
-  transition: background 0.3s, transform 0.3s;
+  transition:
+    background 0.3s,
+    transform 0.3s;
 
   &:hover {
     background: rgba(255, 255, 255, 0.3);
@@ -120,8 +124,12 @@
   }
 }
 
-.hero-prev { inset-inline-start: 24px; }
-.hero-next { inset-inline-end: 24px; }
+.hero-prev {
+  inset-inline-start: 24px;
+}
+.hero-next {
+  inset-inline-end: 24px;
+}
 
 .hero-dots {
   position: absolute;
@@ -167,8 +175,12 @@
 }
 
 @keyframes hero-dot-fill {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 
 .hero-content {
@@ -207,7 +219,9 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 14px 36px;
-  transition: background 0.3s, color 0.3s;
+  transition:
+    background 0.3s,
+    color 0.3s;
 
   &:hover {
     background: #fff;
@@ -234,7 +248,9 @@
   /* Hide scrollbar */
   scrollbar-width: none;
   -ms-overflow-style: none;
-  &::-webkit-scrollbar { display: none; }
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .slider-item {
@@ -258,7 +274,10 @@
   cursor: pointer;
   z-index: 2;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s;
   color: var(--color-text);
 
   &:hover {
@@ -330,15 +349,56 @@
   overflow: hidden;
   border-radius: 0;
 
-  .collection-media {
+  .collection-media-wrap {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .collection-media,
+  .collection-img-main,
+  .collection-img-hover {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    transition:
+      opacity 0.5s ease,
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  &:hover .collection-media {
+  .collection-media-wrap .collection-img-main,
+  .collection-media-wrap .collection-img-hover {
+    position: absolute;
+    inset: 0;
+  }
+
+  .collection-img-hover {
+    opacity: 0;
+    z-index: 1;
+  }
+
+  .collection-media-wrap.has-hover-image:hover .collection-img-main {
+    opacity: 0;
+  }
+
+  .collection-media-wrap.has-hover-image:hover .collection-img-hover {
+    opacity: 1;
     transform: scale(1.05);
+  }
+
+  /* Single image (no hover): scale on hover */
+  .collection-media-wrap:not(.has-hover-image):hover .collection-img-main {
+    transform: scale(1.05);
+  }
+
+  /* Video or legacy single .collection-media: scale on hover */
+  &:hover .collection-media:not(.collection-img-main):not(.collection-img-hover) {
+    transform: scale(1.05);
+  }
+
+  .collection-media:not(.collection-img-main):not(.collection-img-hover) {
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
@@ -378,7 +438,9 @@
   display: inline-flex;
   align-items: center;
   opacity: 0.8;
-  transition: opacity 0.3s, transform 0.3s;
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
 
   .collection-card:hover & {
     opacity: 1;
@@ -406,7 +468,8 @@
   border-radius: 4px;
   position: relative;
 
-  img, video {
+  img,
+  video {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -443,7 +506,9 @@
   margin: 0;
   height: 100%;
   position: relative;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
 
   &:hover {
     transform: translateY(-4px);
@@ -565,8 +630,12 @@
     height: 40px;
   }
 
-  .hero-prev { inset-inline-start: 12px; }
-  .hero-next { inset-inline-end: 12px; }
+  .hero-prev {
+    inset-inline-start: 12px;
+  }
+  .hero-next {
+    inset-inline-end: 12px;
+  }
 }
 
 @media (max-width: 480px) {

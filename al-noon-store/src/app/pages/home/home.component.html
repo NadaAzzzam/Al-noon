@@ -117,10 +117,15 @@
       @for (col of collections; track col.url || getLocalized(col.title); let i = $index) {
       <a [routerLink]="col.url" class="collection-card"
         [class.collection-featured]="i === 0 && collections.length >= 3">
-        @if (col.video) {
-        <video [src]="api.imageUrl(col.video)" muted loop playsinline autoplay class="collection-media"></video>
-        } @else if (col.image) {
-        <img [src]="api.imageUrl(col.image)" [alt]="getLocalized(col.title)" loading="lazy" class="collection-media" />
+        @if (col.image) {
+        <div class="collection-media-wrap" [class.has-hover-image]="!!col.hoverImage">
+          <img [src]="api.imageUrl(col.image)" [alt]="getLocalized(col.title)" loading="lazy"
+            class="collection-media collection-img-main" />
+          @if (col.hoverImage) {
+          <img [src]="api.imageUrl(col.hoverImage)" [alt]="getLocalized(col.title)" loading="lazy"
+            class="collection-media collection-img-hover" />
+          }
+        </div>
         }
         <div class="collection-card-overlay"></div>
         <div class="collection-card-content">

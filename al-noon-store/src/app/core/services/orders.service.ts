@@ -11,7 +11,9 @@ import type {
   PaginatedOrdersApiResponse,
   OrderApiResponse,
   Product,
+  ProductApiShape,
 } from '../types/api.types';
+import { normalizeProductFromApi } from '../utils/product-normalizer';
 
 /** Minimal product for display when BE returns only product id (OpenAPI: product = string | populated). */
 function minimalProduct(id: string): Product {
@@ -25,9 +27,9 @@ function minimalProduct(id: string): Product {
   };
 }
 
-/** Ensure order item product has id (API may return _id). If product is only a string id, use minimal Product. */
+/** Ensure order item product has id and images (API may return _id and media). If product is only a string id, use minimal Product. */
 function normalizeOrderItem(
-  item: OrderItem & { product?: string | (Product & { _id?: string }) }
+  item: OrderItem & { product?: string | (ProductApiShape & { _id?: string }) }
 ): OrderItem {
   const raw = item.product;
   if (typeof raw === 'string') {
@@ -36,8 +38,7 @@ function normalizeOrderItem(
   if (!raw) {
     return { ...item, product: minimalProduct(''), quantity: item.quantity, price: item.price };
   }
-  const id = String((raw as Product).id ?? (raw as { _id?: string })._id ?? '');
-  return { ...item, product: { ...raw, id } as Product };
+  return { ...item, product: normalizeProductFromApi(raw) };
 }
 
 /** Ensure order has id (API may return _id) and items have product.id; preserve guest fields. */
