@@ -264,8 +264,8 @@
   }
 }
 
-.slider-arrow-left { left: -22px; }
-.slider-arrow-right { right: -22px; }
+.slider-arrow-left { inset-inline-start: -22px; }
+.slider-arrow-right { inset-inline-end: -22px; }
 
 /* ══ Responsive ══ */
 @media (max-width: 1024px) {

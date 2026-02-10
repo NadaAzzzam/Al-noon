@@ -72,7 +72,8 @@
   select {
     appearance: none;
     -webkit-appearance: none;
-    padding: 8px 32px 8px 14px;
+    padding: 8px 14px;
+    padding-inline-end: 32px;
     font-family: var(--font-body);
     font-size: 14px;
     color: var(--color-text);
@@ -95,15 +96,10 @@
 
   .sort-chevron {
     position: absolute;
-    right: 10px;
+    inset-inline-end: 10px;
     pointer-events: none;
     opacity: 0.5;
   }
-}
-
-[dir='rtl'] .toolbar-sort .sort-chevron {
-  right: auto;
-  left: 10px;
 }
 
 /* ── Products wrap (full width) ── */
@@ -164,6 +160,7 @@
 
   &.open {
     transform: translateX(0);
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
   }
 }
 

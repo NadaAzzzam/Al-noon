@@ -159,7 +159,7 @@
         </svg>
       </button>
       <div class="slider-track testimonials-track" #testimonialsTrack>
-        @for (f of feedbacks; track f.id) {
+        @for (f of feedbacks; track $index) {
         <div class="slider-item testimonial-slide">
           <blockquote class="testimonial-card">
             <div class="testimonial-quote-icon">

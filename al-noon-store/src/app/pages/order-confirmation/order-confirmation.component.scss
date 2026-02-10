@@ -261,7 +261,7 @@
 .summary-product-qty {
   position: absolute;
   top: -6px;
-  right: -6px;
+  inset-inline-end: -6px;
   min-width: 20px;
   height: 20px;
   padding: 0 5px;
@@ -331,7 +331,7 @@
     font-size: 12px;
     font-weight: 400;
     color: var(--color-text-muted, #888);
-    margin-right: 4px;
+    margin-inline-end: 4px;
   }
 }
 

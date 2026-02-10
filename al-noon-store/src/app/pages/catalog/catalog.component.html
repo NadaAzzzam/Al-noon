@@ -43,7 +43,7 @@
   <div class="active-filters">
     @if (search()) {
     <button type="button" class="filter-chip" (click)="removeFilter('search')">
-      {{ 'catalog.search' | translate }}: {{ search() }} <span cl{}ass="chip-close">&times;</span>
+      {{ 'catalog.search' | translate }}: {{ search() }} <span class="chip-close">&times;</span>
     </button>
     }
     @if (categoryId()) {

@@ -61,6 +61,14 @@
   }
 }
 
+[dir='rtl'] .message.user .message-text {
+  border-radius: 12px 12px 12px 4px;
+}
+
+[dir='rtl'] .message.assistant .message-text {
+  border-radius: 12px 12px 4px 12px;
+}
+
 .message-text {
   margin: 0;
   font-size: 14px;
