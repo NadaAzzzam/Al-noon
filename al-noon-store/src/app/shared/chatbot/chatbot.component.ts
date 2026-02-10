@@ -1,11 +1,11 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AiChatService } from '../../core/services/ai-chat.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { ApiService } from '../../core/services/api.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import type { AiSettings, AiChatResponse } from '../../core/types/api.types';
 
 interface ChatMessage {
@@ -17,7 +17,7 @@ interface ChatMessage {
 @Component({
   selector: 'app-chatbot',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [FormsModule, RouterLink, TranslatePipe],
   templateUrl: './chatbot.component.html',
   styleUrl: './chatbot.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,6 +36,16 @@ export class ChatbotComponent implements OnInit {
   error = signal<string | null>(null);
   sessionId = signal<string | null>(null);
 
+  /** Show widget when we have settings and either enabled or any content (greeting / suggested questions). */
+  showWidget = computed(() => {
+    const s = this.settings();
+    if (!s) return false;
+    if (s.enabled) return true;
+    const hasGreeting = this.getLocalized(s.greeting).trim().length > 0;
+    const hasSuggestions = (s.suggestedQuestions?.length ?? 0) > 0;
+    return hasGreeting || hasSuggestions;
+  });
+
   ngOnInit(): void {
     this.aiService.getSettings().pipe(
       takeUntilDestroyed(this.destroyRef)
@@ -44,16 +54,6 @@ export class ChatbotComponent implements OnInit {
       const greeting = this.getLocalized(s.greeting);
       if (greeting?.trim()) this.messages.set([{ role: 'assistant', text: greeting }]);
     });
-  }
-
-  /** Show widget when we have settings and either enabled or any content (greeting / suggested questions). */
-  get showWidget(): boolean {
-    const s = this.settings();
-    if (!s) return false;
-    if (s.enabled) return true;
-    const hasGreeting = this.getLocalized(s.greeting).trim().length > 0;
-    const hasSuggestions = (s.suggestedQuestions?.length ?? 0) > 0;
-    return hasGreeting || hasSuggestions;
   }
 
   getLocalized(obj: { en?: string; ar?: string } | undefined): string {

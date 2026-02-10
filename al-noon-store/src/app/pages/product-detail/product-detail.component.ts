@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, distinctUntilChanged, switchMap, take } from 'rxjs/operators';
 import { timer } from 'rxjs';
@@ -8,7 +7,7 @@ import { ProductsService } from '../../core/services/products.service';
 import { CartService } from '../../core/services/cart.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { StarRatingComponent } from '../../shared/components/star-rating/star-rating.component';
@@ -20,7 +19,7 @@ import type { Product, ProductAvailabilityColor, ProductAvailabilitySize, Format
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, TranslateModule, ProductCardComponent, BreadcrumbComponent, StarRatingComponent, LoadingSkeletonComponent],
+  imports: [TranslatePipe, ProductCardComponent, BreadcrumbComponent, StarRatingComponent, LoadingSkeletonComponent],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

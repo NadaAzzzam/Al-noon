@@ -6,14 +6,14 @@ import { FormsModule } from '@angular/forms';
 import { StoreService } from '../../core/services/store.service';
 import { NewsletterService } from '../../core/services/newsletter.service';
 import { LocaleService } from '../../core/services/locale.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { emailError } from '../../shared/utils/form-validators';
 import type { StoreData } from '../../core/types/api.types';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslateModule],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

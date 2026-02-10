@@ -1,4 +1,4 @@
-@if (settings()?.enabled) {
+@if (showWidget()) {
 <div class="chatbot-widget" [class.open]="open()">
   <button type="button" class="chatbot-toggle" (click)="toggle()" [attr.aria-label]="'Chat'">
     {{ open() ? '×' : '💬' }}

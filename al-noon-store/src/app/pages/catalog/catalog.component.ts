@@ -1,14 +1,13 @@
 import { Component, OnInit, inject, signal, computed, effect, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductsService } from '../../core/services/products.service';
 import { CategoriesService } from '../../core/services/categories.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { SeoService } from '../../core/services/seo.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
 import { LoadingSkeletonComponent } from '../../shared/components/loading-skeleton/loading-skeleton.component';
 import type {
@@ -23,7 +22,7 @@ import type {
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, ProductCardComponent, LoadingSkeletonComponent],
+  imports: [FormsModule, TranslatePipe, ProductCardComponent, LoadingSkeletonComponent],
   templateUrl: './catalog.component.html',
   styleUrl: './catalog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

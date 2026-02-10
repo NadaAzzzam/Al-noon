@@ -1,17 +1,16 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OrdersService } from '../../../core/services/orders.service';
 import { ApiService } from '../../../core/services/api.service';
 import { LocaleService } from '../../../core/services/locale.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import type { Order, StructuredAddress } from '../../../core/types/api.types';
 
 @Component({
   selector: 'app-order-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './order-detail.component.html',
   styleUrl: './order-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

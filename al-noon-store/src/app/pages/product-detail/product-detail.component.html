@@ -1,228 +1,243 @@
 @let p = product();
 @if (!p) {
-  <div class="container">
-    <app-loading-skeleton type="card" [count]="1" />
-  </div>
+<div class="container">
+  <app-loading-skeleton type="card" [count]="1" />
+</div>
 } @else {
-  <div class="container product-detail">
-    <!-- Breadcrumb -->
-    <app-breadcrumb [items]="[
+<div class="container product-detail">
+  <!-- Breadcrumb -->
+  <app-breadcrumb [items]="[
       { label: ('nav.home' | translate), url: '/' },
       { label: ('nav.shop' | translate), url: '/catalog' },
       { label: getLocalized(p.name) }
     ]" />
 
-    <div class="product-main fade-in-up">
-      <!-- Gallery (images + videos) -->
-      <div class="gallery">
-        <div class="gallery-main">
-          @if (galleryItems().length) {
-            @let item = galleryItems()[selectedImageIndex()];
-            @if (item.type === 'video') {
-              <video
-                class="gallery-main-video"
-                [src]="api.imageUrl(item.url)"
-                controls
-                playsinline
-                [attr.aria-label]="getLocalized(p.name)">
-              </video>
-            } @else {
-              <img [src]="api.imageUrl(item.url)" [alt]="getLocalized(p.name)" class="gallery-main-img" />
-            }
-            @if (p.discountPrice != null && p.discountPrice < p.price) {
-              <span class="sale-badge">{{ 'sale' | translate }}</span>
-            }
-            @if (galleryItems().length > 1) {
-              <button type="button" class="gallery-nav gallery-prev" (click)="selectedImageIndex.set((selectedImageIndex() - 1 + galleryItems().length) % galleryItems().length)" aria-label="Previous">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-              </button>
-              <button type="button" class="gallery-nav gallery-next" (click)="selectedImageIndex.set((selectedImageIndex() + 1) % galleryItems().length)" aria-label="Next">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-              </button>
-            }
-          } @else {
-            <div class="product-image-placeholder">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
-                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
-              </svg>
-            </div>
+  <div class="product-main fade-in-up">
+    <!-- Gallery (images + videos) -->
+    <div class="gallery">
+      <div class="gallery-main">
+        @if (galleryItems().length) {
+        @let item = galleryItems()[selectedImageIndex()];
+        @if (item.type === 'video') {
+        <video class="gallery-main-video" [src]="api.imageUrl(item.url)"
+          [poster]="images().length ? api.imageUrl(images()[0]) : null" controls playsinline
+          [attr.aria-label]="getLocalized(p.name)">
+        </video>
+        } @else {
+        <img [src]="api.imageUrl(item.url)" [alt]="getLocalized(p.name)" class="gallery-main-img" />
+        }
+        @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="sale-badge">{{ 'sale' | translate
+          }}</span>
           }
-        </div>
-        @if (galleryItems().length > 1) {
-          <div class="gallery-thumbs">
-            @for (it of galleryItems(); track it.url + it.type; let i = $index) {
-              <button type="button" class="thumb" [class.active]="selectedImageIndex() === i" [class.thumb-video]="it.type === 'video'" (click)="selectedImageIndex.set(i)">
-                @if (it.type === 'video') {
-                  <span class="thumb-play" aria-hidden="true">▶</span>
-                } @else {
-                  <img [src]="api.imageUrl(it.url)" alt="" loading="lazy" />
-                }
-              </button>
-            }
+          @if (galleryItems().length > 1) {
+          <button type="button" class="gallery-nav gallery-prev"
+            (click)="selectedImageIndex.set((selectedImageIndex() - 1 + galleryItems().length) % galleryItems().length)"
+            aria-label="Previous">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <button type="button" class="gallery-nav gallery-next"
+            (click)="selectedImageIndex.set((selectedImageIndex() + 1) % galleryItems().length)" aria-label="Next">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+          }
+          } @else {
+          <div class="product-image-placeholder">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+              opacity="0.3">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="m21 15-5-5L5 21" />
+            </svg>
           </div>
+          }
+      </div>
+      @if (galleryItems().length > 1) {
+      <div class="gallery-thumbs">
+        @for (it of galleryItems(); track it.url + it.type; let i = $index) {
+        <button type="button" class="thumb" [class.active]="selectedImageIndex() === i"
+          [class.thumb-video]="it.type === 'video'" (click)="selectedImageIndex.set(i)">
+          @if (it.type === 'video') {
+          @if (images().length) {
+          <img [src]="api.imageUrl(images()[0])" alt="" loading="lazy" />
+          }
+          <span class="thumb-play" aria-hidden="true">▶</span>
+          } @else {
+          <img [src]="api.imageUrl(it.url)" alt="" loading="lazy" />
+          }
+        </button>
         }
       </div>
+      }
+    </div>
 
-      <!-- Product Info -->
-      <div class="product-info">
-        <h1 class="product-title">{{ getLocalized(p.name) }}</h1>
+    <!-- Product Info -->
+    <div class="product-info">
+      <h1 class="product-title">{{ getLocalized(p.name) }}</h1>
 
-        <!-- Rating -->
-        @if (p.averageRating) {
-          <div class="product-rating">
-            <app-star-rating [rating]="p.averageRating" [showCount]="true" [count]="p.ratingCount ?? 0" />
-          </div>
-        }
+      <!-- Rating -->
+      @if (p.averageRating) {
+      <div class="product-rating">
+        <app-star-rating [rating]="p.averageRating" [showCount]="true" [count]="p.ratingCount ?? 0" />
+      </div>
+      }
 
-        <!-- Price -->
-        <div class="price">
-          @if (p.discountPrice != null && p.discountPrice < p.price) {
-            <span class="original">{{ p.price }} EGP</span>
-            <span class="current">{{ p.discountPrice }} EGP</span>
-            <span class="discount-tag">-{{ discountPercent() }}%</span>
+      <!-- Price -->
+      <div class="price">
+        @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="original">{{ p.price }} EGP</span>
+          <span class="current">{{ p.discountPrice }} EGP</span>
+          <span class="discount-tag">-{{ discountPercent() }}%</span>
           } @else {
-            <span class="current">{{ p.price }} EGP</span>
+          <span class="current">{{ p.price }} EGP</span>
           }
-        </div>
+      </div>
 
-        @if (getLocalized(p.description)) {
-          <div class="description" [innerHTML]="getLocalized(p.description)"></div>
-        }
+      @if (getLocalized(p.description)) {
+      <div class="description" [innerHTML]="getLocalized(p.description)"></div>
+      }
 
-        <!-- Sizes (with availability: disable out-of-stock) -->
-        @if (p.sizes?.length) {
-          <div class="form-group">
-            <label>{{ 'product.size' | translate }}</label>
-            <div class="size-options">
-              @for (sz of p.sizes; track sz) {
-                @let sizeOutOfStock = isSizeOutOfStock(sz);
-                <button type="button"
-                  class="size-btn"
-                  [class.selected]="selectedSize() === sz"
-                  [class.out-of-stock]="sizeOutOfStock"
-                  [disabled]="sizeOutOfStock"
-                  (click)="!sizeOutOfStock && selectedSize.set(sz)">
-                  {{ sz }}
-                </button>
-              }
-            </div>
-          </div>
-        }
-
-        <!-- Color swatches (with availability: disable out-of-stock; click fetches color-specific images) -->
-        @if (p.colors?.length) {
-          <div class="form-group">
-            <label>{{ 'product.color' | translate }}@if (selectedColor()) {: <strong>{{ selectedColor() }}</strong>}</label>
-            @if (loadingColor()) {
-              <span class="color-loading" aria-busy="true">Loading…</span>
-            }
-            <div class="color-swatches">
-              @for (c of p.colors; track c) {
-                @let colorOutOfStock = isColorOutOfStock(c);
-                <button type="button"
-                  class="color-swatch"
-                  [class.selected]="selectedColor() === c"
-                  [class.out-of-stock]="colorOutOfStock"
-                  [style.background-color]="c"
-                  [attr.aria-label]="c"
-                  [disabled]="colorOutOfStock || loadingColor()"
-                  (click)="selectColor(c)">
-                </button>
-              }
-            </div>
-          </div>
-        }
-
-        <!-- Quantity +/- (capped by effective variant stock when availability exists) -->
-        <div class="form-group">
-          <label>{{ 'product.quantity' | translate }}</label>
-          <div class="quantity-control">
-            <button type="button" class="qty-btn" (click)="quantity.set(Math.max(1, quantity() - 1))" [disabled]="quantity() <= 1" aria-label="Decrease quantity">−</button>
-            <span class="qty-value">{{ quantity() }}</span>
-            <button type="button" class="qty-btn" (click)="quantity.set(Math.min(effectiveStock(), quantity() + 1))" [disabled]="quantity() >= effectiveStock()" aria-label="Increase quantity">+</button>
-          </div>
-          @if (effectiveStock() > 0 && effectiveStock() <= 5) {
-            <p class="low-stock">{{ 'product.lowStock' | translate: { count: effectiveStock() } }}</p>
-          }
-        </div>
-
-        @if (effectiveStock() <= 0) {
-          <p class="out-of-stock">{{ 'product.outOfStock' | translate }}</p>
-        } @else {
-          <button type="button" class="btn add-to-cart-btn" (click)="addToCart()" [disabled]="added()">
-            @if (added()) {
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-              {{ 'product.added' | translate }}
-            } @else {
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-              {{ 'product.addToCart' | translate }}
-            }
+      <!-- Sizes (with availability: disable out-of-stock) -->
+      @if (p.sizes?.length) {
+      <div class="form-group">
+        <label>{{ 'product.size' | translate }}</label>
+        <div class="size-options">
+          @for (sz of p.sizes; track sz) {
+          @let sizeOutOfStock = isSizeOutOfStock(sz);
+          <button type="button" class="size-btn" [class.selected]="selectedSize() === sz"
+            [class.out-of-stock]="sizeOutOfStock" [disabled]="sizeOutOfStock"
+            (click)="!sizeOutOfStock && selectedSize.set(sz)">
+            {{ sz }}
           </button>
+          }
+        </div>
+      </div>
+      }
+
+      <!-- Color swatches (with availability: disable out-of-stock; click fetches color-specific images) -->
+      @if (p.colors?.length) {
+      <div class="form-group">
+        <label>{{ 'product.color' | translate }}@if (selectedColor()) {: <strong>{{ selectedColor() }}</strong>}</label>
+        @if (loadingColor()) {
+        <span class="color-loading" aria-busy="true">Loading…</span>
+        }
+        <div class="color-swatches">
+          @for (c of p.colors; track c) {
+          @let colorOutOfStock = isColorOutOfStock(c);
+          <button type="button" class="color-swatch" [class.selected]="selectedColor() === c"
+            [class.out-of-stock]="colorOutOfStock" [style.background-color]="c" [attr.aria-label]="c"
+            [disabled]="colorOutOfStock || loadingColor()" (click)="selectColor(c)">
+          </button>
+          }
+        </div>
+      </div>
+      }
+
+      <!-- Quantity +/- (capped by effective variant stock when availability exists) -->
+      <div class="form-group">
+        <label>{{ 'product.quantity' | translate }}</label>
+        <div class="quantity-control">
+          <button type="button" class="qty-btn" (click)="quantity.set(Math.max(1, quantity() - 1))"
+            [disabled]="quantity() <= 1" aria-label="Decrease quantity">−</button>
+          <span class="qty-value">{{ quantity() }}</span>
+          <button type="button" class="qty-btn" (click)="quantity.set(Math.min(effectiveStock(), quantity() + 1))"
+            [disabled]="quantity() >= effectiveStock()" aria-label="Increase quantity">+</button>
+        </div>
+        @if (effectiveStock() > 0 && effectiveStock() <= 5) { <p class="low-stock">{{ 'product.lowStock' | translate: {
+          count: effectiveStock() } }}</p>
+          }
+      </div>
+
+      @if (effectiveStock() <= 0) { <p class="out-of-stock">{{ 'product.outOfStock' | translate }}</p>
+        } @else {
+        <button type="button" class="btn add-to-cart-btn" (click)="addToCart()" [disabled]="added()">
+          @if (added()) {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          {{ 'product.added' | translate }}
+          } @else {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
+          </svg>
+          {{ 'product.addToCart' | translate }}
+          }
+        </button>
         }
 
         @if (getLocalized(p.stylingTip)) {
-          <details class="info-accordion">
-            <summary>{{ 'product.stylingTip' | translate }}</summary>
-            <p>{{ getLocalized(p.stylingTip) }}</p>
-          </details>
+        <details class="info-accordion">
+          <summary>{{ 'product.stylingTip' | translate }}</summary>
+          <p>{{ getLocalized(p.stylingTip) }}</p>
+        </details>
         }
         @if (detailBlocks(); as blocks) {
-          <details class="info-accordion" open>
-            <summary>{{ 'product.details' | translate }}</summary>
-            <div class="formatted-details">
-              @for (block of blocks; track $index) {
-                @switch (block.type) {
-                  @case ('title') {
-                    <h3 class="detail-title">{{ block.text }}</h3>
-                  }
-                  @case ('paragraph') {
-                    <p class="detail-paragraph">{{ block.text }}</p>
-                  }
-                  @case ('list') {
-                    <ul class="detail-list">
-                      @for (item of block.items; track $index) {
-                        <li>{{ item }}</li>
-                      }
-                    </ul>
-                  }
-                }
+        <details class="info-accordion" open>
+          <summary>{{ 'product.details' | translate }}</summary>
+          <div class="formatted-details">
+            @for (block of blocks; track $index) {
+            @switch (block.type) {
+            @case ('title') {
+            <h3 class="detail-title">{{ block.text }}</h3>
+            }
+            @case ('paragraph') {
+            <p class="detail-paragraph">{{ block.text }}</p>
+            }
+            @case ('list') {
+            <ul class="detail-list">
+              @for (item of block.items; track $index) {
+              <li>{{ item }}</li>
               }
-            </div>
-          </details>
-        } @else if (getLocalized(p.details)) {
-          <details class="info-accordion" open>
-            <summary>{{ 'product.details' | translate }}</summary>
-            <p>{{ getLocalized(p.details) }}</p>
-          </details>
-        }
-      </div>
-    </div>
-
-    <!-- ═══ Related Products Slider ═══ -->
-    @if (related().length) {
-      <section class="related">
-        <div class="section-header">
-          <div>
-            <span class="section-label">{{ 'product.related' | translate }}</span>
-            <h2>{{ 'product.related' | translate }}</h2>
-          </div>
-        </div>
-        <div class="slider-wrapper">
-          <button type="button" class="slider-arrow slider-arrow-left" (click)="scrollSlider(relatedTrack, 'left')" aria-label="Scroll left">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-          </button>
-          <div class="slider-track" #relatedTrack>
-            @for (r of related(); track r.id || $index) {
-              <div class="slider-item">
-                <app-product-card [product]="r" />
-              </div>
+            </ul>
+            }
+            }
             }
           </div>
-          <button type="button" class="slider-arrow slider-arrow-right" (click)="scrollSlider(relatedTrack, 'right')" aria-label="Scroll right">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-        </div>
-      </section>
-    }
+        </details>
+        } @else if (getLocalized(p.details)) {
+        <details class="info-accordion" open>
+          <summary>{{ 'product.details' | translate }}</summary>
+          <p>{{ getLocalized(p.details) }}</p>
+        </details>
+        }
+    </div>
   </div>
+
+  <!-- ═══ Related Products Slider ═══ -->
+  @if (related().length) {
+  <section class="related">
+    <div class="section-header">
+      <div>
+        <span class="section-label">{{ 'product.related' | translate }}</span>
+        <h2>{{ 'product.related' | translate }}</h2>
+      </div>
+    </div>
+    <div class="slider-wrapper">
+      <button type="button" class="slider-arrow slider-arrow-left" (click)="scrollSlider(relatedTrack, 'left')"
+        aria-label="Scroll left">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+      <div class="slider-track" #relatedTrack>
+        @for (r of related(); track r.id || $index) {
+        <div class="slider-item">
+          <app-product-card [product]="r" />
+        </div>
+        }
+      </div>
+      <button type="button" class="slider-arrow slider-arrow-right" (click)="scrollSlider(relatedTrack, 'right')"
+        aria-label="Scroll right">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </button>
+    </div>
+  </section>
+  }
+</div>
 }

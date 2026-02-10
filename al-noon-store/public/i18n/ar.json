@@ -2,6 +2,13 @@
   "nav": {
     "home": "الرئيسية",
     "shop": "المتجر",
+    "shopCollection": "المجموعات",
+    "shippingPolicy": "سياسة الشحن",
+    "address": "العنوان",
+    "contactUs": "اتصل بنا",
+    "privacyPolicy": "سياسة الخصوصية",
+    "refundPolicy": "سياسة الاسترجاع",
+    "wishlist": "المفضلة",
     "cart": "السلة",
     "logIn": "تسجيل الدخول",
     "logOut": "خروج",

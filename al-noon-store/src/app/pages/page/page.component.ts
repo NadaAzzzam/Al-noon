@@ -1,11 +1,10 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { StoreService } from '../../core/services/store.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LocaleService } from '../../core/services/locale.service';
 import { LocalizedPipe } from '../../shared/pipe/localized.pipe';
 import type { ContentPage } from '../../core/types/api.types';
@@ -13,7 +12,7 @@ import type { ContentPage } from '../../core/types/api.types';
 @Component({
   selector: 'app-page',
   standalone: true,
-  imports: [CommonModule, TranslateModule, LocalizedPipe],
+  imports: [TranslatePipe, LocalizedPipe],
   templateUrl: './page.component.html',
   styleUrl: './page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

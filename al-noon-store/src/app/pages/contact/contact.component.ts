@@ -1,7 +1,6 @@
 import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ContactService } from '../../core/services/contact.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { SeoService } from '../../core/services/seo.service';
@@ -10,7 +9,7 @@ import { emailError, minLengthError, requiredError } from '../../shared/utils/fo
 @Component({
   selector: 'app-contact',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [FormsModule, TranslatePipe],
   templateUrl: './contact.component.html',
   styleUrl: './contact.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

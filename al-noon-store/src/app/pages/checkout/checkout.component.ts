@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { DOCUMENT, CommonModule } from '@angular/common';
+import { DOCUMENT, DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CartService } from '../../core/services/cart.service';
 import { OrdersService } from '../../core/services/orders.service';
@@ -11,7 +12,7 @@ import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { AuthService } from '../../core/services/auth.service';
 import { StoreService } from '../../core/services/store.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LocalizedPipe } from '../../shared/pipe/localized.pipe';
 import { requiredError, emailError } from '../../shared/utils/form-validators';
 import type { City, Governorate, ShippingMethod, CreateOrderBody, StructuredAddress, StoreData } from '../../core/types/api.types';
@@ -20,7 +21,7 @@ import type { PaymentMethod } from '../../core/types/api.types';
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule, LocalizedPipe],
+  imports: [DecimalPipe, FormsModule, RouterLink, TranslatePipe, LocalizedPipe],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

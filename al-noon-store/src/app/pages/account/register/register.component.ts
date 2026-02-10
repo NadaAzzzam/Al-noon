@@ -1,8 +1,8 @@
 import { Component, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { emailError, minLengthError, passwordError } from '../../../shared/utils/form-validators';
@@ -10,7 +10,7 @@ import { emailError, minLengthError, passwordError } from '../../../shared/utils
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [FormsModule, RouterLink, TranslatePipe],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,6 +1,6 @@
 import { Component, input, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ApiService } from '../../../core/services/api.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { StarRatingComponent } from '../star-rating/star-rating.component';
@@ -9,7 +9,7 @@ import type { Product } from '../../../core/types/api.types';
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [RouterLink, TranslateModule, StarRatingComponent],
+  imports: [RouterLink, TranslatePipe, StarRatingComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @let p = product();

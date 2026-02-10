@@ -2,6 +2,13 @@
   "nav": {
     "home": "Home",
     "shop": "Shop",
+    "shopCollection": "SHOP COLLECTION",
+    "shippingPolicy": "SHIPPING POLICY",
+    "address": "Address",
+    "contactUs": "CONTACT US",
+    "privacyPolicy": "Privacy Policy",
+    "refundPolicy": "Refund Policy",
+    "wishlist": "Wishlist",
     "cart": "Cart",
     "logIn": "Log in",
     "logOut": "Log out",

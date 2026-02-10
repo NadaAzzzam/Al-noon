@@ -1,52 +1,64 @@
 <header class="header" [class.header-open]="sidebarOpen()">
   <div class="container header-inner">
     <!-- Hamburger (always visible) -->
-    <button type="button" class="hamburger" (click)="toggleSidebar()" [attr.aria-label]="'nav.menu' | translate" [attr.aria-expanded]="sidebarOpen()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <line x1="3" y1="6" x2="21" y2="6"/>
-        <line x1="3" y1="12" x2="21" y2="12"/>
-        <line x1="3" y1="18" x2="21" y2="18"/>
+    <button type="button" class="hamburger" (click)="toggleSidebar()" [attr.aria-label]="'nav.menu' | translate"
+      [attr.aria-expanded]="sidebarOpen()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="18" x2="21" y2="18" />
       </svg>
     </button>
 
     <!-- Centered Logo -->
     <a [routerLink]="['/']" class="logo" (click)="closeSidebar()">
       @if (store()?.logo) {
-        <img [src]="api.imageUrl(store()!.logo)" [alt]="store()!.storeName.en || 'Store'" />
+      <img [src]="api.imageUrl(store()!.logo)" [alt]="store()!.storeName.en || 'Store'" />
       } @else {
-        <span class="logo-text">{{ (store()?.storeName | localized) || ('storeName' | translate) }}</span>
+      <span class="logo-text">{{ (store()?.storeName | localized) || ('storeName' | translate) }}</span>
       }
     </a>
 
     <!-- Right actions -->
     <div class="actions">
       <button type="button" class="icon-btn" (click)="toggleSearch()" [attr.aria-label]="'nav.search' | translate">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
       </button>
 
       @if (isLoggedIn()) {
-        <a [routerLink]="['/account', 'orders']" class="icon-btn" [attr.aria-label]="'nav.myOrders' | translate">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-          </svg>
-        </a>
+      <a [routerLink]="['/account', 'orders']" class="icon-btn" [attr.aria-label]="'nav.myOrders' | translate">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      </a>
       } @else {
-        <a [routerLink]="['/account', 'login']" class="icon-btn" [attr.aria-label]="'nav.logIn' | translate">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-          </svg>
-        </a>
+      <a [routerLink]="['/account', 'login']" class="icon-btn" [attr.aria-label]="'nav.logIn' | translate">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      </a>
       }
 
       <!-- Cart icon opens drawer -->
-      <button type="button" class="icon-btn cart-link" (click)="openCartDrawer()" [attr.aria-label]="'nav.cart' | translate">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+      <button type="button" class="icon-btn cart-link" (click)="openCartDrawer()"
+        [attr.aria-label]="'nav.cart' | translate">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <path d="M16 10a4 4 0 0 1-8 0" />
         </svg>
         @if (cartCount() > 0) {
-          <span class="cart-count">{{ cartCount() }}</span>
+        <span class="cart-count">{{ cartCount() }}</span>
         }
       </button>
     </div>
@@ -54,14 +66,15 @@
 
   <!-- Search bar -->
   @if (searchOpen()) {
-    <div class="search-bar">
-      <div class="container">
-        <form class="search-form" (ngSubmit)="submitSearch()">
-          <input type="search" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)" [placeholder]="'nav.searchPlaceholder' | translate" autofocus />
-          <button type="submit" class="btn">{{ 'nav.search' | translate }}</button>
-        </form>
-      </div>
+  <div class="search-bar">
+    <div class="container">
+      <form class="search-form" (ngSubmit)="submitSearch()">
+        <input type="search" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)"
+          [placeholder]="'nav.searchPlaceholder' | translate" autofocus />
+        <button type="submit" class="btn">{{ 'nav.search' | translate }}</button>
+      </form>
     </div>
+  </div>
   }
 </header>
 
@@ -69,25 +82,67 @@
 <aside class="sidebar" [class.sidebar-open]="sidebarOpen()">
   <div class="sidebar-header">
     <button type="button" class="sidebar-close" (click)="closeSidebar()" aria-label="Close menu">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
       </svg>
     </button>
   </div>
 
   <nav class="sidebar-nav">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeSidebar()">
-      {{ 'nav.home' | translate }}
-    </a>
-    @for (link of store()?.quickLinks ?? []; track link.url) {
-      @if (link.url.startsWith('/')) {
-        <a [routerLink]="link.url" routerLinkActive="active" (click)="closeSidebar()">{{ link.title | localized }}</a>
-      } @else {
-        <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.title | localized }}</a>
+    <!-- SHOP COLLECTION (collapsible) -->
+    <div class="sidebar-section">
+      <button type="button" class="sidebar-section-head" (click)="toggleShopCollection()"
+        [attr.aria-expanded]="shopCollectionExpanded()">
+        <span class="sidebar-section-title">{{ 'nav.shopCollection' | translate }}</span>
+        <svg class="sidebar-section-chevron" [class.collapsed]="!shopCollectionExpanded()" width="14" height="14"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="18 15 12 9 6 15" />
+        </svg>
+      </button>
+      @if (shopCollectionExpanded()) {
+      <div class="sidebar-section-list">
+        @for (cat of categories(); track cat.id) {
+        <a [routerLink]="['/catalog']" [queryParams]="{ category: cat.id }" routerLinkActive="active"
+          (click)="closeSidebar()">{{ cat.name | localized }}</a>
+        }
+        @if (categories().length === 0) {
+        <a routerLink="/catalog" routerLinkActive="active" (click)="closeSidebar()">{{ 'nav.shop' | translate }}</a>
+        }
+      </div>
       }
+    </div>
+
+    <hr class="sidebar-divider" />
+
+    <!-- SHIPPING POLICY -->
+    <div class="sidebar-section">
+      <h3 class="sidebar-section-title">{{ 'nav.shippingPolicy' | translate }}</h3>
+      <div class="sidebar-section-list">
+        <a routerLink="/page/shipping-policy" (click)="closeSidebar()">{{ 'nav.address' | translate }}</a>
+      </div>
+    </div>
+
+    <hr class="sidebar-divider" />
+
+    <!-- CONTACT US -->
+    <div class="sidebar-section">
+      <h3 class="sidebar-section-title">{{ 'nav.contactUs' | translate }}</h3>
+      <div class="sidebar-section-list">
+        <a routerLink="/page/privacy" (click)="closeSidebar()">{{ 'nav.privacyPolicy' | translate }}</a>
+        <a routerLink="/page/return-policy" (click)="closeSidebar()">{{ 'nav.refundPolicy' | translate }}</a>
+      </div>
+    </div>
+
+    <!-- Log in -->
+    @if (isLoggedIn()) {
+    <a [routerLink]="['/account', 'orders']" class="sidebar-login" (click)="closeSidebar()">{{ 'nav.myOrders' |
+      translate }}</a>
+    } @else {
+    <a [routerLink]="['/account', 'login']" class="sidebar-login" (click)="closeSidebar()">{{ 'nav.logIn' | translate
+      }}</a>
     }
-    <a routerLink="/catalog" routerLinkActive="active" (click)="closeSidebar()">{{ 'nav.shop' | translate }}</a>
-    <a routerLink="/contact" routerLinkActive="active" (click)="closeSidebar()">{{ 'nav.contact' | translate }}</a>
   </nav>
 
   <!-- Language toggle in sidebar -->
@@ -96,36 +151,62 @@
   </button>
 
   @if (isLoggedIn()) {
-    <button type="button" class="sidebar-signout" (click)="signOut(); closeSidebar()">
-      {{ 'nav.logOut' | translate }}
-    </button>
+  <button type="button" class="sidebar-signout" (click)="signOut(); closeSidebar()">
+    {{ 'nav.logOut' | translate }}
+  </button>
   }
 
-  <!-- Social links at bottom of sidebar -->
-  <div class="sidebar-social">
-    @for (social of socialLinks(); track social.url) {
+  <!-- Social + Wishlist at bottom -->
+  <div class="sidebar-footer-actions">
+    <div class="sidebar-social">
+      @for (social of socialLinks(); track social.url) {
       <a [href]="social.url" target="_blank" rel="noopener noreferrer" [attr.aria-label]="social.platform">
         @if (social.platform.toLowerCase() === 'facebook') {
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+        </svg>
         } @else if (social.platform.toLowerCase() === 'instagram') {
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+        </svg>
         } @else if (social.platform.toLowerCase() === 'twitter' || social.platform.toLowerCase() === 'x') {
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+        </svg>
         } @else if (social.platform.toLowerCase() === 'tiktok') {
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15.2a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.88a8.28 8.28 0 0 0 4.76 1.5v-3.4a4.85 4.85 0 0 1-1-.29z"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15.2a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.88a8.28 8.28 0 0 0 4.76 1.5v-3.4a4.85 4.85 0 0 1-1-.29z" />
+        </svg>
         } @else if (social.platform.toLowerCase() === 'whatsapp') {
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z" />
+        </svg>
         } @else {
-          <span class="social-letter">{{ social.platform.charAt(0).toUpperCase() }}</span>
+        <span class="social-letter">{{ social.platform.charAt(0).toUpperCase() }}</span>
         }
       </a>
-    }
+      }
+    </div>
+    <a routerLink="/catalog" class="sidebar-wishlist" (click)="closeSidebar()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path
+          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+      </svg>
+      {{ 'nav.wishlist' | translate }}
+    </a>
   </div>
 </aside>
 
 <!-- Sidebar overlay -->
 @if (sidebarOpen()) {
-  <div class="sidebar-overlay" (click)="closeSidebar()"></div>
+<div class="sidebar-overlay" (click)="closeSidebar()"></div>
 }
 
 <!-- ═══════════════════════════════════════════════════
@@ -139,80 +220,89 @@
       <span class="cart-col-label">TOTAL</span>
     </div>
     <button type="button" class="cart-drawer-close" (click)="closeCartDrawer()" aria-label="Close cart">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
       </svg>
     </button>
   </div>
 
   <div class="cart-drawer-body">
     @if (cartItems().length === 0) {
-      <div class="cart-drawer-empty">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
-          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-        </svg>
-        <p>Your cart is empty</p>
-      </div>
+    <div class="cart-drawer-empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 0 1-8 0" />
+      </svg>
+      <p>Your cart is empty</p>
+    </div>
     } @else {
-      <div class="cart-drawer-items">
-        @for (item of cartItems(); track (item.productId + (item.variant ?? ''))) {
-          <div class="cart-drawer-item">
-            <div class="cart-drawer-item-image">
-              @if (item.image) {
-                <img [src]="api.imageUrl(item.image)" [alt]="item.name ?? ''" loading="lazy" />
-              } @else {
-                <div class="cart-drawer-item-placeholder"></div>
-              }
+    <div class="cart-drawer-items">
+      @for (item of cartItems(); track (item.productId + (item.variant ?? ''))) {
+      <div class="cart-drawer-item">
+        <div class="cart-drawer-item-image">
+          @if (item.image) {
+          <img [src]="api.imageUrl(item.image)" [alt]="item.name ?? ''" loading="lazy" />
+          } @else {
+          <div class="cart-drawer-item-placeholder"></div>
+          }
+        </div>
+        <div class="cart-drawer-item-info">
+          <a [routerLink]="['/product', item.productId]" class="cart-drawer-item-name" (click)="closeCartDrawer()">{{
+            item.name ?? 'Product' }}</a>
+          <p class="cart-drawer-item-price">LE {{ item.price | number:'1.2-2' }} EGP</p>
+          @if (item.variant) {
+          <p class="cart-drawer-item-variant">Size: {{ item.variant }}</p>
+          }
+          <div class="cart-drawer-item-actions">
+            <div class="qty-control">
+              <button type="button" class="qty-btn"
+                (click)="updateCartQty(item.productId, item.quantity - 1, item.variant)"
+                aria-label="Decrease">&minus;</button>
+              <span class="qty-value">{{ item.quantity }}</span>
+              <button type="button" class="qty-btn"
+                (click)="updateCartQty(item.productId, item.quantity + 1, item.variant)"
+                aria-label="Increase">+</button>
             </div>
-            <div class="cart-drawer-item-info">
-              <a [routerLink]="['/product', item.productId]" class="cart-drawer-item-name" (click)="closeCartDrawer()">{{ item.name ?? 'Product' }}</a>
-              <p class="cart-drawer-item-price">LE {{ item.price | number:'1.2-2' }} EGP</p>
-              @if (item.variant) {
-                <p class="cart-drawer-item-variant">Size: {{ item.variant }}</p>
-              }
-              <div class="cart-drawer-item-actions">
-                <div class="qty-control">
-                  <button type="button" class="qty-btn" (click)="updateCartQty(item.productId, item.quantity - 1, item.variant)" aria-label="Decrease">&minus;</button>
-                  <span class="qty-value">{{ item.quantity }}</span>
-                  <button type="button" class="qty-btn" (click)="updateCartQty(item.productId, item.quantity + 1, item.variant)" aria-label="Increase">+</button>
-                </div>
-                <button type="button" class="cart-drawer-remove" (click)="removeCartItem(item.productId, item.variant)" aria-label="Remove item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div class="cart-drawer-item-total">
-              LE {{ (item.price * item.quantity) | number:'1.2-2' }}
-            </div>
+            <button type="button" class="cart-drawer-remove" (click)="removeCartItem(item.productId, item.variant)"
+              aria-label="Remove item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
           </div>
-        }
+        </div>
+        <div class="cart-drawer-item-total">
+          LE {{ (item.price * item.quantity) | number:'1.2-2' }}
+        </div>
       </div>
+      }
+    </div>
     }
   </div>
 
   @if (cartItems().length > 0) {
-    <div class="cart-drawer-footer">
-      <details class="cart-drawer-instructions">
-        <summary>Order special instructions</summary>
-        <textarea
-          rows="3"
-          [value]="cart.specialInstructions()"
-          (input)="cart.setSpecialInstructions($any($event.target).value)"
-          placeholder="Add any special instructions for your order..."></textarea>
-      </details>
-      <div class="cart-drawer-total">
-        <span class="cart-drawer-total-label">Estimated total</span>
-        <span class="cart-drawer-total-value">LE {{ cartSubtotal() | number:'1.2-2' }} EGP</span>
-      </div>
-      <p class="cart-drawer-tax-note">Taxes, discounts and shipping calculated at checkout.</p>
-      <button type="button" class="cart-drawer-checkout-btn" (click)="goToCheckout()">Check out</button>
+  <div class="cart-drawer-footer">
+    <details class="cart-drawer-instructions">
+      <summary>Order special instructions</summary>
+      <textarea rows="3" [value]="cart.specialInstructions()"
+        (input)="cart.setSpecialInstructions($any($event.target).value)"
+        placeholder="Add any special instructions for your order..."></textarea>
+    </details>
+    <div class="cart-drawer-total">
+      <span class="cart-drawer-total-label">Estimated total</span>
+      <span class="cart-drawer-total-value">LE {{ cartSubtotal() | number:'1.2-2' }} EGP</span>
     </div>
+    <p class="cart-drawer-tax-note">Taxes, discounts and shipping calculated at checkout.</p>
+    <button type="button" class="cart-drawer-checkout-btn" (click)="goToCheckout()">Check out</button>
+  </div>
   }
 </aside>
 
 <!-- Cart drawer overlay -->
 @if (cartDrawerOpen()) {
-  <div class="cart-drawer-overlay" (click)="closeCartDrawer()"></div>
+<div class="cart-drawer-overlay" (click)="closeCartDrawer()"></div>
 }

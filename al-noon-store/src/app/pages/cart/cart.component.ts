@@ -1,7 +1,7 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { DecimalPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CartService } from '../../core/services/cart.service';
 import { ApiService } from '../../core/services/api.service';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
@@ -9,7 +9,7 @@ import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcru
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule, BreadcrumbComponent],
+  imports: [DecimalPipe, RouterLink, TranslatePipe, BreadcrumbComponent],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

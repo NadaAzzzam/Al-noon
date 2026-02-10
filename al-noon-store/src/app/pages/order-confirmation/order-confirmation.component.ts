@@ -1,16 +1,16 @@
 import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { AuthService } from '../../core/services/auth.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import type { Order, StructuredAddress } from '../../core/types/api.types';
 
 @Component({
   selector: 'app-order-confirmation',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [DecimalPipe, RouterLink, TranslatePipe],
   templateUrl: './order-confirmation.component.html',
   styleUrl: './order-confirmation.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

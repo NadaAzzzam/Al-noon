@@ -1,12 +1,11 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { StoreService } from '../../core/services/store.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { SeoService } from '../../core/services/seo.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
 import { LoadingSkeletonComponent } from '../../shared/components/loading-skeleton/loading-skeleton.component';
 import { StarRatingComponent } from '../../shared/components/star-rating/star-rating.component';
@@ -15,7 +14,7 @@ import type { StoreData, Product } from '../../core/types/api.types';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule, ProductCardComponent, LoadingSkeletonComponent, StarRatingComponent],
+  imports: [RouterLink, TranslatePipe, ProductCardComponent, LoadingSkeletonComponent, StarRatingComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
