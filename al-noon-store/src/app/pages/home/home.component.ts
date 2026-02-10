@@ -94,4 +94,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     const lang = this.locale.getLocale();
     return (obj[lang] ?? obj.en ?? obj.ar ?? '') as string;
   }
+
+  /** Query params for collection link so catalog filters by category (avoids URL encoding issues). */
+  getCollectionQueryParams(col: { url: string; categoryId?: string }): { category?: string } {
+    if (col.categoryId?.trim()) return { category: col.categoryId.trim() };
+    const url = col.url?.trim();
+    if (url?.includes('category=')) {
+      const match = /[?&]category=([^&]+)/.exec(url);
+      if (match?.[1]) return { category: decodeURIComponent(match[1]) };
+    }
+    return {};
+  }
 }

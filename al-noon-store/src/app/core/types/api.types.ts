@@ -60,6 +60,8 @@ export interface HomeCollection {
   /** Image to show on hover (image swap); ignored when video is shown */
   hoverImage?: string;
   url: string;
+  /** Category id/slug for catalog filter; used to build url when url is empty or to link to category */
+  categoryId?: string;
   order?: number;
 }
 

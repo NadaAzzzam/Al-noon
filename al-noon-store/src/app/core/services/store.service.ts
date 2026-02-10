@@ -133,12 +133,14 @@ function normalizeHomeCollections(raw: unknown): HomeCollection[] {
       }
     }
     if (!url) url = '/catalog';
+    const categoryId = categorySlug ?? (typeof col['categoryId'] === 'string' ? (col['categoryId'] as string).trim() || undefined : undefined);
     return {
       title: (col['title'] ?? { en: '', ar: '' }) as HomeCollection['title'],
       image: col['image'] as string | undefined,
       video: col['video'] as string | undefined,
       hoverImage: col['hoverImage'] as string | undefined,
       url,
+      categoryId,
       order: typeof col['order'] === 'number' ? col['order'] : undefined,
     };
   });
