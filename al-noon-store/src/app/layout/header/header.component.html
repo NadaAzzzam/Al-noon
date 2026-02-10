@@ -40,14 +40,15 @@
         </a>
       }
 
-      <a [routerLink]="['/cart']" class="icon-btn cart-link" [attr.aria-label]="'nav.cart' | translate">
+      <!-- Cart icon opens drawer -->
+      <button type="button" class="icon-btn cart-link" (click)="openCartDrawer()" [attr.aria-label]="'nav.cart' | translate">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
         </svg>
         @if (cartCount() > 0) {
           <span class="cart-count">{{ cartCount() }}</span>
         }
-      </a>
+      </button>
     </div>
   </div>
 
@@ -125,4 +126,93 @@
 <!-- Sidebar overlay -->
 @if (sidebarOpen()) {
   <div class="sidebar-overlay" (click)="closeSidebar()"></div>
+}
+
+<!-- ═══════════════════════════════════════════════════
+     Cart Drawer (slides in from right)
+     ═══════════════════════════════════════════════════ -->
+<aside class="cart-drawer" [class.cart-drawer-open]="cartDrawerOpen()">
+  <div class="cart-drawer-header">
+    <h2 class="cart-drawer-title">Your cart</h2>
+    <div class="cart-drawer-cols">
+      <span class="cart-col-label">PRODUCT</span>
+      <span class="cart-col-label">TOTAL</span>
+    </div>
+    <button type="button" class="cart-drawer-close" (click)="closeCartDrawer()" aria-label="Close cart">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="cart-drawer-body">
+    @if (cartItems().length === 0) {
+      <div class="cart-drawer-empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        <p>Your cart is empty</p>
+      </div>
+    } @else {
+      <div class="cart-drawer-items">
+        @for (item of cartItems(); track (item.productId + (item.variant ?? ''))) {
+          <div class="cart-drawer-item">
+            <div class="cart-drawer-item-image">
+              @if (item.image) {
+                <img [src]="api.imageUrl(item.image)" [alt]="item.name ?? ''" loading="lazy" />
+              } @else {
+                <div class="cart-drawer-item-placeholder"></div>
+              }
+            </div>
+            <div class="cart-drawer-item-info">
+              <a [routerLink]="['/product', item.productId]" class="cart-drawer-item-name" (click)="closeCartDrawer()">{{ item.name ?? 'Product' }}</a>
+              <p class="cart-drawer-item-price">LE {{ item.price | number:'1.2-2' }} EGP</p>
+              @if (item.variant) {
+                <p class="cart-drawer-item-variant">Size: {{ item.variant }}</p>
+              }
+              <div class="cart-drawer-item-actions">
+                <div class="qty-control">
+                  <button type="button" class="qty-btn" (click)="updateCartQty(item.productId, item.quantity - 1, item.variant)" aria-label="Decrease">&minus;</button>
+                  <span class="qty-value">{{ item.quantity }}</span>
+                  <button type="button" class="qty-btn" (click)="updateCartQty(item.productId, item.quantity + 1, item.variant)" aria-label="Increase">+</button>
+                </div>
+                <button type="button" class="cart-drawer-remove" (click)="removeCartItem(item.productId, item.variant)" aria-label="Remove item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="cart-drawer-item-total">
+              LE {{ (item.price * item.quantity) | number:'1.2-2' }}
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (cartItems().length > 0) {
+    <div class="cart-drawer-footer">
+      <details class="cart-drawer-instructions">
+        <summary>Order special instructions</summary>
+        <textarea
+          rows="3"
+          [value]="cart.specialInstructions()"
+          (input)="cart.setSpecialInstructions($any($event.target).value)"
+          placeholder="Add any special instructions for your order..."></textarea>
+      </details>
+      <div class="cart-drawer-total">
+        <span class="cart-drawer-total-label">Estimated total</span>
+        <span class="cart-drawer-total-value">LE {{ cartSubtotal() | number:'1.2-2' }} EGP</span>
+      </div>
+      <p class="cart-drawer-tax-note">Taxes, discounts and shipping calculated at checkout.</p>
+      <button type="button" class="cart-drawer-checkout-btn" (click)="goToCheckout()">Check out</button>
+    </div>
+  }
+</aside>
+
+<!-- Cart drawer overlay -->
+@if (cartDrawerOpen()) {
+  <div class="cart-drawer-overlay" (click)="closeCartDrawer()"></div>
 }

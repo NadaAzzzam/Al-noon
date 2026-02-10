@@ -1,91 +1,330 @@
-<div class="container checkout-page">
-  <h1 class="page-title">{{ 'checkout.title' | translate }}</h1>
+<!-- ═══ Shopify-style Checkout Header ═══ -->
+<header class="checkout-header">
+  <div class="checkout-header-inner">
+    <a [routerLink]="['/']" class="checkout-logo">
+      @if (store()?.logo) {
+      <img [src]="api.imageUrl(store()!.logo)" [alt]="store()!.storeName.en || 'Store'" class="checkout-logo-img" />
+      } @else {
+      <span class="checkout-logo-text">{{ (store()?.storeName | localized) || 'Al-Noon' }}</span>
+      }
+    </a>
+    <a [routerLink]="['/cart']" class="checkout-header-cart" aria-label="Cart">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round">
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 0 1-8 0" />
+      </svg>
+    </a>
+  </div>
+</header>
 
-  @if (items().length === 0) {
-    <p class="empty">{{ 'checkout.cartEmpty' | translate }}</p>
-    <a [routerLink]="['/cart']" class="btn">{{ 'checkout.viewCart' | translate }}</a>
-  } @else {
-    <form (ngSubmit)="submit()" class="checkout-layout">
-      <div class="checkout-form">
-        @if (!isLoggedIn()) {
-          <div class="guest-section">
-            <h2 class="guest-section-title">{{ 'checkout.guestDetails' | translate }}</h2>
+@if (items().length === 0) {
+<div class="checkout-empty">
+  <p>{{ 'checkout.cartEmpty' | translate }}</p>
+  <a [routerLink]="['/cart']" class="btn">{{ 'checkout.viewCart' | translate }}</a>
+</div>
+} @else {
+<div class="checkout-wrapper">
+  <!-- ═══ Left Column: Form (white) ═══ -->
+  <div class="checkout-left">
+    <div class="checkout-form-inner">
+      <form (ngSubmit)="submit()" class="checkout-form" autocomplete="on">
+
+        <!-- Contact / Email -->
+        <section class="checkout-section">
+          <div class="section-header">
+            <h2 class="section-title">Contact</h2>
+            @if (!isLoggedIn()) {
+            <a [routerLink]="['/account', 'login']" class="section-action-link">Sign in</a>
+            }
+          </div>
+          <div class="form-group">
+            <input id="ck-email" type="email" autocomplete="email" [value]="email()"
+              (input)="email.set($any($event.target).value)" placeholder="Email" [class.has-error]="emailErrorMsg()" />
+            @if (emailErrorMsg()) {
+            <span class="field-error">{{ emailErrorMsg() }}</span>
+            }
+          </div>
+          <label class="checkbox-label">
+            <input type="checkbox" [checked]="emailNews()" (change)="emailNews.set($any($event.target).checked)" />
+            Email me with news and offers
+          </label>
+        </section>
+
+        <!-- Delivery -->
+        <section class="checkout-section">
+          <h2 class="section-title">Delivery</h2>
+
+          <div class="form-group">
+            <label for="ck-country" class="floating-label">Country/Region</label>
+            <select id="ck-country" disabled>
+              <option value="EG" selected>Egypt</option>
+            </select>
+          </div>
+
+          <div class="form-row form-row-2">
             <div class="form-group">
-              <label>{{ 'checkout.guestName' | translate }} *</label>
-              <input type="text" [value]="guestName()" (input)="guestName.set($any($event.target).value)" />
-              @if (guestNameError()) {
-                <span class="field-error">{{ guestNameError() }}</span>
+              <input id="ck-first" type="text" autocomplete="given-name" [value]="firstName()"
+                (input)="firstName.set($any($event.target).value)" placeholder="First name"
+                [class.has-error]="firstNameError()" />
+              @if (firstNameError()) {
+              <span class="field-error">{{ firstNameError() }}</span>
               }
             </div>
             <div class="form-group">
-              <label>{{ 'checkout.guestEmail' | translate }} *</label>
-              <input type="email" [value]="guestEmail()" (input)="guestEmail.set($any($event.target).value)" />
-              @if (guestEmailError()) {
-                <span class="field-error">{{ guestEmailError() }}</span>
+              <input id="ck-last" type="text" autocomplete="family-name" [value]="lastName()"
+                (input)="lastName.set($any($event.target).value)" placeholder="Last name"
+                [class.has-error]="lastNameError()" />
+              @if (lastNameError()) {
+              <span class="field-error">{{ lastNameError() }}</span>
               }
-            </div>
-            <div class="form-group">
-              <label>{{ 'checkout.guestPhone' | translate }}</label>
-              <input type="tel" [value]="guestPhone()" (input)="guestPhone.set($any($event.target).value)" placeholder="{{ 'checkout.guestPhoneOptional' | translate }}" />
             </div>
           </div>
-        }
-        <div class="form-group">
-          <label>{{ 'checkout.city' | translate }} *</label>
-          <select [value]="cityId()" (change)="cityId.set($any($event.target).value)">
-            <option value="">{{ 'checkout.selectCity' | translate }}</option>
-            @for (c of cities(); track $index) {
-              <option [value]="c.id">{{ getLocalized(c.name) }}</option>
+
+          <div class="form-group">
+            <input type="text" autocomplete="organization" placeholder="Company (optional)" />
+          </div>
+
+          <div class="form-group">
+            <input id="ck-address" type="text" autocomplete="street-address" [value]="address()"
+              (input)="address.set($any($event.target).value)" placeholder="Address"
+              [class.has-error]="addressError()" />
+            @if (addressError()) {
+            <span class="field-error">{{ addressError() }}</span>
             }
-          </select>
-          @if (cityError()) {
-            <span class="field-error">{{ cityError() }}</span>
-          }
-        </div>
-        <div class="form-group">
-          <label>{{ 'checkout.shippingAddress' | translate }} *</label>
-          <textarea [value]="shippingAddress()" (input)="shippingAddress.set($any($event.target).value)" rows="3"></textarea>
-          @if (shippingError()) {
-            <span class="field-error">{{ shippingError() }}</span>
-          }
-        </div>
-        <div class="form-group">
-          <label>{{ 'checkout.paymentMethod' | translate }}</label>
-          <select [value]="paymentMethod()" (change)="paymentMethod.set($any($event.target).value)">
-            <option value="COD">{{ 'checkout.cod' | translate }}</option>
-            <option value="INSTAPAY">InstaPay</option>
-          </select>
-        </div>
-      </div>
-      <div class="checkout-summary">
-        <h2>{{ 'checkout.orderSummary' | translate }}</h2>
-        <div class="summary-items">
-          @for (item of items(); track $index) {
-            <div class="summary-item">
-              <span>{{ item.name ?? ('cart.product' | translate) }} × {{ item.quantity }}</span>
-              <span>LE {{ item.price * item.quantity }} EGP</span>
+          </div>
+
+          <div class="form-group">
+            <input id="ck-apt" type="text" autocomplete="address-line2" [value]="apartment()"
+              (input)="apartment.set($any($event.target).value)" placeholder="Apartment, suite, etc. (optional)" />
+          </div>
+
+          <div class="form-row form-row-3">
+            <div class="form-group">
+              <input type="text" autocomplete="address-level2" [value]="city()"
+                (input)="city.set($any($event.target).value)" placeholder="City" [class.has-error]="cityError()" />
+              @if (cityError()) {
+              <span class="field-error">{{ cityError() }}</span>
+              }
             </div>
+            <div class="form-group">
+              <label class="floating-label">Governorate</label>
+              <select [value]="governorate()" (change)="governorate.set($any($event.target).value)">
+                @for (gov of governorates(); track gov.id) {
+                <option [value]="gov.id">{{ getLocalized(gov.name) }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <input type="text" autocomplete="postal-code" [value]="postalCode()"
+                (input)="postalCode.set($any($event.target).value)" placeholder="Postal code (optional)" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <input type="tel" autocomplete="tel" [value]="phone()" (input)="phone.set($any($event.target).value)"
+              placeholder="Phone" [class.has-error]="phoneError()" />
+            @if (phoneError()) {
+            <span class="field-error">{{ phoneError() }}</span>
+            }
+          </div>
+
+          <label class="checkbox-label">
+            <input type="checkbox" />
+            Save this information for next time
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [checked]="textNews()" (change)="textNews.set($any($event.target).checked)" />
+            Text me with news and offers
+          </label>
+        </section>
+
+        <!-- Shipping method -->
+        <section class="checkout-section">
+          <h2 class="section-title">Shipping method</h2>
+          <div class="shipping-options">
+            @for (method of shippingMethods(); track method.id) {
+            <div class="shipping-option" [class.selected]="selectedShippingMethod() === method.id"
+              (click)="selectedShippingMethod.set(method.id)">
+              <div class="shipping-option-left">
+                <span class="radio-dot" [class.active]="selectedShippingMethod() === method.id"></span>
+                <div class="shipping-option-details">
+                  <span class="shipping-name">{{ getLocalized(method.name) }}</span>
+                  <span class="shipping-est">{{ getLocalized(method.description) }}</span>
+                </div>
+              </div>
+              <span class="shipping-price">EE{{ deliveryFee() | number:'1.2-2' }}</span>
+            </div>
+            }
+            @if (shippingMethods().length === 0) {
+            <div class="shipping-option selected">
+              <div class="shipping-option-left">
+                <span class="radio-dot active"></span>
+                <span class="shipping-name">Standard</span>
+              </div>
+              <span class="shipping-price">EE{{ deliveryFee() | number:'1.2-2' }}</span>
+            </div>
+            }
+          </div>
+        </section>
+
+        <!-- Payment -->
+        <section class="checkout-section">
+          <h2 class="section-title">Payment</h2>
+          <p class="section-subtitle">All transactions are secure and encrypted.</p>
+          <div class="payment-options">
+            <div class="payment-option" [class.selected]="paymentMethod() === 'COD'">
+              <label class="radio-label">
+                <input type="radio" name="payment" value="COD" [checked]="paymentMethod() === 'COD'"
+                  (change)="paymentMethod.set('COD')" />
+                Cash on Delivery (COD)
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Billing address -->
+        <section class="checkout-section">
+          <h2 class="section-title">Billing address</h2>
+          <div class="billing-options">
+            <label class="radio-label billing-radio" [class.selected]="billingSameAsShipping()">
+              <input type="radio" name="billing" [checked]="billingSameAsShipping()"
+                (change)="billingSameAsShipping.set(true)" />
+              Same as shipping address
+            </label>
+            <label class="radio-label billing-radio" [class.selected]="!billingSameAsShipping()">
+              <input type="radio" name="billing" [checked]="!billingSameAsShipping()"
+                (change)="billingSameAsShipping.set(false)" />
+              Use a different billing address
+            </label>
+          </div>
+
+          @if (!billingSameAsShipping()) {
+          <div class="billing-form">
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <input type="text" [value]="billingFirstName()"
+                  (input)="billingFirstName.set($any($event.target).value)" placeholder="First name" />
+              </div>
+              <div class="form-group">
+                <input type="text" [value]="billingLastName()" (input)="billingLastName.set($any($event.target).value)"
+                  placeholder="Last name" />
+              </div>
+            </div>
+            <div class="form-group">
+              <input type="text" [value]="billingAddress()" (input)="billingAddress.set($any($event.target).value)"
+                placeholder="Address" />
+            </div>
+            <div class="form-group">
+              <input type="text" [value]="billingApartment()" (input)="billingApartment.set($any($event.target).value)"
+                placeholder="Apartment, suite, etc. (optional)" />
+            </div>
+            <div class="form-row form-row-3">
+              <div class="form-group">
+                <input type="text" [value]="billingCity()" (input)="billingCity.set($any($event.target).value)"
+                  placeholder="City" />
+              </div>
+              <div class="form-group">
+                <select [value]="billingGovernorate()" (change)="billingGovernorate.set($any($event.target).value)">
+                  @for (gov of governorates(); track gov.id) {
+                  <option [value]="gov.id">{{ getLocalized(gov.name) }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <input type="text" [value]="billingPostalCode()"
+                  (input)="billingPostalCode.set($any($event.target).value)" placeholder="Postal code (optional)" />
+              </div>
+            </div>
+            <div class="form-group">
+              <input type="tel" [value]="billingPhone()" (input)="billingPhone.set($any($event.target).value)"
+                placeholder="Phone" />
+            </div>
+          </div>
           }
-        </div>
-        <p class="summary-row">
-          <span>{{ 'checkout.subtotal' | translate }}</span>
-          <span>LE {{ subtotal() }} EGP</span>
-        </p>
-        <p class="summary-row">
-          <span>{{ 'checkout.delivery' | translate }}</span>
-          <span>LE {{ deliveryFee() }} EGP</span>
-        </p>
-        <p class="summary-row total">
-          <span>{{ 'checkout.total' | translate }}</span>
-          <span>LE {{ total() }} EGP</span>
-        </p>
+        </section>
+
+        <!-- Error + Submit -->
         @if (error()) {
-          <p class="error-msg">{{ error() }}</p>
+        <p class="error-msg">{{ error() }}</p>
         }
-        <button type="submit" class="btn btn-block" [disabled]="!formValid() || submitting()">
-          {{ submitting() ? ('checkout.placingOrder' | translate) : ('checkout.placeOrder' | translate) }}
+
+        <button type="submit" class="checkout-submit-btn" [disabled]="submitting()">
+          {{ submitting() ? 'Placing order...' : 'Pay now' }}
         </button>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══ Right Column: Order Summary (transparent/light bg) ═══ -->
+  <div class="checkout-right">
+    <div class="order-summary">
+      <!-- Product items -->
+      <div class="summary-products">
+        @for (item of items(); track (item.productId + (item.variant ?? ''))) {
+        <div class="summary-product">
+          <div class="summary-product-image">
+            @if (item.image) {
+            <img [src]="api.imageUrl(item.image)" [alt]="item.name ?? ''" loading="lazy" />
+            }
+            <span class="summary-product-qty">{{ item.quantity }}</span>
+          </div>
+          <div class="summary-product-info">
+            <span class="summary-product-name">{{ item.name ?? 'Product' }}</span>
+            @if (item.variant) {
+            <span class="summary-product-variant">{{ item.variant }}</span>
+            }
+          </div>
+          <span class="summary-product-price">EE{{ (item.price * item.quantity) | number:'1.2-2' }}</span>
+        </div>
+        }
       </div>
-    </form>
-  }
+
+      <!-- Discount code -->
+      <div class="summary-discount">
+        <input type="text" placeholder="Discount code" class="discount-input" />
+        <button type="button" class="discount-btn">Apply</button>
+      </div>
+
+      <!-- Subtotal, Shipping, Total -->
+      <div class="summary-totals">
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>EE{{ subtotal() | number:'1.2-2' }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="shipping-label">
+            Shipping
+            <svg class="info-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4" />
+              <path d="M12 8h.01" />
+            </svg>
+          </span>
+          <span>EE{{ deliveryFee() | number:'1.2-2' }}</span>
+        </div>
+        <div class="summary-row summary-total">
+          <span>Total</span>
+          <span class="summary-total-price">
+            <small class="currency-label">EGP</small>
+            EE{{ total() | number:'1.2-2' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+}
+
+<!-- ═══ Shopify-style Checkout Footer ═══ -->
+<footer class="checkout-footer">
+  <div class="checkout-footer-inner">
+    <a [routerLink]="['/page', 'return-policy']" class="footer-link">Refund policy</a>
+    <a [routerLink]="['/page', 'shipping-policy']" class="footer-link">Shipping</a>
+    <a [routerLink]="['/page', 'privacy']" class="footer-link">Privacy policy</a>
+    <a [routerLink]="['/contact']" class="footer-link">Cancellations</a>
+  </div>
+</footer>

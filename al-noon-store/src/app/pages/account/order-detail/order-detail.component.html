@@ -7,12 +7,18 @@
   @let o = order()!;
   <h1 class="page-title">{{ 'orderDetail.order' | translate }} #{{ o.id.slice(0, 8) }}</h1>
   <p class="order-status">{{ 'orderDetail.status' | translate }}: {{ o.status }}</p>
-  @if (o.guestName || o.guestEmail) {
-  <p class="guest-contact">{{ 'orderDetail.placedBy' | translate }}: {{ o.guestName || '' }}{{ o.guestName &&
-    o.guestEmail ? ' — ' : '' }}{{ o.guestEmail || '' }}</p>
+  @if (o.firstName || o.lastName || o.guestName) {
+  <p class="guest-contact">{{ 'orderDetail.placedBy' | translate }}: {{ o.firstName && o.lastName ? o.firstName + ' ' +
+    o.lastName : (o.guestName || '') }}{{ (o.email || o.guestEmail) ? ' — ' + (o.email || o.guestEmail) : '' }}</p>
+  }
+  @if (o.phone || o.guestPhone) {
+  <p class="guest-contact">Phone: {{ o.phone || o.guestPhone }}</p>
   }
   @if (o.shippingAddress) {
-  <p class="shipping-address">{{ 'orderDetail.shipping' | translate }}: {{ o.shippingAddress }}</p>
+  <p class="shipping-address">{{ 'orderDetail.shipping' | translate }}: {{ formatAddress(o.shippingAddress) }}</p>
+  }
+  @if (o.shippingMethod) {
+  <p class="shipping-address">Shipping method: {{ o.shippingMethod }}</p>
   }
   <div class="order-items">
     <h2>{{ 'orderDetail.items' | translate }}</h2>

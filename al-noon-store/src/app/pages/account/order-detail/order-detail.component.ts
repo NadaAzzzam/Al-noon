@@ -6,7 +6,7 @@ import { OrdersService } from '../../../core/services/orders.service';
 import { ApiService } from '../../../core/services/api.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Order } from '../../../core/types/api.types';
+import type { Order, StructuredAddress } from '../../../core/types/api.types';
 
 @Component({
   selector: 'app-order-detail',
@@ -44,5 +44,20 @@ export class OrderDetailComponent implements OnInit {
     if (!obj) return '';
     const lang = this.locale.getLocale();
     return (obj[lang] ?? obj.en ?? obj.ar ?? '') as string;
+  }
+
+  /** Format shipping address — handles both structured object and flat string */
+  formatAddress(addr: string | StructuredAddress | null | undefined): string {
+    if (!addr) return '';
+    if (typeof addr === 'string') return addr;
+    const parts = [
+      addr.address,
+      addr.apartment,
+      addr.city,
+      addr.governorate,
+      addr.postalCode,
+      addr.country,
+    ].filter(Boolean);
+    return parts.join(', ');
   }
 }

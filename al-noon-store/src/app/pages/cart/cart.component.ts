@@ -20,11 +20,11 @@ export class CartComponent {
   items = this.cart.items;
   subtotal = this.cart.subtotal;
 
-  updateQty(productId: string, qty: number): void {
-    this.cart.setQuantity(productId, qty);
+  updateQty(productId: string, qty: number, variant?: string): void {
+    this.cart.setQuantity(productId, qty, variant);
   }
 
-  remove(productId: string): void {
-    this.cart.remove(productId);
+  remove(productId: string, variant?: string): void {
+    this.cart.remove(productId, variant);
   }
 }

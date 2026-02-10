@@ -113,9 +113,12 @@ export class ProductDetailComponent implements OnInit {
       price,
       name: this.getLocalized(p.name),
       image: p.images?.[0],
+      variant: this.selectedSize() ?? undefined,
     });
     this.added.set(true);
     this.toast.show(this.getLocalized(p.name) + ' added to cart', 'success');
+    // Open cart drawer after adding
+    this.cart.openDrawer();
     timer(2000).pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => this.added.set(false));
   }
 

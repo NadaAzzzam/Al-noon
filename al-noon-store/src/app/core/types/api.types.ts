@@ -265,6 +265,30 @@ export interface City {
   _id?: string;
 }
 
+/** ═══ Structured Address (checkout form & order) ═══ */
+export interface StructuredAddress {
+  address: string;
+  apartment?: string;
+  city: string;
+  governorate: string;
+  postalCode?: string;
+  country?: string; // always "Egypt" (default)
+}
+
+/** ═══ Shipping Method (GET /api/shipping-methods) ═══ */
+export interface ShippingMethod {
+  id: string;
+  name: LocalizedText;
+  description: LocalizedText;
+  estimatedDays: string;
+}
+
+/** ═══ Governorate (GET /api/governorates) ═══ */
+export interface Governorate {
+  id: string;
+  name: LocalizedText;
+}
+
 /** Order */
 export type PaymentMethod = 'COD' | 'INSTAPAY';
 
@@ -274,12 +298,23 @@ export interface OrderItemInput {
   price: number;
 }
 
+/** New structured request body for POST /api/orders */
 export interface CreateOrderBody {
   items: OrderItemInput[];
   paymentMethod?: PaymentMethod;
-  shippingAddress?: string;
   deliveryFee?: number;
-  /** Guest checkout: contact details when user is not logged in */
+  /** New structured fields */
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  shippingAddress?: string | StructuredAddress;
+  billingAddress?: StructuredAddress | null;
+  specialInstructions?: string;
+  shippingMethod?: string;
+  emailNews?: boolean;
+  textNews?: boolean;
+  /** Legacy guest checkout fields (still accepted by BE) */
   guestName?: string;
   guestEmail?: string;
   guestPhone?: string;
@@ -309,10 +344,21 @@ export interface Order {
   deliveryFee?: number | null;
   status: OrderStatus | string;
   paymentMethod?: PaymentMethod | null;
-  shippingAddress?: string | null;
+  /** New: structured address; legacy: flat string. Union for backwards compat. */
+  shippingAddress?: string | StructuredAddress | null;
+  billingAddress?: StructuredAddress | null;
   payment?: OrderPayment | null;
   createdAt?: string;
   updatedAt?: string;
+  /** New structured fields from API */
+  email?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: string | null;
+  specialInstructions?: string | null;
+  shippingMethod?: string | null;
+  emailNews?: boolean;
+  textNews?: boolean;
   /** Present when order was placed as guest checkout (BE returns these) */
   guestName?: string | null;
   guestEmail?: string | null;
@@ -429,4 +475,16 @@ export interface ProductApiResponse {
   success: true;
   data: { product: Product & { _id?: string } };
   message?: string;
+}
+
+/** GET /shipping-methods – ShippingMethodsResponse */
+export interface ShippingMethodsApiResponse {
+  success: true;
+  data: ShippingMethod[];
+}
+
+/** GET /governorates – GovernoratesResponse */
+export interface GovernoratesApiResponse {
+  success: true;
+  data: Governorate[];
 }
