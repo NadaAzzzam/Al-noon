@@ -76,25 +76,72 @@ function normalizeFeedbacks(raw: unknown): StoreFeedback[] {
 function normalizeCollectionUrl(url: string): string {
   if (!url || typeof url !== 'string') return '';
   const trimmed = url.trim();
-  if (trimmed.startsWith('/products') || trimmed.startsWith('products?')) {
-    const rest = trimmed.replace(/^\/?products\/?/, '');
-    const query = rest.startsWith('?') ? rest : (rest ? `?${rest}` : '');
-    return `/catalog${query}`;
+  if (trimmed.startsWith('/products') || trimmed.startsWith('products')) {
+    const rest = trimmed.replace(/^\/?products\/?/, '').trim();
+    if (rest.startsWith('?')) {
+      return `/catalog${rest}`;
+    }
+    // Path segment like "abayas" or "/abayas" → catalog with category
+    const pathPart = rest.split('?')[0] ?? '';
+    const segment = pathPart.replace(/^\//, '').split('/')[0]?.trim();
+    if (segment) {
+      const params = new URLSearchParams(rest.includes('?') ? rest.split('?')[1] ?? '' : '');
+      params.set('category', segment);
+      return `/catalog?${params.toString()}`;
+    }
+    return '/catalog';
+  }
+  // Single segment (e.g. "capes" or "category-id") → treat as category slug for catalog
+  if (!trimmed.startsWith('/') && !trimmed.startsWith('http') && !trimmed.includes('?') && !trimmed.includes('/')) {
+    return `/catalog?category=${encodeURIComponent(trimmed)}`;
   }
   return trimmed.startsWith('/') || trimmed.startsWith('http') ? trimmed : `/${trimmed}`;
+}
+
+/** Get category slug/id from a collection item (API may send category, categoryId, slug, or category as object). */
+function getCollectionCategorySlug(col: Record<string, unknown>): string | undefined {
+  const cat = col['category'];
+  if (cat != null && typeof cat === 'object' && !Array.isArray(cat)) {
+    const id = (cat as Record<string, unknown>)['id'] ?? (cat as Record<string, unknown>)['slug'] ?? (cat as Record<string, unknown>)['_id'];
+    if (id != null && typeof id === 'string') {
+      const s = id.trim();
+      return s || undefined;
+    }
+  }
+  const raw = (col['categoryId'] ?? col['slug'] ?? (typeof cat === 'string' ? cat : undefined)) as string | undefined;
+  if (raw != null && typeof raw === 'string') {
+    const s = raw.trim();
+    return s || undefined;
+  }
+  return undefined;
 }
 
 /** Ensure homeCollections is an array; normalize URLs and optional hoverImage/video. */
 function normalizeHomeCollections(raw: unknown): HomeCollection[] {
   if (!Array.isArray(raw)) return [];
-  return raw.map((col: Record<string, unknown>) => ({
-    title: (col['title'] ?? { en: '', ar: '' }) as HomeCollection['title'],
-    image: col['image'] as string | undefined,
-    video: col['video'] as string | undefined,
-    hoverImage: col['hoverImage'] as string | undefined,
-    url: normalizeCollectionUrl((col['url'] ?? '') as string),
-    order: typeof col['order'] === 'number' ? col['order'] : undefined,
-  }));
+  return raw.map((col: Record<string, unknown>) => {
+    const rawUrl = (col['url'] ?? '') as string;
+    let url = normalizeCollectionUrl(rawUrl);
+    const categorySlug = getCollectionCategorySlug(col);
+    // If URL is empty or has no category and we have a category slug, link to catalog with that category
+    if (categorySlug) {
+      const hasCategoryInUrl = url.includes('category=');
+      if (!url || url === '/catalog' || !hasCategoryInUrl) {
+        const params = new URLSearchParams(url?.split('?')[1] ?? '');
+        params.set('category', categorySlug);
+        url = `/catalog?${params.toString()}`;
+      }
+    }
+    if (!url) url = '/catalog';
+    return {
+      title: (col['title'] ?? { en: '', ar: '' }) as HomeCollection['title'],
+      image: col['image'] as string | undefined,
+      video: col['video'] as string | undefined,
+      hoverImage: col['hoverImage'] as string | undefined,
+      url,
+      order: typeof col['order'] === 'number' ? col['order'] : undefined,
+    };
+  });
 }
 
 function normalizeStore(store: Record<string, unknown>): StoreData {

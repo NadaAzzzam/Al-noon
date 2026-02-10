@@ -115,7 +115,7 @@
     <div class="collections-bento" [class.collections-single]="collections.length === 1"
       [class.collections-two]="collections.length === 2">
       @for (col of collections; track col.url || getLocalized(col.title); let i = $index) {
-      <a [routerLink]="col.url" class="collection-card"
+      <a [routerLink]="col.url || '/catalog'" class="collection-card"
         [class.collection-featured]="i === 0 && collections.length >= 3">
         @if (col.image) {
         <div class="collection-media-wrap" [class.has-hover-image]="!!col.hoverImage">
