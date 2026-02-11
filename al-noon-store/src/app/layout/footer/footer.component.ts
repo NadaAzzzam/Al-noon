@@ -8,7 +8,7 @@ import { NewsletterService } from '../../core/services/newsletter.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { emailError } from '../../shared/utils/form-validators';
-import type { StoreData } from '../../core/types/api.types';
+import type { StoreData, SettingsContentPage } from '../../core/types/api.types';
 
 @Component({
   selector: 'app-footer',
@@ -25,6 +25,10 @@ export class FooterComponent implements OnInit {
   readonly locale = inject(LocaleService);
 
   store = signal<StoreData | null>(null);
+  /** Content pages from settings API (privacy, return-policy, shipping-policy, about, contact) */
+  contentPages = signal<SettingsContentPage[]>([]);
+  /** Newsletter section visibility from settings (fallback when store not loaded, e.g. checkout) */
+  newsletterEnabledFromSettings = signal<boolean | null>(null);
   newsletterEmail = signal('');
   newsletterMessage = signal<'idle' | 'success' | 'error' | 'already'>('idle');
   newsletterLoading = signal(false);
@@ -47,6 +51,11 @@ export class FooterComponent implements OnInit {
     return Array.isArray(links) ? links : [];
   });
 
+  /** Show newsletter section when enabled in store or in settings (settings used when store not loaded). */
+  showNewsletterSection = computed(
+    () => this.store()?.newsletterEnabled ?? this.newsletterEnabledFromSettings() ?? true
+  );
+
   getLocalized(obj: { en?: string; ar?: string } | undefined | null): string {
     if (!obj || typeof obj !== 'object') return '';
     const lang = this.locale.getLocale();
@@ -55,6 +64,10 @@ export class FooterComponent implements OnInit {
 
   ngOnInit(): void {
     this.storeService.getStore().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((s) => this.store.set(s));
+    this.storeService.getSettings().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((settings) => {
+      if (settings.contentPages?.length) this.contentPages.set(settings.contentPages);
+      this.newsletterEnabledFromSettings.set(settings.newsletterEnabled ?? null);
+    });
   }
 
   submitNewsletter(event?: Event): void {

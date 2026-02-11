@@ -655,18 +655,50 @@ export interface StockDisplaySettings {
   stockInfoThreshold?: number;
 }
 
-/** Normalized settings consumed by the app (announcement bar, stock display). */
-export interface Settings {
-  announcementBar?: AnnouncementBarSettings;
-  stockDisplay?: StockDisplaySettings;
+/** Content page item in GET /api/settings (data.settings.contentPages). */
+export interface SettingsContentPage {
+  slug: string;
+  title?: LocalizedText;
 }
 
-/** Raw GET /api/settings response: data.settings (BE returns data: { settings: SettingsRaw }). */
-export interface SettingsRaw {
+/** Normalized settings consumed by the app (from GET /api/settings via StoreService.getSettings()). */
+export interface Settings {
+  storeName?: LocalizedText;
+  logo?: string;
   announcementBar?: AnnouncementBarSettings;
+  /** Social links as object (e.g. { facebook, instagram }). */
+  socialLinks?: Record<string, string>;
+  newsletterEnabled?: boolean;
+  /** Content pages (privacy, return-policy, shipping-policy, about, contact). */
+  contentPages?: SettingsContentPage[];
+  stockDisplay?: StockDisplaySettings;
+  /** Currency code (e.g. EGP); used for price display. */
+  currency?: string;
+  /** Currency symbol/prefix (e.g. LE); used for price display. */
+  currencySymbol?: string;
+}
+
+/**
+ * Raw GET /api/settings response: data.settings (BE returns data: { settings: SettingsRaw }).
+ * Verified shape: storeName, logo, announcementBar, socialLinks, newsletterEnabled,
+ * contentPages[], currency, currencySymbol. Optional: lowStockThreshold, stockInfoThreshold.
+ */
+export interface SettingsRaw {
+  storeName?: LocalizedText;
+  logo?: string;
+  announcementBar?: AnnouncementBarSettings;
+  /** Social links as object (e.g. { facebook: string, instagram: string }). */
+  socialLinks?: Record<string, string>;
+  newsletterEnabled?: boolean;
+  /** Content pages (privacy, return-policy, shipping-policy, about, contact). */
+  contentPages?: SettingsContentPage[];
   /** At root level in API (not under stockDisplay). */
   lowStockThreshold?: number;
   stockInfoThreshold?: number;
+  /** Currency code (e.g. EGP). */
+  currency?: string;
+  /** Currency symbol/prefix (e.g. LE). */
+  currencySymbol?: string;
   [key: string]: unknown;
 }
 

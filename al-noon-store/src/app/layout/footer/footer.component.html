@@ -1,5 +1,5 @@
 <!-- ═══════ Newsletter Section (light bg, above footer) ═══════ -->
-@if (store()?.newsletterEnabled) {
+@if (showNewsletterSection()) {
 <section class="newsletter-section">
   <div class="container newsletter-container">
     <h2 class="newsletter-heading">{{ 'footer.subscribe' | translate }}</h2>
@@ -50,7 +50,16 @@
             <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ getLocalized(link.title) }}</a>
           }
         }
-        <a routerLink="/contact">{{ 'nav.contact' | translate }}</a>
+        @for (page of contentPages(); track page.slug) {
+          @if (page.slug === 'contact') {
+            <a routerLink="/contact">{{ getLocalized(page.title) || ('nav.contact' | translate) }}</a>
+          } @else {
+            <a [routerLink]="['/page', page.slug]">{{ getLocalized(page.title) || page.slug }}</a>
+          }
+        }
+        @if (contentPages().length === 0) {
+          <a routerLink="/contact">{{ 'nav.contact' | translate }}</a>
+        }
       </nav>
     </div>
 

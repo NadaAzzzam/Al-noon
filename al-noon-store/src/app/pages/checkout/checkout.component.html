@@ -2,10 +2,10 @@
 <header class="checkout-header">
   <div class="checkout-header-inner">
     <a [routerLink]="['/']" class="checkout-logo">
-      @if (store()?.logo) {
-      <img [src]="api.imageUrl(store()!.logo)" [alt]="store()!.storeName.en || 'Store'" class="checkout-logo-img" />
+      @if (checkoutHeaderInfo()?.logo) {
+      <img [src]="api.imageUrl(checkoutHeaderInfo()!.logo!)" [alt]="checkoutHeaderInfo()!.storeName?.en || 'Store'" class="checkout-logo-img" />
       } @else {
-      <span class="checkout-logo-text">{{ (store()?.storeName | localized) || 'Al-Noon' }}</span>
+      <span class="checkout-logo-text">{{ getLocalized(checkoutHeaderInfo()?.storeName) || 'Al-Noon' }}</span>
       }
     </a>
     <a [routerLink]="['/cart']" class="checkout-header-cart" aria-label="Cart">
@@ -51,10 +51,12 @@
             <span class="field-error">{{ emailErrorMsg() }}</span>
             }
           </div>
+          @if (newsletterEnabled()) {
           <label class="checkbox-label">
             <input type="checkbox" [checked]="emailNews()" (change)="emailNews.set($any($event.target).checked)" />
             Email me with news and offers
           </label>
+          }
         </section>
 
         <!-- Delivery -->
@@ -112,7 +114,7 @@
                 [class.has-error]="cityError()">
                 <option value="">Select city</option>
                 @for (c of cities(); track c.id) {
-                <option [value]="c.id">{{ getLocalized(c.name) }} — LE {{ c.deliveryFee | number:'1.2-2' }} EGP</option>
+                <option [value]="c.id">{{ getLocalized(c.name) }} — {{ currencySymbol() }} {{ c.deliveryFee | number:'1.2-2' }} {{ currencyCode() }}</option>
                 }
               </select>
               @if (cityError()) {
@@ -137,10 +139,12 @@
             <input type="checkbox" />
             Save this information for next time
           </label>
+          @if (newsletterEnabled()) {
           <label class="checkbox-label">
             <input type="checkbox" [checked]="textNews()" (change)="textNews.set($any($event.target).checked)" />
             Text me with news and offers
           </label>
+          }
         </section>
 
         <!-- Shipping method (from GET /api/shipping-methods list) -->
@@ -162,7 +166,7 @@
                   <span class="shipping-est">{{ getLocalized(method.description) }}</span>
                 </div>
               </div>
-              <span class="shipping-price">LE {{ (method.price != null ? method.price : cityDeliveryFee()) | number:'1.2-2' }} EGP</span>
+              <span class="shipping-price">{{ currencySymbol() }} {{ (method.price != null ? method.price : cityDeliveryFee()) | number:'1.2-2' }} {{ currencyCode() }}</span>
             </div>
             }
             }
@@ -287,7 +291,7 @@
             <span class="summary-product-variant">{{ item.variant }}</span>
             }
           </div>
-          <span class="summary-product-price">LE {{ (item.price * item.quantity) | number:'1.2-2' }} EGP</span>
+          <span class="summary-product-price">{{ currencySymbol() }} {{ (item.price * item.quantity) | number:'1.2-2' }} {{ currencyCode() }}</span>
         </div>
         }
       </div>
@@ -302,7 +306,7 @@
       <div class="summary-totals">
         <div class="summary-row">
           <span>Subtotal</span>
-          <span>LE {{ subtotal() | number:'1.2-2' }} EGP</span>
+          <span>{{ currencySymbol() }} {{ subtotal() | number:'1.2-2' }} {{ currencyCode() }}</span>
         </div>
         <div class="summary-row">
           <span class="shipping-label">
@@ -314,13 +318,13 @@
               <path d="M12 8h.01" />
             </svg>
           </span>
-          <span>LE {{ deliveryFee() | number:'1.2-2' }} EGP</span>
+          <span>{{ currencySymbol() }} {{ deliveryFee() | number:'1.2-2' }} {{ currencyCode() }}</span>
         </div>
         <div class="summary-row summary-total">
           <span>Total</span>
           <span class="summary-total-price">
-            <small class="currency-label">EGP</small>
-            LE {{ total() | number:'1.2-2' }}
+            <small class="currency-label">{{ currencyCode() }}</small>
+            {{ currencySymbol() }} {{ total() | number:'1.2-2' }}
           </span>
         </div>
       </div>
@@ -329,12 +333,22 @@
 </div>
 }
 
-<!-- ═══ Shopify-style Checkout Footer ═══ -->
+<!-- ═══ Shopify-style Checkout Footer (links from settings.contentPages) ═══ -->
 <footer class="checkout-footer">
   <div class="checkout-footer-inner">
-    <a [routerLink]="['/page', 'return-policy']" class="footer-link">Refund policy</a>
-    <a [routerLink]="['/page', 'shipping-policy']" class="footer-link">Shipping</a>
-    <a [routerLink]="['/page', 'privacy']" class="footer-link">Privacy policy</a>
-    <a [routerLink]="['/contact']" class="footer-link">Cancellations</a>
+    @if (contentPages().length) {
+      @for (page of contentPages(); track page.slug) {
+        @if (page.slug === 'contact') {
+          <a routerLink="/contact" class="footer-link">{{ getLocalized(page.title) || 'Contact' }}</a>
+        } @else {
+          <a [routerLink]="['/page', page.slug]" class="footer-link">{{ getLocalized(page.title) || page.slug }}</a>
+        }
+      }
+    } @else {
+      <a [routerLink]="['/page', 'return-policy']" class="footer-link">Refund policy</a>
+      <a [routerLink]="['/page', 'shipping-policy']" class="footer-link">Shipping</a>
+      <a [routerLink]="['/page', 'privacy']" class="footer-link">Privacy policy</a>
+      <a routerLink="/contact" class="footer-link">Cancellations</a>
+    }
   </div>
 </footer>

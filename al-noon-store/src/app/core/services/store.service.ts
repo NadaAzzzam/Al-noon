@@ -242,7 +242,7 @@ export class StoreService {
 
   /**
    * GET /api/settings – BE returns { success, data: { settings: SettingsRaw } }.
-   * Maps to Settings (announcementBar, stockDisplay) for layout and product-detail.
+   * Maps SettingsRaw to Settings for use across the app (layout, checkout, product-detail, etc.).
    */
   getSettings(): Observable<Settings> {
     return this.http.get<SettingsApiResponse | ApiSuccess<{ settings: SettingsRaw }>>('settings').pipe(
@@ -251,14 +251,21 @@ export class StoreService {
           o.subscribe({
             next: (r) => {
               if (!r.success || !r.data) return;
-              const raw = 'settings' in r.data ? (r.data as { settings: SettingsRaw }).settings : null;
+              const raw: SettingsRaw | null = 'settings' in r.data ? (r.data as { settings: SettingsRaw }).settings : null;
               if (!raw || typeof raw !== 'object') return;
               const mapped: Settings = {
+                storeName: raw.storeName,
+                logo: raw.logo,
                 announcementBar: raw.announcementBar,
+                socialLinks: raw.socialLinks,
+                newsletterEnabled: raw.newsletterEnabled,
+                contentPages: raw.contentPages,
                 stockDisplay: {
                   lowStockThreshold: raw.lowStockThreshold,
                   stockInfoThreshold: raw.stockInfoThreshold,
                 },
+                currency: raw.currency,
+                currencySymbol: raw.currencySymbol,
               };
               sub.next(mapped);
             },
