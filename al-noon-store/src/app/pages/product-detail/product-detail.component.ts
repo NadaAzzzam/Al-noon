@@ -144,16 +144,34 @@ export class ProductDetailComponent implements OnInit {
     return items;
   });
 
+  /** True when API sends discountPrice and it differs from price. */
+  hasSale = computed(() => {
+    const p = this.product();
+    return p?.discountPrice != null && p.discountPrice !== p.price;
+  });
+
+  /** Original (higher) price when on sale. */
+  originalPrice = computed(() => {
+    const p = this.product();
+    if (!p) return 0;
+    if (p.discountPrice == null) return p.price;
+    return Math.max(p.price, p.discountPrice);
+  });
+
+  /** Current (lower) price when on sale; used for add-to-cart and display. */
   currentPrice = computed(() => {
     const p = this.product();
     if (!p) return 0;
-    return p.discountPrice != null && p.discountPrice < p.price ? p.discountPrice : p.price;
+    if (p.discountPrice == null) return p.price;
+    return Math.min(p.price, p.discountPrice);
   });
 
   discountPercent = computed(() => {
     const p = this.product();
-    if (!p || p.discountPrice == null || p.discountPrice >= p.price || p.price === 0) return 0;
-    return Math.round(((p.price - p.discountPrice) / p.price) * 100);
+    if (!p || !this.hasSale()) return 0;
+    const orig = this.originalPrice();
+    if (orig === 0) return 0;
+    return Math.round(((orig - this.currentPrice()) / orig) * 100);
   });
 
   ngOnInit(): void {
@@ -200,7 +218,7 @@ export class ProductDetailComponent implements OnInit {
       name,
       description: desc,
       image: p.images?.[0] ? this.api.imageUrl(p.images[0]) : undefined,
-      price: p.discountPrice != null && p.discountPrice < p.price ? p.discountPrice : p.price,
+      price: this.currentPrice(),
       availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       averageRating: p.averageRating ?? undefined,
       ratingCount: p.ratingCount ?? undefined,

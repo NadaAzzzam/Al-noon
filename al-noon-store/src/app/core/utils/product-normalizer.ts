@@ -52,6 +52,7 @@ function normalizeCategory(cat: ApiCategoryRef | undefined): ProductCategory | u
 /**
  * Normalize raw product from API to client Product shape:
  * - _id -> id
+ * - discountPrice from API (list/detail/related/home) -> discountPrice (number or omitted; null dropped)
  * - viewImage/hoverImage (or media.default/hover) -> images[] and media
  * - video (or media.previewVideo) -> videos[]
  * - category._id -> category.id
@@ -62,9 +63,22 @@ export function normalizeProductFromApi(raw: ProductApiShape & { _id?: string })
   const videos = videosFromMedia(raw);
   const category = normalizeCategory(raw.category);
 
-  const { _id, media, images: _img, videos: _vid, viewImage, hoverImage, video, ...rest } = raw;
+  const {
+    _id,
+    media,
+    images: _img,
+    videos: _vid,
+    viewImage,
+    hoverImage,
+    video,
+    discountPrice: rawDiscountPrice,
+    ...rest
+  } = raw;
   void _img;
   void _vid;
+
+  const discountPrice =
+    rawDiscountPrice != null && typeof rawDiscountPrice === 'number' ? rawDiscountPrice : undefined;
 
   const mediaNormalized =
     media ??
@@ -80,6 +94,7 @@ export function normalizeProductFromApi(raw: ProductApiShape & { _id?: string })
     ...rest,
     id,
     images,
+    ...(discountPrice !== undefined ? { discountPrice } : {}),
     ...(mediaNormalized ? { media: mediaNormalized } : {}),
     ...(videos.length ? { videos } : {}),
     ...(category ? { category } : {}),

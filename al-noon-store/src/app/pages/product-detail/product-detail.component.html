@@ -26,8 +26,7 @@
         } @else {
         <img [src]="api.imageUrl(item.url)" [alt]="getLocalized(p.name)" class="gallery-main-img" />
         }
-        @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="sale-badge">{{ 'sale' | translate
-          }}</span>
+        @if (hasSale()) { <span class="sale-badge">{{ 'sale' | translate }}</span>
           }
           @if (galleryItems().length > 1) {
           <button type="button" class="gallery-nav gallery-prev"
@@ -88,9 +87,9 @@
       <!-- Price -->
       <div class="price-section">
         <div class="price">
-          @if (p.discountPrice != null && p.discountPrice < p.price) {
-            <span class="original">{{ p.price }} EGP</span>
-            <span class="current sale-price">{{ p.discountPrice }} EGP</span>
+          @if (hasSale()) {
+            <span class="original">{{ originalPrice() }} EGP</span>
+            <span class="current sale-price">{{ currentPrice() }} EGP</span>
           } @else {
             <span class="current">{{ p.price }} EGP</span>
           }

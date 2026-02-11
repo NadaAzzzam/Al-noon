@@ -54,8 +54,8 @@ import type { Product } from '../../../core/types/api.types';
           }
           <div class="price">
             @if (hasSale()) {
-              <span class="original">{{ p.price }} EGP</span>
-              <span class="current">{{ p.discountPrice }} EGP</span>
+              <span class="original">{{ originalPrice() }} EGP</span>
+              <span class="current sale-price">{{ currentPrice() }} EGP</span>
             } @else {
               <span class="current">{{ p.price }} EGP</span>
             }
@@ -210,6 +210,9 @@ import type { Product } from '../../../core/types/api.types';
     .price .current {
       font-weight: 600;
     }
+    .price .current.sale-price {
+      color: var(--color-sale, #b8462a);
+    }
   `],
 })
 export class ProductCardComponent {
@@ -248,14 +251,33 @@ export class ProductCardComponent {
     return !!hover && hover !== this.mainImageUrl();
   });
 
+  /** True when API sends discountPrice and it differs from price (sale = lower is current). */
   hasSale = computed(() => {
     const p = this.product();
-    return p?.discountPrice != null && p.discountPrice < p.price;
+    return p?.discountPrice != null && p.discountPrice !== p.price;
+  });
+
+  /** Original (higher) price when on sale; otherwise same as price. */
+  originalPrice = computed(() => {
+    const p = this.product();
+    if (!p) return 0;
+    if (p.discountPrice == null) return p.price;
+    return Math.max(p.price, p.discountPrice);
+  });
+
+  /** Current (lower) price when on sale; otherwise price. */
+  currentPrice = computed(() => {
+    const p = this.product();
+    if (!p) return 0;
+    if (p.discountPrice == null) return p.price;
+    return Math.min(p.price, p.discountPrice);
   });
 
   discountPercent = computed(() => {
     const p = this.product();
-    if (!p || p.discountPrice == null || p.discountPrice >= p.price || p.price === 0) return 0;
-    return Math.round(((p.price - p.discountPrice) / p.price) * 100);
+    if (!p || !this.hasSale()) return 0;
+    const orig = this.originalPrice();
+    if (orig === 0) return 0;
+    return Math.round(((orig - this.currentPrice()) / orig) * 100);
   });
 }

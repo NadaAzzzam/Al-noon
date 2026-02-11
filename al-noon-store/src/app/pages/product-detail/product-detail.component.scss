@@ -202,8 +202,15 @@
   gap: 12px;
 }
 
+.product-info .price .original {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  margin-inline-end: 8px;
+}
+
 .sale-price {
   color: var(--color-sale, #b8462a);
+  font-weight: 600;
 }
 
 .discount-badge-inline {

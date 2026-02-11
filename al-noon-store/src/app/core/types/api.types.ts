@@ -565,6 +565,7 @@ export interface CategoriesApiResponse {
  * Flat object: all former store fields + home-only fields (announcementBar, promoBanner,
  * newArrivalsLimit, homeCollectionsDisplayLimit, section images/videos).
  * GET /api/store was removed; store data is now returned only via store/home.
+ * newArrivals items match ProductListItem: price, discountPrice, media, sizes, colors, etc.
  */
 export interface StoreHomeData {
   storeName?: LocalizedText;
@@ -576,6 +577,7 @@ export interface StoreHomeData {
   heroEnabled?: boolean;
   newArrivalsLimit?: number;
   homeCollectionsDisplayLimit?: number;
+  /** Product list items (price, discountPrice, media); normalized via normalizeProductFromApi. */
   newArrivals?: (ProductApiShape & { _id?: string })[];
   newArrivalsSectionImages?: string[];
   newArrivalsSectionVideos?: string[];
@@ -620,12 +622,22 @@ export interface PageApiResponse {
   data: { page: ContentPage };
 }
 
-/** GET/POST/PUT /products/:id – ProductResponse */
+/** Raw GET /api/products/:id – response shape (data.product + optional availability, formattedDetails). */
+export interface ProductDetailData {
+  product: ProductApiShape & { _id?: string };
+  availability?: ProductAvailabilityInfo;
+  formattedDetails?: FormattedDetails;
+}
+
+/** GET /api/products/:id – ProductResponse (single product detail). */
 export interface ProductApiResponse {
   success: true;
-  data: { product: Product & { _id?: string } };
+  data: ProductDetailData | { product: Product & { _id?: string } };
   message?: string;
 }
+
+/** Raw GET /api/products/:id/related – array of product list items (same shape as list; includes discountPrice). */
+export type RelatedProductsApiResponse = ApiSuccess<(ProductApiShape & { _id?: string })[]>;
 
 /** GET /shipping-methods – ShippingMethodsResponse */
 export interface ShippingMethodsApiResponse {
