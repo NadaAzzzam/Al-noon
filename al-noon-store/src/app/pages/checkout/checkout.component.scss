@@ -312,6 +312,16 @@
   overflow: hidden;
 }
 
+.shipping-loading,
+.shipping-empty {
+  padding: 16px 18px;
+  color: #666;
+  font-size: 14px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
 .shipping-option {
   display: flex;
   justify-content: space-between;
@@ -394,6 +404,26 @@
   overflow: hidden;
 }
 
+.payment-loading,
+.payment-empty {
+  padding: 16px 18px;
+  color: #666;
+  font-size: 14px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.instapay-number {
+  margin: 8px 18px 0;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #f0f9ff;
+  border-radius: 6px;
+  border: 1px solid #bae6fd;
+}
+
 .payment-option {
   padding: 16px 18px;
   background: #fff;
@@ -454,6 +484,11 @@
 /* ══════════════════════════════════════════════════════
    Submit Button
    ══════════════════════════════════════════════════════ */
+.checkout-submit-btn-top {
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
 .checkout-submit-btn {
   display: block;
   width: 100%;

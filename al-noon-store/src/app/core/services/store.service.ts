@@ -14,6 +14,7 @@ import type {
   Settings,
   SettingsApiResponse,
   SettingsRaw,
+  SchemaStoreHomeResponse,
 } from '../types/api.types';
 import { normalizeProductFromApi } from '../utils/product-normalizer';
 
@@ -186,7 +187,7 @@ export class StoreService {
     }
     if (this.store$ && !force) return this.store$;
     this.store$ = this.http
-      .get<HomeApiResponse | ApiSuccess<{ home: Record<string, unknown> }>>('store/home')
+      .get<SchemaStoreHomeResponse | HomeApiResponse | ApiSuccess<{ home: Record<string, unknown> }>>('store/home')
       .pipe(
         tap((res) => {
           if (res.success && res.data && 'home' in res.data) {

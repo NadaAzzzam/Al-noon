@@ -9,6 +9,9 @@ import type {
   ProductsQuery,
   ProductsListResponse,
   ProductApiResponse,
+  SchemaPaginatedProductsResponse,
+  SchemaProductResponse,
+  SchemaRelatedProductsResponse,
 } from '../types/api.types';
 import { normalizeProductFromApi } from '../utils/product-normalizer';
 
@@ -43,7 +46,7 @@ export class ProductsService {
     set('minRating', query.minRating);
 
     return this.http
-      .get<ApiSuccess<(ProductApiShape & { _id?: string })[]> & { pagination?: ProductsListResponse['pagination']; appliedFilters?: ProductsListResponse['appliedFilters'] }>(
+      .get<SchemaPaginatedProductsResponse | (ApiSuccess<(ProductApiShape & { _id?: string })[]> & { pagination?: ProductsListResponse['pagination']; appliedFilters?: ProductsListResponse['appliedFilters'] })>(
         'products',
         { params }
       )
@@ -75,7 +78,7 @@ export class ProductsService {
   getProduct(id: string, options?: { color?: string }): Observable<Product> {
     let params = new HttpParams();
     if (options?.color?.trim()) params = params.set('color', options.color.trim());
-    return this.http.get<ProductApiResponse | ApiSuccess<ProductApiShape & { _id?: string }>>(`products/${id}`, { params }).pipe(
+    return this.http.get<SchemaProductResponse | ProductApiResponse | ApiSuccess<ProductApiShape & { _id?: string }>>(`products/${id}`, { params }).pipe(
       (o) =>
         new Observable<Product>((sub) => {
           o.subscribe({
@@ -100,7 +103,7 @@ export class ProductsService {
   }
 
   getRelated(id: string): Observable<Product[]> {
-    return this.http.get<ApiSuccess<(ProductApiShape & { _id?: string })[]>>(`products/${id}/related`).pipe(
+    return this.http.get<SchemaRelatedProductsResponse | ApiSuccess<(ProductApiShape & { _id?: string })[]>>(`products/${id}/related`).pipe(
       (o) =>
         new Observable<Product[]>((sub) => {
           o.subscribe({

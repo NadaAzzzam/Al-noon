@@ -78,7 +78,7 @@
                   </svg>
                 </span>
               </div>
-              <p class="detail-value">{{ paymentDisplay() }} - EE{{ o.total | number:'1.2-2' }} EGP</p>
+              <p class="detail-value">{{ paymentDisplay() }} - LE {{ o.total | number:'1.2-2' }} EGP</p>
             </div>
 
             <div class="detail-section">
@@ -127,7 +127,7 @@
             <span class="summary-product-variant">{{ item.product.sizes[0] }}</span>
             }
           </div>
-          <span class="summary-product-price">EE{{ (item.price * item.quantity) | number:'1.2-2' }}</span>
+          <span class="summary-product-price">LE {{ (item.price * item.quantity) | number:'1.2-2' }} EGP</span>
         </div>
         }
       </div>
@@ -136,16 +136,16 @@
       <div class="summary-totals">
         <div class="summary-row">
           <span>Subtotal</span>
-          <span>EE{{ subtotal() | number:'1.2-2' }}</span>
+          <span>LE {{ subtotal() | number:'1.2-2' }} EGP</span>
         </div>
         <div class="summary-row">
           <span>Shipping</span>
-          <span>EE{{ deliveryFee() | number:'1.2-2' }}</span>
+          <span>LE {{ deliveryFee() | number:'1.2-2' }} EGP</span>
         </div>
         <div class="summary-row summary-total">
           <span>Total</span>
           <span class="summary-total-price">
-            <small>EGP</small> EE{{ o.total | number:'1.2-2' }}
+            <small>EGP</small> LE {{ o.total | number:'1.2-2' }}
           </span>
         </div>
       </div>

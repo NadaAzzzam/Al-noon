@@ -31,6 +31,11 @@
     <div class="checkout-form-inner">
       <form (ngSubmit)="submit()" class="checkout-form" autocomplete="on">
 
+        <!-- Complete order (top) -->
+        <button type="submit" class="checkout-submit-btn checkout-submit-btn-top" [disabled]="submitting()">
+          {{ submitting() ? 'Completing order...' : 'Complete order' }}
+        </button>
+
         <!-- Contact / Email -->
         <section class="checkout-section">
           <div class="section-header">
@@ -100,21 +105,19 @@
               (input)="apartment.set($any($event.target).value)" placeholder="Apartment, suite, etc. (optional)" />
           </div>
 
-          <div class="form-row form-row-3">
+          <div class="form-row form-row-2">
             <div class="form-group">
-              <input type="text" autocomplete="address-level2" [value]="city()"
-                (input)="city.set($any($event.target).value)" placeholder="City" [class.has-error]="cityError()" />
+              <label class="floating-label">City</label>
+              <select [value]="selectedCityId()" (change)="selectedCityId.set($any($event.target).value)"
+                [class.has-error]="cityError()">
+                <option value="">Select city</option>
+                @for (c of cities(); track c.id) {
+                <option [value]="c.id">{{ getLocalized(c.name) }} — LE {{ c.deliveryFee | number:'1.2-2' }} EGP</option>
+                }
+              </select>
               @if (cityError()) {
               <span class="field-error">{{ cityError() }}</span>
               }
-            </div>
-            <div class="form-group">
-              <label class="floating-label">Governorate</label>
-              <select [value]="governorate()" (change)="governorate.set($any($event.target).value)">
-                @for (gov of governorates(); track gov.id) {
-                <option [value]="gov.id">{{ getLocalized(gov.name) }}</option>
-                }
-              </select>
             </div>
             <div class="form-group">
               <input type="text" autocomplete="postal-code" [value]="postalCode()"
@@ -140,10 +143,15 @@
           </label>
         </section>
 
-        <!-- Shipping method -->
+        <!-- Shipping method (from GET /api/shipping-methods list) -->
         <section class="checkout-section">
           <h2 class="section-title">Shipping method</h2>
           <div class="shipping-options">
+            @if (shippingMethodsLoading()) {
+            <p class="shipping-loading">Loading shipping options…</p>
+            } @else if (shippingMethods().length === 0) {
+            <p class="shipping-empty">No shipping methods available.</p>
+            } @else {
             @for (method of shippingMethods(); track method.id) {
             <div class="shipping-option" [class.selected]="selectedShippingMethod() === method.id"
               (click)="selectedShippingMethod.set(method.id)">
@@ -154,33 +162,38 @@
                   <span class="shipping-est">{{ getLocalized(method.description) }}</span>
                 </div>
               </div>
-              <span class="shipping-price">EE{{ deliveryFee() | number:'1.2-2' }}</span>
+              <span class="shipping-price">LE {{ (method.price != null ? method.price : cityDeliveryFee()) | number:'1.2-2' }} EGP</span>
             </div>
             }
-            @if (shippingMethods().length === 0) {
-            <div class="shipping-option selected">
-              <div class="shipping-option-left">
-                <span class="radio-dot active"></span>
-                <span class="shipping-name">Standard</span>
-              </div>
-              <span class="shipping-price">EE{{ deliveryFee() | number:'1.2-2' }}</span>
-            </div>
             }
           </div>
         </section>
 
-        <!-- Payment -->
+        <!-- Payment (from GET /api/payment-methods) -->
         <section class="checkout-section">
           <h2 class="section-title">Payment</h2>
           <p class="section-subtitle">All transactions are secure and encrypted.</p>
           <div class="payment-options">
-            <div class="payment-option" [class.selected]="paymentMethod() === 'COD'">
+            @if (paymentMethodsLoading()) {
+            <p class="payment-loading">Loading payment options…</p>
+            } @else if (paymentMethods().length === 0) {
+            <p class="payment-empty">No payment methods available.</p>
+            } @else {
+            @for (method of paymentMethods(); track method.id) {
+            <div class="payment-option" [class.selected]="paymentMethod() === method.id">
               <label class="radio-label">
-                <input type="radio" name="payment" value="COD" [checked]="paymentMethod() === 'COD'"
-                  (change)="paymentMethod.set('COD')" />
-                Cash on Delivery (COD)
+                <input type="radio" name="payment" [value]="method.id" [checked]="paymentMethod() === method.id"
+                  (change)="paymentMethod.set(method.id)" />
+                {{ getLocalized(method.name) }}
               </label>
             </div>
+            }
+            @if (selectedPaymentMethod(); as method) {
+            @if (method.id === 'INSTAPAY' && method.instaPayNumber) {
+            <p class="instapay-number">Transfer to: <strong>{{ method.instaPayNumber }}</strong></p>
+            }
+            }
+            }
           </div>
         </section>
 
@@ -226,11 +239,8 @@
                   placeholder="City" />
               </div>
               <div class="form-group">
-                <select [value]="billingGovernorate()" (change)="billingGovernorate.set($any($event.target).value)">
-                  @for (gov of governorates(); track gov.id) {
-                  <option [value]="gov.id">{{ getLocalized(gov.name) }}</option>
-                  }
-                </select>
+                <input type="text" [value]="billingGovernorate()" (input)="billingGovernorate.set($any($event.target).value)"
+                  placeholder="Governorate / Region" />
               </div>
               <div class="form-group">
                 <input type="text" [value]="billingPostalCode()"
@@ -251,7 +261,7 @@
         }
 
         <button type="submit" class="checkout-submit-btn" [disabled]="submitting()">
-          {{ submitting() ? 'Placing order...' : 'Pay now' }}
+          {{ submitting() ? 'Completing order...' : 'Complete order' }}
         </button>
 
       </form>
@@ -277,7 +287,7 @@
             <span class="summary-product-variant">{{ item.variant }}</span>
             }
           </div>
-          <span class="summary-product-price">EE{{ (item.price * item.quantity) | number:'1.2-2' }}</span>
+          <span class="summary-product-price">LE {{ (item.price * item.quantity) | number:'1.2-2' }} EGP</span>
         </div>
         }
       </div>
@@ -292,7 +302,7 @@
       <div class="summary-totals">
         <div class="summary-row">
           <span>Subtotal</span>
-          <span>EE{{ subtotal() | number:'1.2-2' }}</span>
+          <span>LE {{ subtotal() | number:'1.2-2' }} EGP</span>
         </div>
         <div class="summary-row">
           <span class="shipping-label">
@@ -304,13 +314,13 @@
               <path d="M12 8h.01" />
             </svg>
           </span>
-          <span>EE{{ deliveryFee() | number:'1.2-2' }}</span>
+          <span>LE {{ deliveryFee() | number:'1.2-2' }} EGP</span>
         </div>
         <div class="summary-row summary-total">
           <span>Total</span>
           <span class="summary-total-price">
             <small class="currency-label">EGP</small>
-            EE{{ total() | number:'1.2-2' }}
+            LE {{ total() | number:'1.2-2' }}
           </span>
         </div>
       </div>

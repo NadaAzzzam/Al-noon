@@ -30,13 +30,23 @@ function videosFromMedia(raw: ProductApiShape): string[] {
   return Array.isArray(raw.videos) ? raw.videos : [];
 }
 
+/** Category as returned by API: string id, or object with _id/id and optional name, status (OpenAPI ProductCategoryRef). */
+type ApiCategoryRef =
+  | (ProductCategory & { _id?: string })
+  | { _id?: string; name?: { en?: string; ar?: string }; status?: string }
+  | string;
+
 /**
- * Normalize category: ensure id is set (API may send _id).
+ * Normalize category: ensure id is set (API may send _id, id, or category as string id).
  */
-function normalizeCategory(cat: (ProductCategory & { _id?: string }) | undefined): ProductCategory | undefined {
-  if (!cat) return undefined;
-  const id = String(cat.id ?? cat._id ?? '');
-  return { ...cat, id };
+function normalizeCategory(cat: ApiCategoryRef | undefined): ProductCategory | undefined {
+  if (cat == null) return undefined;
+  if (typeof cat === 'string') {
+    const id = cat.trim();
+    return id ? { id, name: { en: '', ar: '' } } : undefined;
+  }
+  const id = String((cat as { id?: string; _id?: string }).id ?? (cat as { _id?: string })._id ?? '');
+  return { ...cat, id } as ProductCategory;
 }
 
 /**
@@ -60,10 +70,10 @@ export function normalizeProductFromApi(raw: ProductApiShape & { _id?: string })
     media ??
     (raw.viewImage || raw.hoverImage
       ? {
-          default: raw.viewImage ? { type: 'image' as const, url: raw.viewImage } : undefined,
-          hover: raw.hoverImage ? { type: 'image' as const, url: raw.hoverImage } : undefined,
-          previewVideo: raw.video ? { type: 'video' as const, url: raw.video } : undefined,
-        }
+        default: raw.viewImage ? { type: 'image' as const, url: raw.viewImage } : undefined,
+        hover: raw.hoverImage ? { type: 'image' as const, url: raw.hoverImage } : undefined,
+        previewVideo: raw.video ? { type: 'video' as const, url: raw.video } : undefined,
+      }
       : undefined);
 
   return {

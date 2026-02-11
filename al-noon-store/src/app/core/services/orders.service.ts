@@ -54,6 +54,32 @@ function normalizeOrder(o: Order & { _id?: string }): Order {
 export class OrdersService {
   private readonly http = inject(HttpClient);
 
+  /**
+   * POST /api/checkout – complete checkout (create order) from storefront.
+   * Same body as createOrder; use this on the checkout page.
+   */
+  checkout(body: CreateOrderBody): Observable<Order> {
+    return this.http.post<OrderApiResponse | ApiSuccess<Order>>('checkout', body).pipe(
+      (o) =>
+        new Observable<Order>((sub) => {
+          o.subscribe({
+            next: (r) => {
+              if (!r.success) {
+                sub.error((r as { message?: string }).message ?? 'Failed to complete order');
+                return;
+              }
+              const data = r.data as { order?: Order } | Order;
+              const raw = data && 'order' in data ? data.order : (data as Order);
+              if (raw) sub.next(normalizeOrder(raw));
+              else sub.error('Failed to complete order');
+            },
+            error: (e) => sub.error(e),
+            complete: () => sub.complete(),
+          });
+        })
+    );
+  }
+
   createOrder(body: CreateOrderBody): Observable<Order> {
     return this.http.post<OrderApiResponse | ApiSuccess<Order>>('orders', body).pipe(
       (o) =>

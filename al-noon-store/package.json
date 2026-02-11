@@ -8,7 +8,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr": "node dist/al-noon-store/server/server.mjs",
-    "serve:ssr:al-noon-store": "node dist/al-noon-store/server/server.mjs"
+    "serve:ssr:al-noon-store": "node dist/al-noon-store/server/server.mjs",
+    "generate:api-types": "openapi-typescript http://localhost:4000/api-docs/spec.json -o src/app/core/types/api.schema.ts",
+    "generate:api-types:local": "node scripts/generate-api-types.mjs"
   },
   "prettier": {
     "printWidth": 100,
@@ -46,6 +48,7 @@
     "@angular/compiler-cli": "^21.1.0",
     "@types/express": "^5.0.1",
     "@types/node": "^20.17.19",
+    "openapi-typescript": "^7.12.0",
     "typescript": "~5.9.2"
   }
 }

@@ -1,3 +1,9 @@
+/**
+ * Store API types. Keep in sync with backend OpenAPI spec.
+ * Regenerate schema types: npm run generate:api-types (from BE) or npm run generate:api-types:local (from spec.json).
+ * Raw OpenAPI-generated types: see api.schema.ts (paths, components).
+ */
+import type { components } from './api.schema';
 /** Generic API success response (list endpoints may include pagination + appliedFilters). */
 export interface ApiSuccess<T> {
   success: true;
@@ -131,10 +137,12 @@ export interface AuthTokens {
 
 /** Product */
 
-/** API media object: default, hover, previewVideo (each has type + url) */
+/** API media object (OpenAPI ProductMediaItem): type, url, optional alt/durationSeconds */
 export interface ProductMediaItem {
-  type?: string;
-  url?: string;
+  type: 'image' | 'video' | 'gif';
+  url: string;
+  alt?: string | null;
+  durationSeconds?: number | null;
 }
 
 export interface ProductMedia {
@@ -206,7 +214,8 @@ export interface ProductApiShape extends Omit<Product, 'id' | 'images' | 'videos
   viewImage?: string;
   hoverImage?: string;
   video?: string;
-  category?: ProductCategory & { _id?: string };
+  /** API may send category as string (id) or populated object (OpenAPI ProductListItem/ProductData). */
+  category?: string | components['schemas']['ProductCategoryRef'] | (ProductCategory & { _id?: string });
 }
 
 /** Product (normalized for client). API uses _id; normalized to id. Media normalized to images/videos. */
@@ -287,10 +296,18 @@ export interface ProductsQuery {
   minRating?: number;
 }
 
+/** Echo of list products query params applied (OpenAPI ProductListAppliedFilters). */
 export interface ProductsListAppliedFilters {
-  sort?: string;
-  availability?: string;
-  status?: string;
+  sort?: ProductSort;
+  availability?: ProductAvailability;
+  status?: 'ACTIVE' | 'INACTIVE' | null;
+  category?: string | null;
+  search?: string | null;
+  newArrival?: boolean | null;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  color?: string | null;
+  minRating?: number | null;
 }
 
 export interface ProductsListResponse {
@@ -337,6 +354,21 @@ export interface ShippingMethod {
   name: LocalizedText;
   description: LocalizedText;
   estimatedDays: string;
+  /** Price for this method (EGP); may be 0. When set, checkout can show it instead of or with city delivery fee. */
+  price?: number;
+}
+
+/** Raw shipping method from API (has _id, estimatedDays as { min, max }, price). */
+export interface ShippingMethodRaw {
+  _id?: string;
+  id?: string;
+  name?: LocalizedText;
+  description?: LocalizedText;
+  estimatedDays?: string | { min?: number; max?: number };
+  price?: number;
+  enabled?: boolean;
+  order?: number;
+  [key: string]: unknown;
 }
 
 /** ═══ Governorate (GET /api/governorates) ═══ */
@@ -347,6 +379,20 @@ export interface Governorate {
 
 /** Order */
 export type PaymentMethod = 'COD' | 'INSTAPAY';
+
+/** Payment method option from GET /api/payment-methods (id + localized name + optional instaPayNumber) */
+export interface PaymentMethodOption {
+  id: PaymentMethod;
+  name: LocalizedText;
+  /** InstaPay transfer number (when id is INSTAPAY) */
+  instaPayNumber?: string;
+}
+
+/** GET /api/payment-methods response */
+export interface PaymentMethodsApiResponse {
+  success: true;
+  data: { paymentMethods: PaymentMethodOption[] };
+}
 
 export interface OrderItemInput {
   product: string;
@@ -629,3 +675,12 @@ export interface SettingsApiResponse {
   data: { settings: SettingsRaw };
   message?: string;
 }
+
+// ----- Schema-derived API response types (source: api.schema.ts; use for HTTP response typing) -----
+export type SchemaProductListItem = components['schemas']['ProductListItem'];
+export type SchemaProductData = components['schemas']['ProductData'];
+export type SchemaStoreHomeResponse = components['schemas']['StoreHomeResponse'];
+export type SchemaPaginatedProductsResponse = components['schemas']['PaginatedProductsResponse'];
+export type SchemaProductResponse = components['schemas']['ProductResponse'];
+export type SchemaRelatedProductsResponse = components['schemas']['RelatedProductsResponse'];
+export type SchemaProductListAppliedFilters = components['schemas']['ProductListAppliedFilters'];
