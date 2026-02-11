@@ -129,6 +129,8 @@
     "added": "Added!",
     "outOfStock": "Out of stock",
     "lowStock": "Only {{count}} left in stock",
+    "stockAvailable": "{{count}} available in stock",
+    "save": "Save",
     "stylingTip": "Styling tip",
     "details": "Details",
     "related": "You may also like"

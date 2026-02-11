@@ -98,7 +98,7 @@ export interface StoreData {
   hero: StoreHero;
   heroEnabled: boolean;
   newArrivalsLimit: number;
-  /** New arrival products from store API (e.g. GET /api/store). */
+  /** New arrival products from GET /api/store/home (data.home.newArrivals). */
   newArrivals?: Product[];
   newArrivalsSectionImages?: string[];
   newArrivalsSectionVideos?: string[];
@@ -514,25 +514,38 @@ export interface CategoriesApiResponse {
   data: { categories: Category[] };
 }
 
-/** GET /store – StoreResponse (data may be nested under .store) */
-export interface StoreApiResponse {
-  success: true;
-  data: StoreData | { store: StoreData };
-}
-
-/** Raw home payload from API (data.home). */
-export interface HomeDataRaw {
-  store: Record<string, unknown>;
-  hero: StoreHero;
-  heroEnabled: boolean;
-  newArrivals: (ProductApiShape & { _id?: string })[];
-  homeCollections: unknown;
-  feedbackSectionEnabled: boolean;
-  feedbackDisplayLimit: number;
-  feedbacks: unknown;
+/**
+ * Raw home payload from GET /api/store/home (data.home).
+ * Flat object: all former store fields + home-only fields (announcementBar, promoBanner,
+ * newArrivalsLimit, homeCollectionsDisplayLimit, section images/videos).
+ * GET /api/store was removed; store data is now returned only via store/home.
+ */
+export interface StoreHomeData {
+  storeName?: LocalizedText;
+  logo?: string;
+  quickLinks?: unknown;
+  socialLinks?: unknown;
+  newsletterEnabled?: boolean;
+  hero?: StoreHero;
+  heroEnabled?: boolean;
+  newArrivalsLimit?: number;
+  homeCollectionsDisplayLimit?: number;
+  newArrivals?: (ProductApiShape & { _id?: string })[];
+  newArrivalsSectionImages?: string[];
+  newArrivalsSectionVideos?: string[];
+  ourCollectionSectionImages?: string[];
+  ourCollectionSectionVideos?: string[];
+  homeCollections?: unknown;
+  feedbackSectionEnabled?: boolean;
+  feedbackDisplayLimit?: number;
+  feedbacks?: unknown;
   announcementBar?: { text?: LocalizedText; enabled?: boolean; backgroundColor?: string };
   promoBanner?: { enabled?: boolean; image?: string; title?: LocalizedText; subtitle?: LocalizedText; ctaLabel?: LocalizedText; ctaUrl?: string };
+  [key: string]: unknown;
 }
+
+/** Alias for raw data.home shape (flat StoreHomeData). */
+export type HomeDataRaw = StoreHomeData;
 
 /** Normalized home data for the app (store and newArrivals normalized). */
 export interface HomeData {
@@ -578,4 +591,41 @@ export interface ShippingMethodsApiResponse {
 export interface GovernoratesApiResponse {
   success: true;
   data: Governorate[];
+}
+
+/** GET /api/settings – announcement bar and other app settings */
+export interface AnnouncementBarSettings {
+  text?: LocalizedText;
+  enabled?: boolean;
+  /** Hex e.g. "#1a1a2e" or "linear-gradient(...)" */
+  backgroundColor?: string;
+}
+
+/** Stock display thresholds from BE: when to show "low stock" vs "stock available" messages */
+export interface StockDisplaySettings {
+  /** Show "low stock" when 0 < stock <= this (BE-driven, e.g. 5) */
+  lowStockThreshold?: number;
+  /** Show "stock available" when lowStockThreshold < stock <= this (BE-driven, e.g. 10) */
+  stockInfoThreshold?: number;
+}
+
+/** Normalized settings consumed by the app (announcement bar, stock display). */
+export interface Settings {
+  announcementBar?: AnnouncementBarSettings;
+  stockDisplay?: StockDisplaySettings;
+}
+
+/** Raw GET /api/settings response: data.settings (BE returns data: { settings: SettingsRaw }). */
+export interface SettingsRaw {
+  announcementBar?: AnnouncementBarSettings;
+  /** At root level in API (not under stockDisplay). */
+  lowStockThreshold?: number;
+  stockInfoThreshold?: number;
+  [key: string]: unknown;
+}
+
+export interface SettingsApiResponse {
+  success: true;
+  data: { settings: SettingsRaw };
+  message?: string;
 }

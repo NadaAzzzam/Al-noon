@@ -86,13 +86,18 @@
       }
 
       <!-- Price -->
-      <div class="price">
-        @if (p.discountPrice != null && p.discountPrice < p.price) { <span class="original">{{ p.price }} EGP</span>
-          <span class="current">{{ p.discountPrice }} EGP</span>
-          <span class="discount-tag">-{{ discountPercent() }}%</span>
+      <div class="price-section">
+        <div class="price">
+          @if (p.discountPrice != null && p.discountPrice < p.price) {
+            <span class="original">{{ p.price }} EGP</span>
+            <span class="current sale-price">{{ p.discountPrice }} EGP</span>
           } @else {
-          <span class="current">{{ p.price }} EGP</span>
+            <span class="current">{{ p.price }} EGP</span>
           }
+        </div>
+        @if (discountPercent() > 0) {
+          <span class="discount-badge-inline">{{ 'product.save' | translate }} {{ discountPercent() }}%</span>
+        }
       </div>
 
       @if (getLocalized(p.description)) {
@@ -135,24 +140,29 @@
       </div>
       }
 
-      <!-- Quantity +/- (capped by effective variant stock when availability exists) -->
+      <!-- Quantity +/- (capped by effective stock and remaining can-add so we don't exceed) -->
       <div class="form-group">
         <label>{{ 'product.quantity' | translate }}</label>
         <div class="quantity-control">
           <button type="button" class="qty-btn" (click)="quantity.set(Math.max(1, quantity() - 1))"
             [disabled]="quantity() <= 1" aria-label="Decrease quantity">−</button>
           <span class="qty-value">{{ quantity() }}</span>
-          <button type="button" class="qty-btn" (click)="quantity.set(Math.min(effectiveStock(), quantity() + 1))"
-            [disabled]="quantity() >= effectiveStock()" aria-label="Increase quantity">+</button>
+          <button type="button" class="qty-btn"
+            (click)="quantity.set(Math.min(effectiveStock(), remainingCanAdd(), quantity() + 1))"
+            [disabled]="quantity() >= effectiveStock() || quantity() >= remainingCanAdd()"
+            aria-label="Increase quantity">+</button>
         </div>
-        @if (effectiveStock() > 0 && effectiveStock() <= 5) { <p class="low-stock">{{ 'product.lowStock' | translate: {
-          count: effectiveStock() } }}</p>
-          }
+        @if (effectiveStock() > 0 && effectiveStock() <= lowStockThreshold()) {
+          <p class="low-stock">{{ 'product.lowStock' | translate: { count: effectiveStock() } }}</p>
+        }
+        @if (effectiveStock() > lowStockThreshold() && effectiveStock() <= stockInfoThreshold()) {
+          <p class="stock-info">{{ 'product.stockAvailable' | translate: { count: effectiveStock() } }}</p>
+        }
       </div>
 
       @if (effectiveStock() <= 0) { <p class="out-of-stock">{{ 'product.outOfStock' | translate }}</p>
         } @else {
-        <button type="button" class="btn add-to-cart-btn" (click)="addToCart()" [disabled]="added()">
+        <button type="button" class="btn add-to-cart-btn" (click)="addToCart()" [disabled]="addToCartDisabled()">
           @if (added()) {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="20 6 9 17 4 12" />

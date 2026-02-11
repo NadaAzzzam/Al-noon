@@ -6,11 +6,14 @@ import type {
   StoreData,
   StoreFeedback,
   ContentPage,
-  StoreApiResponse,
+  HomeApiResponse,
   PageApiResponse,
   StoreSocialLink,
   StoreQuickLink,
   HomeCollection,
+  Settings,
+  SettingsApiResponse,
+  SettingsRaw,
 } from '../types/api.types';
 import { normalizeProductFromApi } from '../utils/product-normalizer';
 
@@ -168,6 +171,12 @@ export class StoreService {
   /** Pending shared request so header + footer (and others) trigger only one HTTP call */
   private store$: Observable<StoreData> | null = null;
 
+  /**
+   * GET /api/store/home – single source for store + home data.
+   * BE returns { success, data: { home: StoreHomeData } }; home is a flat object with all store
+   * fields (storeName, logo, quickLinks, newArrivals, homeCollections, hero, announcementBar,
+   * promoBanner, newArrivalsLimit, homeCollectionsDisplayLimit, section images/videos, etc.).
+   */
   getStore(force = false): Observable<StoreData> {
     if (this.cached && !force) {
       return new Observable((sub) => {
@@ -177,13 +186,13 @@ export class StoreService {
     }
     if (this.store$ && !force) return this.store$;
     this.store$ = this.http
-      .get<StoreApiResponse | ApiSuccess<StoreData>>('store')
+      .get<HomeApiResponse | ApiSuccess<{ home: Record<string, unknown> }>>('store/home')
       .pipe(
         tap((res) => {
-          if (res.success && res.data) {
-            const raw = 'store' in res.data ? res.data.store : res.data;
+          if (res.success && res.data && 'home' in res.data) {
+            const raw = res.data.home;
             if (raw && typeof raw === 'object') {
-              this.cached = normalizeStore(raw as unknown as Record<string, unknown>);
+              this.cached = normalizeStore(raw as Record<string, unknown>);
               this.store$ = null;
             }
           }
@@ -194,9 +203,9 @@ export class StoreService {
           new Observable<StoreData>((sub) => {
             o.subscribe({
               next: (r) => {
-                if (r.success && r.data) {
-                  const raw = 'store' in r.data ? r.data.store : r.data;
-                  if (raw && typeof raw === 'object') sub.next(normalizeStore(raw as unknown as Record<string, unknown>));
+                if (r.success && r.data && 'home' in r.data) {
+                  const raw = (r.data as { home: Record<string, unknown> }).home;
+                  if (raw && typeof raw === 'object') sub.next(normalizeStore(raw));
                 }
               },
               error: (e) => sub.error(e),
@@ -228,5 +237,35 @@ export class StoreService {
             });
           })
       );
+  }
+
+  /**
+   * GET /api/settings – BE returns { success, data: { settings: SettingsRaw } }.
+   * Maps to Settings (announcementBar, stockDisplay) for layout and product-detail.
+   */
+  getSettings(): Observable<Settings> {
+    return this.http.get<SettingsApiResponse | ApiSuccess<{ settings: SettingsRaw }>>('settings').pipe(
+      (o) =>
+        new Observable<Settings>((sub) => {
+          o.subscribe({
+            next: (r) => {
+              if (!r.success || !r.data) return;
+              const raw = 'settings' in r.data ? (r.data as { settings: SettingsRaw }).settings : null;
+              if (!raw || typeof raw !== 'object') return;
+              const mapped: Settings = {
+                announcementBar: raw.announcementBar,
+                stockDisplay: {
+                  lowStockThreshold: raw.lowStockThreshold,
+                  stockInfoThreshold: raw.stockInfoThreshold,
+                },
+              };
+              sub.next(mapped);
+            },
+            error: (e) => sub.error(e),
+            complete: () => sub.complete(),
+          });
+        }),
+      shareReplay(1)
+    );
   }
 }

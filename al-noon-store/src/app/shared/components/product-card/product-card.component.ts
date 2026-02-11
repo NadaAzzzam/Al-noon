@@ -42,8 +42,7 @@ import type { Product } from '../../../core/types/api.types';
           }
           @if (p.stock <= 0) {
             <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
-          }
-          @if (discountPercent() > 0) {
+          } @else if (discountPercent() > 0) {
             <span class="discount-badge">-{{ discountPercent() }}%</span>
           }
           <span class="quick-view">View</span>

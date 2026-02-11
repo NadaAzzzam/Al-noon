@@ -21,6 +21,8 @@ export class CartComponent {
   subtotal = this.cart.subtotal;
 
   updateQty(productId: string, qty: number, variant?: string): void {
+    // Note: Stock validation should be done at checkout
+    // Cart allows updating quantities, but checkout will validate against current stock
     this.cart.setQuantity(productId, qty, variant);
   }
 

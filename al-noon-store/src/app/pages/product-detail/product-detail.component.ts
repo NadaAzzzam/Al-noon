@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, distinctUntilChanged, switchMap, take } from 'rxjs/operators';
 import { timer } from 'rxjs';
 import { ProductsService } from '../../core/services/products.service';
 import { CartService } from '../../core/services/cart.service';
+import { StoreService } from '../../core/services/store.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -28,12 +29,17 @@ export class ProductDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly productsService = inject(ProductsService);
   private readonly cart = inject(CartService);
+  private readonly storeService = inject(StoreService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly seo = inject(SeoService);
   private readonly toast = inject(ToastService);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
   readonly Math = Math;
+
+  /** From GET /api/settings (stockDisplay); fallbacks for when BE does not send. */
+  lowStockThreshold = signal(5);
+  stockInfoThreshold = signal(10);
 
   product = signal<Product | null>(null);
   related = signal<Product[]>([]);
@@ -57,6 +63,44 @@ export class ProductDetailComponent implements OnInit {
     }
     return p.stock;
   });
+
+  /** Variant key for cart (same as used in addToCart). */
+  private cartVariantKey = computed(() => {
+    const parts = [this.selectedColor(), this.selectedSize()].filter(Boolean);
+    return parts.length ? parts.join(' / ') : undefined;
+  });
+
+  /** How many of this product+variant are already in the cart. */
+  cartQuantityForCurrent = computed(() => {
+    this.cart.items(); // dependency so this re-runs when cart changes
+    const p = this.product();
+    if (!p) return 0;
+    return this.cart.getItemQuantity(p.id, this.cartVariantKey());
+  });
+
+  /** How many more can be added (stock minus already in cart). */
+  remainingCanAdd = computed(() =>
+    Math.max(0, this.effectiveStock() - this.cartQuantityForCurrent())
+  );
+
+  /** True when add-to-cart should be disabled (quantity exceeded or none left to add). */
+  addToCartDisabled = computed(() =>
+    this.added() ||
+    this.effectiveStock() <= 0 ||
+    this.remainingCanAdd() <= 0 ||
+    this.quantity() > this.remainingCanAdd()
+  );
+
+  constructor() {
+    // Clamp quantity when remaining can-add drops (e.g. after adding to cart or cart changed)
+    effect(() => {
+      const remaining = this.remainingCanAdd();
+      const qty = this.quantity();
+      if (remaining > 0 && qty > remaining) {
+        this.quantity.set(remaining);
+      }
+    });
+  }
 
   /** Formatted details blocks for current locale (or fallback to plain details). */
   detailBlocks = computed(() => {
@@ -84,9 +128,9 @@ export class ProductDetailComponent implements OnInit {
   images = computed(() => {
     const p = this.product();
     if (!p) return [];
-    const list = p.images ?? [];
-    const byColor = p.imageColors?.map((c) => (typeof c === 'string' ? c : (c as { imageUrl?: string }).imageUrl)).filter(Boolean) as string[] | undefined;
-    return byColor?.length ? byColor : list;
+    // When color is selected, backend returns filtered images array
+    // Just use the images array directly as it's already filtered by color
+    return p.images ?? [];
   });
 
   /** Gallery items: images first, then videos (each { type, url }) so we can show both in the gallery. */
@@ -113,6 +157,14 @@ export class ProductDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // From GET /api/settings; fallbacks when BE does not send
+    this.storeService.getSettings().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((settings) => {
+      const sd = settings?.stockDisplay;
+      const low = sd?.lowStockThreshold;
+      const info = sd?.stockInfoThreshold;
+      this.lowStockThreshold.set(typeof low === 'number' && Number.isFinite(low) ? low : 5);
+      this.stockInfoThreshold.set(typeof info === 'number' && Number.isFinite(info) ? info : 10);
+    });
     this.route.paramMap.pipe(
       map(p => p.get('id')),
       distinctUntilChanged(),
@@ -177,23 +229,48 @@ export class ProductDetailComponent implements OnInit {
   addToCart(): void {
     const p = this.product();
     const stock = this.effectiveStock();
-    if (!p || stock < 1) return;
+    if (!p || stock < 1) {
+      this.toast.show('This item is out of stock', 'error');
+      return;
+    }
+
     const qty = Math.min(this.quantity(), stock);
     const price = this.currentPrice();
     const variant = [this.selectedColor(), this.selectedSize()].filter(Boolean).join(' / ') || undefined;
-    this.cart.add({
+
+    // Calculate remaining stock considering what's already in cart
+    const currentCartQty = this.cart.getItemQuantity(p.id, variant);
+    const totalQtyAfterAdd = currentCartQty + qty;
+
+    // Validate against available stock
+    if (totalQtyAfterAdd > stock) {
+      const remainingStock = stock - currentCartQty;
+      if (remainingStock > 0) {
+        this.toast.show(`Only ${remainingStock} more available. You already have ${currentCartQty} in cart.`, 'error');
+      } else {
+        this.toast.show(`You already have the maximum available quantity (${currentCartQty}) in your cart.`, 'error');
+      }
+      return;
+    }
+
+    const result = this.cart.add({
       productId: p.id,
       quantity: qty,
       price,
       name: this.getLocalized(p.name),
       image: p.images?.[0],
       variant: variant ?? undefined,
-    });
-    this.added.set(true);
-    this.toast.show(this.getLocalized(p.name) + ' added to cart', 'success');
-    // Open cart drawer after adding
-    this.cart.openDrawer();
-    timer(2000).pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => this.added.set(false));
+    }, stock);
+
+    if (result.success) {
+      this.added.set(true);
+      this.toast.show(this.getLocalized(p.name) + ' added to cart', 'success');
+      // Open cart drawer after adding
+      this.cart.openDrawer();
+      timer(2000).pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => this.added.set(false));
+    } else {
+      this.toast.show(result.message || 'Cannot add to cart', 'error');
+    }
   }
 
   scrollSlider(container: HTMLElement, direction: 'left' | 'right'): void {

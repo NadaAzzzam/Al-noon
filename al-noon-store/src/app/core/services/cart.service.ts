@@ -81,25 +81,56 @@ export class CartService {
     } catch {}
   }
 
-  add(item: CartItem): void {
+  add(item: CartItem, maxStock?: number): { success: boolean; message?: string } {
     const list = [...this.itemsSignal()];
     const key = itemKey(item);
     const idx = list.findIndex((i) => itemKey(i) === key);
-    if (idx >= 0) list[idx] = { ...list[idx], quantity: list[idx].quantity + item.quantity };
-    else list.push({ ...item });
+
+    if (idx >= 0) {
+      const newQty = list[idx].quantity + item.quantity;
+      // Validate against max stock if provided
+      if (maxStock !== undefined && newQty > maxStock) {
+        return {
+          success: false,
+          message: `Cannot add more items. Only ${maxStock} available in stock.`
+        };
+      }
+      list[idx] = { ...list[idx], quantity: newQty };
+    } else {
+      // Validate initial quantity against max stock
+      if (maxStock !== undefined && item.quantity > maxStock) {
+        return {
+          success: false,
+          message: `Cannot add ${item.quantity} items. Only ${maxStock} available in stock.`
+        };
+      }
+      list.push({ ...item });
+    }
+
     this.persist(list);
+    return { success: true };
   }
 
-  setQuantity(productId: string, quantity: number, variant?: string): void {
+  setQuantity(productId: string, quantity: number, variant?: string, maxStock?: number): { success: boolean; message?: string } {
     const key = itemKey({ productId, variant });
     if (quantity < 1) {
       this.remove(productId, variant);
-      return;
+      return { success: true };
     }
+
+    // Validate against max stock if provided
+    if (maxStock !== undefined && quantity > maxStock) {
+      return {
+        success: false,
+        message: `Cannot set quantity to ${quantity}. Only ${maxStock} available in stock.`
+      };
+    }
+
     const list = this.itemsSignal().map((i) =>
       itemKey(i) === key ? { ...i, quantity } : i
     );
     this.persist(list);
+    return { success: true };
   }
 
   remove(productId: string, variant?: string): void {
@@ -118,5 +149,12 @@ export class CartService {
       quantity: i.quantity,
       price: i.price,
     }));
+  }
+
+  /** Get current quantity in cart for a specific product and variant */
+  getItemQuantity(productId: string, variant?: string): number {
+    const key = itemKey({ productId, variant });
+    const item = this.itemsSignal().find((i) => itemKey(i) === key);
+    return item?.quantity ?? 0;
   }
 }

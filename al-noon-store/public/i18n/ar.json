@@ -129,6 +129,8 @@
     "added": "تمت الإضافة!",
     "outOfStock": "نفذ من المخزون",
     "lowStock": "متبقي {{count}} فقط",
+    "stockAvailable": "{{count}} متوفر في المخزون",
+    "save": "وفر",
     "stylingTip": "نصيحة تنسيق",
     "details": "التفاصيل",
     "related": "قد يعجبك أيضاً"
