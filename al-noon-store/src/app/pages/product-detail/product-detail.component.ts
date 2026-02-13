@@ -16,7 +16,7 @@ import { StarRatingComponent } from '../../shared/components/star-rating/star-ra
 import { LoadingSkeletonComponent } from '../../shared/components/loading-skeleton/loading-skeleton.component';
 import { SeoService } from '../../core/services/seo.service';
 import { ToastService } from '../../core/services/toast.service';
-import type { Product, ProductAvailabilityColor, ProductAvailabilitySize, FormattedDetails } from '../../core/types/api.types';
+import type { Product, FormattedDetails, FormattedDetailBlock } from '../../core/types/api.types';
 
 @Component({
   selector: 'app-product-detail',
@@ -150,6 +150,26 @@ export class ProductDetailComponent implements OnInit {
   availableColorsForSelectedSize = computed(() =>
     this.productsService.getAvailableColorsForSize(this.product(), this.selectedSize())
   );
+
+  /** All sizes in API order (availability.sizes or product.sizes) for display; out-of-stock shown disabled. */
+  allSizesOrdered = computed(() => {
+    const p = this.product();
+    if (!p) return [];
+    const fromAv = p.availability?.sizes?.map((s) => s.size);
+    return fromAv?.length ? fromAv : p.sizes ?? [];
+  });
+
+  /** All colors for display (always include every product.color; use availability.colors for order when present). Out-of-stock shown disabled. */
+  allColorsOrdered = computed(() => {
+    const p = this.product();
+    if (!p) return [];
+    const productColors = p.colors ?? [];
+    const avColors = p.availability?.colors?.map((c) => c.color) ?? [];
+    if (avColors.length === 0) return productColors;
+    const ordered = avColors.filter((color) => productColors.includes(color));
+    const missing = productColors.filter((color) => !ordered.includes(color));
+    return [...ordered, ...missing];
+  });
 
   /** True when this size is out of stock for the selected color (validates size against color). */
   isSizeOutOfStockForSelectedColor = (size: string): boolean => {
@@ -314,25 +334,64 @@ export class ProductDetailComponent implements OnInit {
     this.selectedSize.set(firstSize);
   }
 
-  /** Select color and fetch product with color-specific images (GET ?color=...). */
+  /** Select color and fetch product with color-specific images (GET ?color=...). Preserves full colors/availability from previous product so out-of-stock options (e.g. Burgundy) stay visible. */
   selectColor(color: string): void {
-    if (this.isColorOutOfStock(color)) return;
+    if (this.isColorOutOfStockForSelectedSize(color)) return;
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
     this.selectedColor.set(color);
     this.loadingColor.set(true);
+    const prev = this.product();
     this.productsService.getProduct(id, { color: color }).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (p) => {
-        this.product.set(p);
+        const merged = prev ? this.mergeProductOptions(prev, p) : p;
+        this.product.set(merged);
         this.selectedImageIndex.set(0);
-        const firstSize = this.getFirstAvailableSizeForColor(p, color);
+        const firstSize = this.getFirstAvailableSizeForColor(merged, color);
         this.selectedSize.set(firstSize);
         this.loadingColor.set(false);
       },
       error: () => this.loadingColor.set(false),
     });
+  }
+
+  /** Keep full colors and availability from previous product when refetching for color (so out-of-stock colors like Burgundy remain visible). */
+  private mergeProductOptions(prev: Product, incoming: Product): Product {
+    const colorsUnion = [...new Set([...(prev.colors ?? []), ...(incoming.colors ?? [])])];
+    const prevAv = prev.availability;
+    const incAv = incoming.availability;
+    if (!prevAv && !incAv) return { ...incoming, colors: colorsUnion.length ? colorsUnion : incoming.colors };
+    const prevColors = prevAv?.colors ?? [];
+    const incColors = incAv?.colors ?? [];
+    const mergedColors = [...prevColors];
+    incColors.forEach((c) => {
+      if (!mergedColors.some((x) => x.color === c.color)) mergedColors.push(c);
+    });
+    const prevVariants = prevAv?.variants ?? [];
+    const incVariants = incAv?.variants ?? [];
+    const variantKey = (v: { color?: string; size?: string }) => `${v.color ?? ''}\t${v.size ?? ''}`;
+    const variantKeys = new Set(prevVariants.map(variantKey));
+    const mergedVariants = [...prevVariants];
+    incVariants.forEach((v) => {
+      if (!variantKeys.has(variantKey(v))) {
+        variantKeys.add(variantKey(v));
+        mergedVariants.push(v);
+      }
+    });
+    const mergedAvailability = (incAv ?? prevAv)
+      ? {
+        ...(incAv ?? prevAv),
+        colors: mergedColors.length ? mergedColors : incAv?.colors ?? prevAv?.colors,
+        variants: mergedVariants.length ? mergedVariants : incAv?.variants ?? prevAv?.variants,
+      }
+      : undefined;
+    return {
+      ...incoming,
+      colors: colorsUnion.length ? colorsUnion : incoming.colors,
+      availability: mergedAvailability,
+    };
   }
 
   addToCart(): void {
@@ -445,5 +504,39 @@ export class ProductDetailComponent implements OnInit {
     if (!obj) return '';
     const lang = this.locale.getLocale();
     return (obj[lang] ?? obj.en ?? obj.ar ?? '') as string;
+  }
+
+  /** Safe list items for formattedDetails list block (for template). */
+  getDetailBlockItems(block: FormattedDetailBlock): string[] {
+    return block.type === 'list' ? (block.items ?? []) : [];
+  }
+
+  /** Map color names to valid CSS color values (for names not recognized by CSS). */
+  private static readonly COLOR_MAP: Record<string, string> = {
+    burgundy: '#800020',
+    champagne: '#F7E7CE',
+    camel: '#C19A6B',
+    nude: '#E3BC9A',
+    taupe: '#483C32',
+    mauve: '#E0B0FF',
+    blush: '#DE5D83',
+    rust: '#B7410E',
+    mustard: '#FFDB58',
+    sage: '#BCB88A',
+    charcoal: '#36454F',
+    cream: '#FFFDD0',
+    mocha: '#967969',
+    dusty_rose: '#DCAE96',
+    emerald: '#50C878',
+    cobalt: '#0047AB',
+    wine: '#722F37',
+    sand: '#C2B280',
+    ash: '#B2BEB5',
+    lilac: '#C8A2C8',
+  };
+
+  /** Resolve a color name to a valid CSS value. Returns the name as-is if already valid. */
+  colorToCss(name: string): string {
+    return ProductDetailComponent.COLOR_MAP[name.toLowerCase()] ?? name;
   }
 }

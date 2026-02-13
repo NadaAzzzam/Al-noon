@@ -110,5 +110,7 @@ export function normalizeProductFromApi(raw: ProductApiShape & { _id?: string })
     ...(mediaNormalized ? { media: mediaNormalized } : {}),
     ...(videos.length ? { videos } : {}),
     ...(category ? { category } : {}),
+    ...(raw['availability'] ? { availability: raw['availability'] } : {}),
+    ...(raw['formattedDetails'] ? { formattedDetails: raw['formattedDetails'] } : {}),
   } as Product;
 }

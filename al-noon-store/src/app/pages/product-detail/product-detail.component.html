@@ -119,37 +119,52 @@
       <div class="description" [innerHTML]="getLocalized(p.description)"></div>
       }
 
-      <!-- Sizes (filtered by selected color when variants exist) -->
-      @if (availableSizesForSelectedColor().length) {
+      <!-- Sizes (all in API order; out-of-stock for selected color shown disabled) -->
+      @if (allSizesOrdered().length) {
       <div class="form-group">
         <label>{{ 'product.size' | translate }}</label>
         <div class="size-options">
-          @for (sz of availableSizesForSelectedColor(); track sz) {
+          @for (sz of allSizesOrdered(); track sz) {
           @let sizeOutOfStock = isSizeOutOfStockForSelectedColor(sz);
-          <button type="button" class="size-btn" [class.selected]="selectedSize() === sz"
-            [class.out-of-stock]="sizeOutOfStock" [disabled]="sizeOutOfStock"
-            (click)="!sizeOutOfStock && selectedSize.set(sz)">
-            {{ sz }}
-          </button>
+          <div class="size-btn-wrap">
+            <button type="button" class="size-btn" [class.selected]="selectedSize() === sz"
+              [class.out-of-stock]="sizeOutOfStock" [disabled]="sizeOutOfStock"
+              (click)="!sizeOutOfStock && selectedSize.set(sz)">
+              {{ sz }}
+            </button>
+            @if (sizeOutOfStock) {
+            <span class="size-out-label">{{ 'product.outOfStock' | translate }}</span>
+            }
+          </div>
           }
         </div>
       </div>
       }
 
-      <!-- Color swatches (filtered by selected size when variants exist; click fetches color-specific images) -->
-      @if (availableColorsForSelectedSize().length) {
+      <!-- Color swatches (all in API order; out-of-stock for selected size shown disabled; click fetches color-specific images) -->
+      @if (allColorsOrdered().length) {
       <div class="form-group">
         <label>{{ 'product.color' | translate }}@if (selectedColor()) {: <strong>{{ selectedColor() }}</strong>}</label>
         @if (loadingColor()) {
         <span class="color-loading" aria-busy="true">Loading…</span>
         }
         <div class="color-swatches">
-          @for (c of availableColorsForSelectedSize(); track c) {
+          @for (c of allColorsOrdered(); track c) {
           @let colorOutOfStock = isColorOutOfStockForSelectedSize(c);
-          <button type="button" class="color-swatch" [class.selected]="selectedColor() === c"
-            [class.out-of-stock]="colorOutOfStock" [style.background-color]="c" [attr.aria-label]="c"
-            [disabled]="colorOutOfStock || loadingColor()" (click)="selectColor(c)">
-          </button>
+          <div class="color-swatch-wrap">
+            <button type="button" class="color-swatch" [class.selected]="selectedColor() === c"
+              [class.out-of-stock]="colorOutOfStock" [style.background-color]="colorToCss(c)"
+              [attr.aria-label]="colorOutOfStock ? (c + ' - ' + ('product.outOfStock' | translate)) : c"
+              [attr.title]="colorOutOfStock ? (c + ' – ' + ('product.outOfStock' | translate)) : c"
+              [disabled]="colorOutOfStock || loadingColor()" (click)="selectColor(c)">
+              @if (colorOutOfStock) {
+              <span class="color-swatch-x" aria-hidden="true">✕</span>
+              }
+            </button>
+            @if (colorOutOfStock) {
+            <span class="color-swatch-out-label">{{ c }} ({{ 'product.outOfStock' | translate }})</span>
+            }
+          </div>
           }
         </div>
       </div>
@@ -217,7 +232,7 @@
             }
             @case ('list') {
             <ul class="detail-list">
-              @for (item of block.items; track $index) {
+              @for (item of getDetailBlockItems(block); track $index) {
               <li>{{ item }}</li>
               }
             </ul>
