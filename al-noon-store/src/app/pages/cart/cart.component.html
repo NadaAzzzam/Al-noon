@@ -6,77 +6,83 @@
   <h1 class="page-title">{{ 'cart.title' | translate }}</h1>
 
   @if (items().length === 0) {
-    <div class="empty-state">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
-        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-      </svg>
-      <p>{{ 'cart.empty' | translate }}</p>
-      <a [routerLink]="['/catalog']" class="btn">{{ 'cart.continueShopping' | translate }}</a>
-    </div>
+  <div class="empty-state">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <path d="M16 10a4 4 0 0 1-8 0" />
+    </svg>
+    <p>{{ 'cart.empty' | translate }}</p>
+    <a [routerLink]="['/catalog']" class="btn">{{ 'cart.continueShopping' | translate }}</a>
+  </div>
   } @else {
-    <div class="cart-layout">
-      <!-- Header row -->
-      <div class="cart-table-header">
-        <span class="col-product">{{ 'cart.productHeader' | translate }}</span>
-        <span class="col-total">{{ 'cart.totalHeader' | translate }}</span>
+  <div class="cart-layout">
+    <!-- Header row -->
+    <div class="cart-table-header">
+      <span class="col-product">{{ 'cart.productHeader' | translate }}</span>
+      <span class="col-total">{{ 'cart.totalHeader' | translate }}</span>
+    </div>
+
+    <div class="cart-items">
+      @for (item of items(); track (item.productId + (item.variant ?? ''))) {
+      <div class="cart-item">
+        <div class="cart-item-image">
+          @if (item.image) {
+          <img [src]="api.imageUrl(item.image)" [alt]="item.name ?? ''" loading="lazy" />
+          } @else {
+          <div class="image-placeholder"></div>
+          }
+        </div>
+        <div class="cart-item-details">
+          <a [routerLink]="['/product', item.productId]" class="cart-item-name">{{ item.name ?? ('cart.product' |
+            translate) }}</a>
+          <p class="cart-item-price">{{ item.price | priceFormat:'1.2-2' }}</p>
+          @if (item.variant) {
+          <p class="cart-item-variant">{{ 'cart.size' | translate }}: {{ item.variant }}</p>
+          }
+          <div class="cart-item-qty">
+            <div class="quantity-control">
+              <button type="button" class="qty-btn" (click)="updateQty(item.productId, item.quantity - 1, item.variant)"
+                [disabled]="item.quantity <= 1" aria-label="Decrease">&minus;</button>
+              <span class="qty-value">{{ item.quantity }}</span>
+              <button type="button" class="qty-btn" (click)="updateQty(item.productId, item.quantity + 1, item.variant)"
+                aria-label="Increase">+</button>
+            </div>
+            <button type="button" class="btn-remove" (click)="remove(item.productId, item.variant)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+              {{ 'cart.remove' | translate }}
+            </button>
+          </div>
+        </div>
+        <div class="cart-item-total">{{ (item.price * item.quantity) | priceFormat:'1.2-2' }}</div>
+      </div>
+      }
+    </div>
+
+    <!-- Special instructions + summary -->
+    <div class="cart-footer">
+      <div class="cart-instructions">
+        <details>
+          <summary>{{ 'cart.specialInstructions' | translate }}</summary>
+          <textarea rows="3" [value]="cart.specialInstructions()"
+            (input)="cart.setSpecialInstructions($any($event.target).value)"
+            [placeholder]="'cart.specialInstructionsPlaceholder' | translate"></textarea>
+        </details>
       </div>
 
-      <div class="cart-items">
-        @for (item of items(); track (item.productId + (item.variant ?? ''))) {
-          <div class="cart-item">
-            <div class="cart-item-image">
-              @if (item.image) {
-                <img [src]="api.imageUrl(item.image)" [alt]="item.name ?? ''" loading="lazy" />
-              } @else {
-                <div class="image-placeholder"></div>
-              }
-            </div>
-            <div class="cart-item-details">
-              <a [routerLink]="['/product', item.productId]" class="cart-item-name">{{ item.name ?? ('cart.product' | translate) }}</a>
-              <p class="cart-item-price">{{ item.price | priceFormat:'1.2-2' }}</p>
-              @if (item.variant) {
-                <p class="cart-item-variant">{{ 'cart.size' | translate }}: {{ item.variant }}</p>
-              }
-              <div class="cart-item-qty">
-                <div class="quantity-control">
-                  <button type="button" class="qty-btn" (click)="updateQty(item.productId, item.quantity - 1, item.variant)" [disabled]="item.quantity <= 1" aria-label="Decrease">&minus;</button>
-                  <span class="qty-value">{{ item.quantity }}</span>
-                  <button type="button" class="qty-btn" (click)="updateQty(item.productId, item.quantity + 1, item.variant)" aria-label="Increase">+</button>
-                </div>
-                <button type="button" class="btn-remove" (click)="remove(item.productId, item.variant)">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                  {{ 'cart.remove' | translate }}
-                </button>
-              </div>
-            </div>
-            <div class="cart-item-total">{{ (item.price * item.quantity) | priceFormat:'1.2-2' }}</div>
-          </div>
-        }
-      </div>
-
-      <!-- Special instructions + summary -->
-      <div class="cart-footer">
-        <div class="cart-instructions">
-          <details>
-            <summary>{{ 'cart.specialInstructions' | translate }}</summary>
-            <textarea
-              rows="3"
-              [value]="cart.specialInstructions()"
-              (input)="cart.setSpecialInstructions($any($event.target).value)"
-              [placeholder]="'cart.specialInstructionsPlaceholder' | translate"></textarea>
-          </details>
+      <div class="cart-summary">
+        <div class="summary-row">
+          <span class="summary-label">{{ 'cart.estimatedTotal' | translate }}</span>
+          <span class="summary-value">{{ subtotal() | priceFormat:'1.2-2' }}</span>
         </div>
-
-        <div class="cart-summary">
-          <div class="summary-row">
-            <span class="summary-label">{{ 'cart.estimatedTotal' | translate }}</span>
-            <span class="summary-value">{{ subtotal() | priceFormat:'1.2-2' }}</span>
-          </div>
-          <p class="note">{{ 'cart.taxesNote' | translate }}</p>
-          <a [routerLink]="['/checkout']" class="btn btn-block">{{ 'cart.checkOut' | translate }}</a>
-          <a [routerLink]="['/catalog']" class="btn btn-block btn-outline">{{ 'cart.continueShopping' | translate }}</a>
-        </div>
+        <p class="note">{{ 'cart.taxesNote' | translate }}</p>
+        <a [routerLink]="['/checkout']" class="btn btn-block">{{ 'cart.checkOut' | translate }}</a>
+        <a [routerLink]="['/catalog']" class="btn btn-block btn-outline">{{ 'cart.continueShopping' | translate }}</a>
       </div>
     </div>
+  </div>
   }
 </div>

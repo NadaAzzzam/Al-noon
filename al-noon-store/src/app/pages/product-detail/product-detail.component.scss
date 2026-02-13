@@ -415,6 +415,12 @@
   margin-inline-start: 8px;
 }
 
+.product-info .description-in-details {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
 .formatted-details {
   margin-top: 8px;
   font-size: 14px;
@@ -430,7 +436,8 @@
       margin-top: 0;
     }
   }
-  .detail-paragraph {
+  .detail-paragraph,
+  .description-in-details {
     margin: 0.25rem 0;
   }
   .detail-list {

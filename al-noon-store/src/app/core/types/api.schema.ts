@@ -192,46 +192,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/products/filters/availability": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get availability filter options
-         * @description Returns options for the E-commerce availability dropdown. Each item has value (use in GET /api/products?availability=), labelEn and labelAr for UI. No auth required.
-         */
-        get: operations["getAvailabilityFilters"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/products/filters/sort": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get sort filter options
-         * @description Returns options for the E-commerce sort dropdown. Each item has value (use in GET /api/products?sort=), labelEn and labelAr for UI. No auth required.
-         */
-        get: operations["getSortFilters"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/products/{id}": {
         parameters: {
             query?: never;
@@ -1150,8 +1110,13 @@ export interface components {
             /** @description First image URL for this color when hasImage is true */
             imageUrl?: string;
         };
-        /** @description Availability block on GET /products/:id. Colors include hasImage/imageUrl for color-specific images. */
+        /** @description Availability block on GET /products/:id. Colors include hasImage/imageUrl for color-specific images. When product has no variant records, variants are synthesized from global stock (variantsSource: estimated). */
         ProductAvailabilityDetail: {
+            /**
+             * @description exact when variants come from DB; estimated when synthesized from global stock (no variants stored).
+             * @enum {string}
+             */
+            variantsSource?: "exact" | "estimated";
             /** @description Total number of sizes that are available (in stock) for this product. */
             availableSizeCount?: number;
             colors?: components["schemas"]["ProductColorAvailability"][];
@@ -1183,6 +1148,16 @@ export interface components {
             imageColors?: string[];
             /** @description Video URLs; only on single-product responses */
             videos?: string[];
+            /**
+             * @description Preferred media type for default display on product cards
+             * @enum {string|null}
+             */
+            defaultMediaType?: "image" | "video" | null;
+            /**
+             * @description Preferred media type for hover display on product cards
+             * @enum {string|null}
+             */
+            hoverMediaType?: "image" | "video" | null;
             stock?: number;
             /** @enum {string} */
             status?: "ACTIVE" | "INACTIVE";
@@ -1206,14 +1181,6 @@ export interface components {
             soldQty?: number | null;
             /** @description Present on GET /products/:id; colors include hasImage and imageUrl when product has color-specific images */
             availability?: components["schemas"]["ProductAvailabilityDetail"];
-            /** @description Present on GET /products/:id; parsed rich text details by locale (e.g. en, ar) */
-            formattedDetails?: {
-                [key: string]: {
-                    type?: string;
-                    text?: string;
-                    items?: string[];
-                }[];
-            };
         };
         /** @description Payload for get/create/update/delete/status/stock (single product) */
         ProductSingleData: {
@@ -1453,13 +1420,8 @@ export interface components {
          *           "labelAr": "الأكثر مبيعاً"
          *         },
          *         {
-         *           "value": "highestSelling",
-         *           "labelEn": "Highest selling",
-         *           "labelAr": "الأعلى مبيعاً"
-         *         },
-         *         {
-         *           "value": "lowSelling",
-         *           "labelEn": "Lowest selling",
+         *           "value": "leastSelling",
+         *           "labelEn": "Least selling",
          *           "labelAr": "الأقل مبيعاً"
          *         }
          *       ]
@@ -1468,7 +1430,7 @@ export interface components {
         SortFiltersResponse: {
             /** @example true */
             success: boolean;
-            /** @description Sort options. value: newest | priceAsc | priceDesc | nameAsc | nameDesc | bestSelling | highestSelling | lowSelling */
+            /** @description Sort options. value: newest | priceAsc | priceDesc | nameAsc | nameDesc | bestSelling | leastSelling */
             data: components["schemas"]["FilterOptionItem"][];
         };
         /** @description Query params actually applied by list products (echo of handled filters) */
@@ -2501,13 +2463,13 @@ export interface operations {
                 /** @description Search in name/description */
                 search?: string;
                 /** @description Product status (storefront uses ACTIVE) */
-                status?: "ACTIVE" | "INACTIVE";
+                status?: "ACTIVE" | "INACTIVE" | "DRAFT";
                 /** @description Filter by new-arrival flag (home page uses true) */
                 newArrival?: "true" | "false";
-                /** @description Stock filter. Get options with labels: GET /api/products/filters/availability */
+                /** @description Stock filter */
                 availability?: "all" | "inStock" | "outOfStock";
-                /** @description Sort order. Get options with labels: GET /api/products/filters/sort */
-                sort?: "newest" | "priceAsc" | "priceDesc" | "nameAsc" | "nameDesc" | "bestSelling" | "highestSelling" | "lowSelling";
+                /** @description Sort order */
+                sort?: "newest" | "priceAsc" | "priceDesc" | "nameAsc" | "nameDesc" | "bestSelling" | "leastSelling";
                 /** @description Min price (EGP) */
                 minPrice?: number;
                 /** @description Max price (EGP) */
@@ -2516,6 +2478,12 @@ export interface operations {
                 color?: string;
                 /** @description Only products with average rating >= this (1–5) */
                 minRating?: number;
+                /** @description Filter by tags (comma-separated) */
+                tags?: string;
+                /** @description Filter by vendor/brand (case-insensitive) */
+                vendor?: string;
+                /** @description Filter products with/without discount */
+                hasDiscount?: "true" | "false";
             };
             header?: never;
             path?: never;
@@ -2590,46 +2558,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiError"];
-                };
-            };
-        };
-    };
-    getAvailabilityFilters: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of availability options (all, inStock, outOfStock) with value and labels */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AvailabilityFiltersResponse"];
-                };
-            };
-        };
-    };
-    getSortFilters: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of sort options (newest, priceAsc, priceDesc, nameAsc, nameDesc, bestSelling, highestSelling, lowSelling) with value and labels */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SortFiltersResponse"];
                 };
             };
         };

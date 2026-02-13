@@ -115,10 +115,6 @@
         }
       </div>
 
-      @if (getLocalized(p.description)) {
-      <div class="description" [innerHTML]="getLocalized(p.description)"></div>
-      }
-
       <!-- Sizes (all in API order; out-of-stock for selected color shown disabled) -->
       @if (allSizesOrdered().length) {
       <div class="form-group">
@@ -222,6 +218,9 @@
         <details class="info-accordion" open>
           <summary>{{ 'product.details' | translate }}</summary>
           <div class="formatted-details">
+            @if (getLocalized(p.description)) {
+            <p class="detail-paragraph description-in-details" [innerHTML]="getLocalized(p.description)"></p>
+            }
             @for (block of blocks; track $index) {
             @switch (block.type) {
             @case ('title') {
@@ -241,10 +240,15 @@
             }
           </div>
         </details>
-        } @else if (getLocalized(p.details)) {
+        } @else if (getLocalized(p.details) || getLocalized(p.description)) {
         <details class="info-accordion" open>
           <summary>{{ 'product.details' | translate }}</summary>
+          @if (getLocalized(p.description)) {
+          <p class="description-in-details" [innerHTML]="getLocalized(p.description)"></p>
+          }
+          @if (getLocalized(p.details)) {
           <p>{{ getLocalized(p.details) }}</p>
+          }
         </details>
         }
     </div>
