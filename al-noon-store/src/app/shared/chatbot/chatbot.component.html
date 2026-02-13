@@ -1,6 +1,6 @@
 @if (showWidget()) {
 <div class="chatbot-widget" [class.open]="open()">
-  <button type="button" class="chatbot-toggle" (click)="toggle()" [attr.aria-label]="'Chat'">
+  <button type="button" class="chatbot-toggle" (click)="toggle()" [attr.aria-label]="'chatbot.title' | translate">
     {{ open() ? '×' : '💬' }}
   </button>
   @if (open()) {

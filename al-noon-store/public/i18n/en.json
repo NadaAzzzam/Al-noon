@@ -16,7 +16,9 @@
     "search": "Search",
     "searchPlaceholder": "Search products...",
     "menu": "Menu",
-    "contact": "Contact"
+    "contact": "Contact",
+    "english": "English",
+    "arabic": "العربية"
   },
   "auth": {
     "logIn": "Log in",
@@ -40,7 +42,14 @@
     "note": "Taxes and shipping calculated at checkout.",
     "checkOut": "Check out",
     "remove": "Remove",
-    "product": "Product"
+    "product": "Product",
+    "productHeader": "PRODUCT",
+    "totalHeader": "TOTAL",
+    "size": "Size",
+    "specialInstructions": "Order special instructions",
+    "specialInstructionsPlaceholder": "Add any special instructions for your order...",
+    "estimatedTotal": "Estimated total",
+    "taxesNote": "Taxes, discounts and shipping calculated at checkout."
   },
   "checkout": {
     "title": "Checkout",
@@ -61,7 +70,42 @@
     "delivery": "Delivery",
     "total": "Total",
     "placeOrder": "Place order",
-    "placingOrder": "Placing order..."
+    "placingOrder": "Placing order...",
+    "completeOrder": "Complete order",
+    "completingOrder": "Completing order...",
+    "contactSection": "Contact",
+    "signIn": "Sign in",
+    "newsletterCheckbox": "Email me with news and offers",
+    "deliverySection": "Delivery",
+    "countryRegion": "Country/Region",
+    "egypt": "Egypt",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "companyOptional": "Company (optional)",
+    "address": "Address",
+    "apartmentOptional": "Apartment, suite, etc. (optional)",
+    "postalOptional": "Postal code (optional)",
+    "phone": "Phone",
+    "saveInfoNextTime": "Save this information for next time",
+    "textNewsOffers": "Text me with news and offers",
+    "shippingMethodSection": "Shipping method",
+    "loadingShipping": "Loading shipping options…",
+    "noShippingMethods": "No shipping methods available.",
+    "paymentSection": "Payment",
+    "secureEncrypted": "All transactions are secure and encrypted.",
+    "loadingPayment": "Loading payment options…",
+    "noPaymentMethods": "No payment methods available.",
+    "transferTo": "Transfer to:",
+    "billingAddressSection": "Billing address",
+    "sameAsShipping": "Same as shipping address",
+    "differentBilling": "Use a different billing address",
+    "discountCode": "Discount code",
+    "apply": "Apply",
+    "store": "Store",
+    "refundPolicyLink": "Refund policy",
+    "shippingLink": "Shipping",
+    "privacyPolicyLink": "Privacy policy",
+    "cancellations": "Cancellations"
   },
   "contact": {
     "title": "Contact us",
@@ -118,7 +162,8 @@
     "min": "Min",
     "max": "Max",
     "color": "Color",
-    "minRating": "Min rating"
+    "minRating": "Min rating",
+    "starsAndUp": "{{stars}} & up"
   },
   "product": {
     "notFound": "Product not found",
@@ -133,7 +178,8 @@
     "save": "Save",
     "stylingTip": "Styling tip",
     "details": "Details",
-    "related": "You may also like"
+    "related": "You may also like",
+    "quickView": "Quick view"
   },
   "sale": "Sale",
   "soldOut": "Sold out",
@@ -156,8 +202,21 @@
   },
   "orderConfirmation": {
     "thankYou": "Thank you for your order!",
+    "thankYouWithName": "Thank you, {{name}}!",
     "message": "We have received your order and will process it shortly.",
     "orderId": "Order number",
+    "confirmationNumber": "Confirmation #{{id}}",
+    "orderConfirmed": "Your order is confirmed",
+    "confirmationEmailSoon": "You'll receive a confirmation email soon",
+    "orderDetails": "Order details",
+    "viewAccount": "View account",
+    "contactInfo": "Contact information",
+    "shippingAddress": "Shipping address",
+    "shippingMethod": "Shipping method",
+    "paymentMethod": "Payment method",
+    "billingAddress": "Billing address",
+    "needHelp": "Need help?",
+    "contactUs": "Contact us",
     "continueShopping": "Continue shopping",
     "notFound": "Order details could not be loaded."
   },
@@ -173,7 +232,20 @@
   },
   "chatbot": {
     "placeholder": "Type your message...",
-    "send": "Send"
+    "send": "Send",
+    "title": "Chat"
   },
-  "storeName": "Al-Noon"
+  "common": {
+    "currency": "EGP"
+  },
+  "storeName": "Al-Noon",
+  "errors": {
+    "required": "Required",
+    "invalidEmail": "Invalid email",
+    "minChars": "Min {{min}} characters",
+    "fieldRequired": "{{field}} is required",
+    "placeOrderFailed": "Failed to place order",
+    "loginFailed": "Login failed",
+    "registrationFailed": "Registration failed"
+  }
 }

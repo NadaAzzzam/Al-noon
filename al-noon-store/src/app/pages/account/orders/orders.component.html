@@ -12,7 +12,7 @@
         <span class="order-id">#{{ order.id.slice(0, 8) }}</span>
         <span class="order-status">{{ order.status }}</span>
       </div>
-      <p class="order-total">LE {{ order.total }} EGP</p>
+      <p class="order-total">{{ order.total | priceFormat }}</p>
       <p class="order-date">{{ order.createdAt | date:'medium' }}</p>
     </a>
     }

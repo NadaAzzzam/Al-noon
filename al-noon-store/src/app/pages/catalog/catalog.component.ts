@@ -8,6 +8,7 @@ import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { SeoService } from '../../core/services/seo.service';
 import { TranslatePipe } from '@ngx-translate/core';
+import { PriceFormatPipe } from '../../shared/pipe/price.pipe';
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
 import { LoadingSkeletonComponent } from '../../shared/components/loading-skeleton/loading-skeleton.component';
 import type {
@@ -22,7 +23,7 @@ import type {
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [FormsModule, TranslatePipe, ProductCardComponent, LoadingSkeletonComponent],
+  imports: [FormsModule, TranslatePipe, PriceFormatPipe, ProductCardComponent, LoadingSkeletonComponent],
   templateUrl: './catalog.component.html',
   styleUrl: './catalog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,6 +57,16 @@ export class CatalogComponent implements OnInit {
   minRating = signal<number | undefined>(undefined);
 
   availabilityOptions = signal<ProductFilterOption[]>([]);
+  /** Deduplicated by value so options are not shown twice (e.g. when API returns duplicates). */
+  availabilityOptionsUnique = computed(() => {
+    const opts = this.availabilityOptions();
+    const seen = new Set<string>();
+    return opts.filter((o) => {
+      if (seen.has(o.value)) return false;
+      seen.add(o.value);
+      return true;
+    });
+  });
   sortOptions = signal<ProductFilterOption[]>([]);
   filtersOpen = signal(false);
 
@@ -96,6 +107,17 @@ export class CatalogComponent implements OnInit {
     return Array.from({ length: n }, (_, i) => i + 1);
   });
 
+  /** Display name for the active category filter (updates when categories load or locale changes). */
+  categoryDisplayName = computed(() => {
+    const id = this.categoryId();
+    if (!id) return '';
+    const cat = this.categories().find((c) => c.id === id || (c as { _id?: string })._id === id);
+    if (!cat) return id;
+    const lang = this.locale.getLocale();
+    const name = cat.name as { en?: string; ar?: string };
+    return (name?.[lang] ?? name?.en ?? name?.ar ?? '') || id;
+  });
+
   constructor() {
     effect(
       () => {
@@ -120,8 +142,7 @@ export class CatalogComponent implements OnInit {
         const pageNum = qp['page'] != null && qp['page'] !== '' ? Number(qp['page']) : NaN;
         this.page.set(Number.isInteger(pageNum) && pageNum >= 1 ? pageNum : 1);
         this.loadWithQuery(this.buildQueryFromParams(qp));
-      },
-      { allowSignalWrites: true }
+      }
     );
   }
 

@@ -4,13 +4,14 @@ import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OrdersService } from '../../../core/services/orders.service';
 import { TranslatePipe } from '@ngx-translate/core';
+import { PriceFormatPipe } from '../../../shared/pipe/price.pipe';
 import { LocaleService } from '../../../core/services/locale.service';
 import type { Order } from '../../../core/types/api.types';
 
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [DatePipe, RouterLink, TranslatePipe],
+  imports: [DatePipe, RouterLink, TranslatePipe, PriceFormatPipe],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

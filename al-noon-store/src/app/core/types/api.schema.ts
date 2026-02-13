@@ -1138,7 +1138,36 @@ export interface components {
             /** @description Units sold */
             soldQty?: number | null;
         };
-        /** @description Full product (single product: GET /products/:id, create/update/delete/status). Includes media + images, videos, imageColors for detail/admin. */
+        /** @description Per-color availability and optional image. hasImage true when imageColors[i] matches this color. */
+        ProductColorAvailability: {
+            color?: string;
+            available?: boolean;
+            outOfStock?: boolean;
+            /** @description Number of sizes in stock for this color. When variants is empty, equals product.sizes.length. */
+            availableSizeCount?: number;
+            /** @description True when at least one image is linked to this color via imageColors */
+            hasImage?: boolean;
+            /** @description First image URL for this color when hasImage is true */
+            imageUrl?: string;
+        };
+        /** @description Availability block on GET /products/:id. Colors include hasImage/imageUrl for color-specific images. */
+        ProductAvailabilityDetail: {
+            /** @description Total number of sizes that are available (in stock) for this product. */
+            availableSizeCount?: number;
+            colors?: components["schemas"]["ProductColorAvailability"][];
+            sizes?: {
+                size?: string;
+                available?: boolean;
+                outOfStock?: boolean;
+            }[];
+            variants?: {
+                color?: string;
+                size?: string;
+                stock?: number;
+                outOfStock?: boolean;
+            }[];
+        };
+        /** @description Full product (single product: GET /products/:id, create/update/delete/status). Includes media + images, videos, imageColors for detail/admin. GET response also includes availability (with hasImage/imageUrl per color) and formattedDetails. */
         ProductData: {
             _id?: string;
             name?: components["schemas"]["LocalizedString"];
@@ -1175,6 +1204,16 @@ export interface components {
             ratingCount?: number | null;
             /** @description Units sold */
             soldQty?: number | null;
+            /** @description Present on GET /products/:id; colors include hasImage and imageUrl when product has color-specific images */
+            availability?: components["schemas"]["ProductAvailabilityDetail"];
+            /** @description Present on GET /products/:id; parsed rich text details by locale (e.g. en, ar) */
+            formattedDetails?: {
+                [key: string]: {
+                    type?: string;
+                    text?: string;
+                    items?: string[];
+                }[];
+            };
         };
         /** @description Payload for get/create/update/delete/status/stock (single product) */
         ProductSingleData: {
@@ -1445,7 +1484,12 @@ export interface components {
              */
             availability?: "all" | "inStock" | "outOfStock";
             /** @description Category ID when filtered */
-            category?: string | null;
+            categoryId?: string | null;
+            /** @description Category name (en/ar) when filtered */
+            categoryName?: {
+                en?: string;
+                ar?: string;
+            } | null;
             /** @description Search term when provided */
             search?: string | null;
             /** @enum {string|null} */
@@ -2592,7 +2636,10 @@ export interface operations {
     };
     getProduct: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Filter media/images by color (e.g. Black). When set, media and images arrays show only images for that color. */
+                color?: string;
+            };
             header?: never;
             path: {
                 id: string;

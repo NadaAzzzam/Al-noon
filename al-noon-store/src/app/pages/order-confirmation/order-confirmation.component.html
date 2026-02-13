@@ -19,23 +19,23 @@
           </svg>
         </div>
         <div class="confirmation-header-text">
-          <p class="confirmation-number">Confirmation #{{ o.id.slice(0, 10).toUpperCase() }}</p>
-          <h1 class="confirmation-thanks">Thank you, {{ customerName() }}!</h1>
+          <p class="confirmation-number">{{ 'orderConfirmation.confirmationNumber' | translate:{ id: o.id.slice(0, 10).toUpperCase() } }}</p>
+          <h1 class="confirmation-thanks">{{ 'orderConfirmation.thankYouWithName' | translate:{ name: customerName() } }}</h1>
         </div>
       </div>
 
       <!-- Order confirmed box -->
       <div class="confirmed-box">
-        <h2 class="confirmed-box-title">Your order is confirmed</h2>
-        <p class="confirmed-box-text">You'll receive a confirmation email soon</p>
+        <h2 class="confirmed-box-title">{{ 'orderConfirmation.orderConfirmed' | translate }}</h2>
+        <p class="confirmed-box-text">{{ 'orderConfirmation.confirmationEmailSoon' | translate }}</p>
       </div>
 
       <!-- Order details -->
       <div class="order-details-card">
         <div class="order-details-header">
-          <h2 class="order-details-title">Order details</h2>
+          <h2 class="order-details-title">{{ 'orderConfirmation.orderDetails' | translate }}</h2>
           @if (isLoggedIn()) {
-          <a [routerLink]="['/account', 'orders']" class="view-account-link">View account</a>
+          <a [routerLink]="['/account', 'orders']" class="view-account-link">{{ 'orderConfirmation.viewAccount' | translate }}</a>
           }
         </div>
 
@@ -43,24 +43,24 @@
           <!-- Left column -->
           <div class="details-column">
             <div class="detail-section">
-              <h3 class="detail-label">Contact information</h3>
+              <h3 class="detail-label">{{ 'orderConfirmation.contactInfo' | translate }}</h3>
               <p class="detail-value">{{ contactEmail() }}</p>
             </div>
 
             <div class="detail-section">
-              <h3 class="detail-label">Shipping address</h3>
+              <h3 class="detail-label">{{ 'orderConfirmation.shippingAddress' | translate }}</h3>
               <p class="detail-value">{{ fullName() }}</p>
               @for (line of shippingLines(); track $index) {
               <p class="detail-value">{{ line }}</p>
               }
-              <p class="detail-value">Egypt</p>
+              <p class="detail-value">{{ 'checkout.egypt' | translate }}</p>
               @if (contactPhone()) {
               <p class="detail-value">{{ contactPhone() }}</p>
               }
             </div>
 
             <div class="detail-section">
-              <h3 class="detail-label">Shipping method</h3>
+              <h3 class="detail-label">{{ 'orderConfirmation.shippingMethod' | translate }}</h3>
               <p class="detail-value">{{ shippingMethodDisplay() }}</p>
             </div>
           </div>
@@ -68,7 +68,7 @@
           <!-- Right column -->
           <div class="details-column">
             <div class="detail-section">
-              <h3 class="detail-label">Payment method</h3>
+              <h3 class="detail-label">{{ 'orderConfirmation.paymentMethod' | translate }}</h3>
               <div class="payment-method-display">
                 <span class="payment-icon">
                   <svg width="20" height="16" viewBox="0 0 24 20" fill="none">
@@ -78,16 +78,16 @@
                   </svg>
                 </span>
               </div>
-              <p class="detail-value">{{ paymentDisplay() }} - LE {{ o.total | number:'1.2-2' }} EGP</p>
+              <p class="detail-value">{{ paymentDisplay() }} - {{ o.total | priceFormat:'1.2-2' }}</p>
             </div>
 
             <div class="detail-section">
-              <h3 class="detail-label">Billing address</h3>
+              <h3 class="detail-label">{{ 'orderConfirmation.billingAddress' | translate }}</h3>
               <p class="detail-value">{{ fullName() }}</p>
               @for (line of billingLines(); track $index) {
               <p class="detail-value">{{ line }}</p>
               }
-              <p class="detail-value">Egypt</p>
+              <p class="detail-value">{{ 'checkout.egypt' | translate }}</p>
               @if (contactPhone()) {
               <p class="detail-value">{{ contactPhone() }}</p>
               }
@@ -99,10 +99,10 @@
       <!-- Footer actions -->
       <div class="confirmation-footer">
         <p class="help-text">
-          Need help?
-          <a [routerLink]="['/contact']" class="help-link">Contact us</a>
+          {{ 'orderConfirmation.needHelp' | translate }}
+          <a [routerLink]="['/contact']" class="help-link">{{ 'orderConfirmation.contactUs' | translate }}</a>
         </p>
-        <a [routerLink]="['/catalog']" class="continue-btn">Continue shopping</a>
+        <a [routerLink]="['/catalog']" class="continue-btn">{{ 'orderConfirmation.continueShopping' | translate }}</a>
       </div>
 
     </div>
@@ -122,12 +122,12 @@
             <span class="summary-product-qty">{{ item.quantity }}</span>
           </div>
           <div class="summary-product-info">
-            <span class="summary-product-name">{{ getLocalized(item.product.name) || 'Product' }}</span>
+            <span class="summary-product-name">{{ getLocalized(item.product.name) || ('orderDetail.product' | translate) }}</span>
             @if (item.product.sizes && item.product.sizes.length) {
             <span class="summary-product-variant">{{ item.product.sizes[0] }}</span>
             }
           </div>
-          <span class="summary-product-price">LE {{ (item.price * item.quantity) | number:'1.2-2' }} EGP</span>
+          <span class="summary-product-price">{{ (item.price * item.quantity) | priceFormat:'1.2-2' }}</span>
         </div>
         }
       </div>
@@ -135,18 +135,16 @@
       <!-- Subtotal, Shipping, Total -->
       <div class="summary-totals">
         <div class="summary-row">
-          <span>Subtotal</span>
-          <span>LE {{ subtotal() | number:'1.2-2' }} EGP</span>
+          <span>{{ 'checkout.subtotal' | translate }}</span>
+          <span>{{ subtotal() | priceFormat:'1.2-2' }}</span>
         </div>
         <div class="summary-row">
-          <span>Shipping</span>
-          <span>LE {{ deliveryFee() | number:'1.2-2' }} EGP</span>
+          <span>{{ 'checkout.delivery' | translate }}</span>
+          <span>{{ deliveryFee() | priceFormat:'1.2-2' }}</span>
         </div>
         <div class="summary-row summary-total">
-          <span>Total</span>
-          <span class="summary-total-price">
-            <small>EGP</small> LE {{ o.total | number:'1.2-2' }}
-          </span>
+          <span>{{ 'checkout.total' | translate }}</span>
+          <span class="summary-total-price">{{ o.total | priceFormat:'1.2-2' }}</span>
         </div>
       </div>
     </div>

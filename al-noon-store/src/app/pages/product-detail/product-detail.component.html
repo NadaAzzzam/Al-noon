@@ -27,48 +27,64 @@
         <img [src]="api.imageUrl(item.url)" [alt]="getLocalized(p.name)" class="gallery-main-img" />
         }
         @if (hasSale()) { <span class="sale-badge">{{ 'sale' | translate }}</span>
-          }
-          @if (galleryItems().length > 1) {
-          <button type="button" class="gallery-nav gallery-prev"
-            (click)="selectedImageIndex.set((selectedImageIndex() - 1 + galleryItems().length) % galleryItems().length)"
-            aria-label="Previous">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
-          <button type="button" class="gallery-nav gallery-next"
-            (click)="selectedImageIndex.set((selectedImageIndex() + 1) % galleryItems().length)" aria-label="Next">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </button>
-          }
-          } @else {
-          <div class="product-image-placeholder">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
-              opacity="0.3">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <path d="m21 15-5-5L5 21" />
-            </svg>
-          </div>
-          }
-      </div>
-      @if (galleryItems().length > 1) {
-      <div class="gallery-thumbs">
-        @for (it of galleryItems(); track it.url + it.type; let i = $index) {
-        <button type="button" class="thumb" [class.active]="selectedImageIndex() === i"
-          [class.thumb-video]="it.type === 'video'" (click)="selectedImageIndex.set(i)">
-          @if (it.type === 'video') {
-          @if (images().length) {
-          <img [src]="api.imageUrl(images()[0])" alt="" loading="lazy" />
-          }
-          <span class="thumb-play" aria-hidden="true">▶</span>
-          } @else {
-          <img [src]="api.imageUrl(it.url)" alt="" loading="lazy" />
-          }
+        }
+        @if (galleryItems().length > 1) {
+        <button type="button" class="gallery-nav gallery-prev"
+          (click)="selectGalleryIndex((selectedImageIndex() - 1 + galleryItems().length) % galleryItems().length); scrollThumbIntoView()"
+          aria-label="Previous">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+        <button type="button" class="gallery-nav gallery-next"
+          (click)="selectGalleryIndex((selectedImageIndex() + 1) % galleryItems().length); scrollThumbIntoView()"
+          aria-label="Next">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </button>
         }
+        } @else {
+        <div class="product-image-placeholder">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+            opacity="0.3">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <path d="m21 15-5-5L5 21" />
+          </svg>
+        </div>
+        }
+      </div>
+      @if (galleryItems().length > 1) {
+      <div class="gallery-thumbs-wrapper">
+        <button type="button" class="gallery-thumbs-arrow gallery-thumbs-prev"
+          (click)="scrollThumbs(thumbsTrackRef?.nativeElement, 'left')" aria-label="Previous thumbnails">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+        <div class="gallery-thumbs-track" #thumbsTrack [style.width.px]="getThumbsTrackWidth()">
+          @for (it of galleryItems(); track it.url + it.type; let i = $index) {
+          <button type="button" class="thumb" [class.active]="selectedImageIndex() === i"
+            [class.thumb-video]="it.type === 'video'" [attr.data-index]="i"
+            (click)="selectGalleryIndex(i); scrollThumbIntoView()">
+            @if (it.type === 'video') {
+            @if (images().length) {
+            <img [src]="api.imageUrl(images()[0])" alt="" loading="lazy" />
+            }
+            <span class="thumb-play" aria-hidden="true">▶</span>
+            } @else {
+            <img [src]="api.imageUrl(it.url)" alt="" loading="lazy" />
+            }
+          </button>
+          }
+        </div>
+        <button type="button" class="gallery-thumbs-arrow gallery-thumbs-next"
+          (click)="scrollThumbs(thumbsTrackRef?.nativeElement, 'right')" aria-label="Next thumbnails">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
       </div>
       }
     </div>
@@ -88,14 +104,14 @@
       <div class="price-section">
         <div class="price">
           @if (hasSale()) {
-            <span class="original">{{ originalPrice() }} EGP</span>
-            <span class="current sale-price">{{ currentPrice() }} EGP</span>
+          <span class="original">{{ originalPrice() | priceFormat }}</span>
+          <span class="current sale-price">{{ currentPrice() | priceFormat }}</span>
           } @else {
-            <span class="current">{{ p.price }} EGP</span>
+          <span class="current">{{ p.price | priceFormat }}</span>
           }
         </div>
         @if (discountPercent() > 0) {
-          <span class="discount-badge-inline">{{ 'product.save' | translate }} {{ discountPercent() }}%</span>
+        <span class="discount-badge-inline">{{ 'product.save' | translate }} {{ discountPercent() }}%</span>
         }
       </div>
 
@@ -151,12 +167,12 @@
             [disabled]="quantity() >= effectiveStock() || quantity() >= remainingCanAdd()"
             aria-label="Increase quantity">+</button>
         </div>
-        @if (effectiveStock() > 0 && effectiveStock() <= lowStockThreshold()) {
-          <p class="low-stock">{{ 'product.lowStock' | translate: { count: effectiveStock() } }}</p>
-        }
-        @if (effectiveStock() > lowStockThreshold() && effectiveStock() <= stockInfoThreshold()) {
-          <p class="stock-info">{{ 'product.stockAvailable' | translate: { count: effectiveStock() } }}</p>
-        }
+        @if (effectiveStock() > 0 && effectiveStock() <= lowStockThreshold()) { <p class="low-stock">{{
+          'product.lowStock' | translate: { count: effectiveStock() } }}</p>
+          }
+          @if (effectiveStock() > lowStockThreshold() && effectiveStock() <= stockInfoThreshold()) { <p
+            class="stock-info">{{ 'product.stockAvailable' | translate: { count: effectiveStock() } }}</p>
+            }
       </div>
 
       @if (effectiveStock() <= 0) { <p class="out-of-stock">{{ 'product.outOfStock' | translate }}</p>

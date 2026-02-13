@@ -21,7 +21,7 @@ export interface BreadcrumbItem {
             } @else {
               <span [attr.aria-current]="last ? 'page' : null">{{ item.label }}</span>
             }
-            @if (!last) { <span class="separator" aria-hidden="true">/</span> }
+            @if (!last) { <span class="separator" aria-hidden="true">›</span> }
           </li>
         }
       </ol>
@@ -34,7 +34,8 @@ export interface BreadcrumbItem {
     a { color: var(--color-text-muted, #5c5c5c); text-decoration: none; }
     a:hover { text-decoration: underline; }
     span[aria-current] { color: var(--color-text, #1a1a1a); font-weight: 500; }
-    .separator { margin: 0 8px; color: var(--color-text-muted, #5c5c5c); }
+    .separator { display: inline-block; margin: 0 8px; color: var(--color-text-muted, #5c5c5c); }
+    :host-context([dir='rtl']) .separator { transform: scaleX(-1); }
   `],
 })
 export class BreadcrumbComponent {

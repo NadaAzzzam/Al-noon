@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, effect, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, ChangeDetectionStrategy, DestroyRef, ViewChild, ElementRef, input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, distinctUntilChanged, switchMap, take } from 'rxjs/operators';
@@ -9,6 +9,7 @@ import { StoreService } from '../../core/services/store.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { TranslatePipe } from '@ngx-translate/core';
+import { PriceFormatPipe } from '../../shared/pipe/price.pipe';
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { StarRatingComponent } from '../../shared/components/star-rating/star-rating.component';
@@ -20,7 +21,7 @@ import type { Product, ProductAvailabilityColor, ProductAvailabilitySize, Format
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [TranslatePipe, ProductCardComponent, BreadcrumbComponent, StarRatingComponent, LoadingSkeletonComponent],
+  imports: [TranslatePipe, PriceFormatPipe, ProductCardComponent, BreadcrumbComponent, StarRatingComponent, LoadingSkeletonComponent],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,6 +37,11 @@ export class ProductDetailComponent implements OnInit {
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
   readonly Math = Math;
+
+  @ViewChild('thumbsTrack') thumbsTrackRef?: ElementRef<HTMLElement>;
+
+  /** Number of thumbnail slides visible at once in the gallery strip. Easy to change (e.g. 3, 4, 5). */
+  thumbsPerView = input(6);
 
   /** From GET /api/settings (stockDisplay); fallbacks for when BE does not send. */
   lowStockThreshold = signal(5);
@@ -288,6 +294,38 @@ export class ProductDetailComponent implements OnInit {
       timer(2000).pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => this.added.set(false));
     } else {
       this.toast.show(result.message || 'Cannot add to cart', 'error');
+    }
+  }
+
+  /** Set gallery main image index (used by main arrows and thumb clicks). */
+  selectGalleryIndex(index: number): void {
+    this.selectedImageIndex.set(index);
+  }
+
+  /** Track width in px so exactly thumbsPerView() thumbnails are visible (thumb 72px + gap 8px). */
+  getThumbsTrackWidth(): number {
+    const n = Math.max(1, this.thumbsPerView() ?? 4);
+    return n * 72 + (n - 1) * 8;
+  }
+
+  /** Scroll thumbnails track by one step (Shopify-style slider arrows). */
+  scrollThumbs(container: HTMLElement | null | undefined, direction: 'left' | 'right'): void {
+    if (!container) return;
+    const step = 80; // thumb width 72 + gap 8
+    container.scrollBy({
+      left: direction === 'right' ? step : -step,
+      behavior: 'smooth',
+    });
+  }
+
+  /** Bring the selected thumb into view in the thumbs strip. */
+  scrollThumbIntoView(): void {
+    const track = this.thumbsTrackRef?.nativeElement;
+    if (!track) return;
+    const idx = this.selectedImageIndex();
+    const thumb = track.querySelector(`[data-index="${idx}"]`);
+    if (thumb) {
+      (thumb as HTMLElement).scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
     }
   }
 

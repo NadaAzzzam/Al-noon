@@ -155,7 +155,8 @@
   }
 }
 
-[dir='rtl'] .filter-sidebar {
+/* Only apply RTL flip when sidebar does not have dir="ltr" (we keep filter-sidebar always LTR, same as cart drawer) */
+[dir='rtl'] .filter-sidebar:not([dir='ltr']) {
   transform: translateX(100%);
 
   &.open {
@@ -172,6 +173,10 @@
   padding: 20px 24px;
   border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
+}
+
+[dir='rtl'] .filter-sidebar:not([dir='ltr']) .sidebar-header {
+  flex-direction: row-reverse;
 }
 
 .sidebar-title {
@@ -302,6 +307,7 @@
   font-size: 14px;
   color: var(--color-text);
   transition: color 0.15s;
+  text-align: start;
 
   &:hover {
     color: var(--color-accent);

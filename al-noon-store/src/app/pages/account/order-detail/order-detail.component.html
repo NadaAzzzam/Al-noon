@@ -35,17 +35,17 @@
         } @else {
         <span>{{ getLocalized(item.product.name) || ('orderDetail.product' | translate) }}</span>
         }
-        <p>× {{ item.quantity }} — LE {{ item.price }} EGP</p>
+        <p>× {{ item.quantity }} — {{ item.price | priceFormat }}</p>
       </div>
-      <span class="item-total">LE {{ item.quantity * item.price }} EGP</span>
+      <span class="item-total">{{ item.quantity * item.price | priceFormat }}</span>
     </div>
     }
   </div>
   <div class="order-totals">
     @if (o.deliveryFee != null && o.deliveryFee > 0) {
-    <p><span>{{ 'checkout.delivery' | translate }}</span><span>LE {{ o.deliveryFee }} EGP</span></p>
+    <p><span>{{ 'checkout.delivery' | translate }}</span><span>{{ o.deliveryFee | priceFormat }}</span></p>
     }
-    <p class="total"><span>{{ 'orderDetail.total' | translate }}</span><span>LE {{ o.total }} EGP</span></p>
+    <p class="total"><span>{{ 'orderDetail.total' | translate }}</span><span>{{ o.total | priceFormat }}</span></p>
   </div>
   <a [routerLink]="['/account', 'orders']" class="btn btn-outline">{{ 'orderDetail.backToOrders' | translate }}</a>
   }

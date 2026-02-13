@@ -16,7 +16,9 @@
     "search": "بحث",
     "searchPlaceholder": "ابحث عن منتجات...",
     "menu": "القائمة",
-    "contact": "اتصل بنا"
+    "contact": "اتصل بنا",
+    "english": "English",
+    "arabic": "العربية"
   },
   "auth": {
     "logIn": "تسجيل الدخول",
@@ -40,7 +42,14 @@
     "note": "الضرائب والشحن تُحسب عند الدفع.",
     "checkOut": "إتمام الطلب",
     "remove": "إزالة",
-    "product": "منتج"
+    "product": "منتج",
+    "productHeader": "المنتج",
+    "totalHeader": "الإجمالي",
+    "size": "المقاس",
+    "specialInstructions": "تعليمات خاصة للطلب",
+    "specialInstructionsPlaceholder": "أضف أي تعليمات خاصة لطلبك...",
+    "estimatedTotal": "الإجمالي المقدر",
+    "taxesNote": "الضرائب والخصومات والشحن تُحسب عند الدفع."
   },
   "checkout": {
     "title": "إتمام الطلب",
@@ -61,7 +70,42 @@
     "delivery": "الشحن",
     "total": "الإجمالي",
     "placeOrder": "تأكيد الطلب",
-    "placingOrder": "جاري الطلب..."
+    "placingOrder": "جاري الطلب...",
+    "completeOrder": "إتمام الطلب",
+    "completingOrder": "جاري إتمام الطلب...",
+    "contactSection": "التواصل",
+    "signIn": "تسجيل الدخول",
+    "newsletterCheckbox": "أرسلوا لي العروض والأخبار",
+    "deliverySection": "التوصيل",
+    "countryRegion": "الدولة/المنطقة",
+    "egypt": "مصر",
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "companyOptional": "الشركة (اختياري)",
+    "address": "العنوان",
+    "apartmentOptional": "الشقة، المبنى، إلخ (اختياري)",
+    "postalOptional": "الرمز البريدي (اختياري)",
+    "phone": "الهاتف",
+    "saveInfoNextTime": "حفظ هذه البيانات للمرة القادمة",
+    "textNewsOffers": "أرسلوا لي العروض على الواتساب",
+    "shippingMethodSection": "طريقة الشحن",
+    "loadingShipping": "جاري تحميل خيارات الشحن…",
+    "noShippingMethods": "لا توجد طرق شحن.",
+    "paymentSection": "الدفع",
+    "secureEncrypted": "جميع المعاملات آمنة ومشفرة.",
+    "loadingPayment": "جاري تحميل خيارات الدفع…",
+    "noPaymentMethods": "لا توجد طرق دفع.",
+    "transferTo": "تحويل إلى:",
+    "billingAddressSection": "عنوان الفواتير",
+    "sameAsShipping": "نفس عنوان الشحن",
+    "differentBilling": "استخدام عنوان فواتير مختلف",
+    "discountCode": "كود الخصم",
+    "apply": "تطبيق",
+    "store": "المتجر",
+    "refundPolicyLink": "سياسة الاسترجاع",
+    "shippingLink": "الشحن",
+    "privacyPolicyLink": "سياسة الخصوصية",
+    "cancellations": "الإلغاءات"
   },
   "contact": {
     "title": "اتصل بنا",
@@ -118,7 +162,8 @@
     "min": "أدنى",
     "max": "أعلى",
     "color": "اللون",
-    "minRating": "التقييم الأدنى"
+    "minRating": "التقييم الأدنى",
+    "starsAndUp": "{{stars}} فما فوق"
   },
   "product": {
     "notFound": "المنتج غير موجود",
@@ -133,7 +178,8 @@
     "save": "وفر",
     "stylingTip": "نصيحة تنسيق",
     "details": "التفاصيل",
-    "related": "قد يعجبك أيضاً"
+    "related": "قد يعجبك أيضاً",
+    "quickView": "عرض سريع"
   },
   "sale": "خصم",
   "soldOut": "نفذ",
@@ -156,8 +202,21 @@
   },
   "orderConfirmation": {
     "thankYou": "شكراً لطلبك!",
+    "thankYouWithName": "شكراً لك {{name}}!",
     "message": "تم استلام طلبك وسنقوم بمعالجته قريباً.",
     "orderId": "رقم الطلب",
+    "confirmationNumber": "تأكيد #{{id}}",
+    "orderConfirmed": "تم تأكيد طلبك",
+    "confirmationEmailSoon": "ستصلك رسالة تأكيد قريباً",
+    "orderDetails": "تفاصيل الطلب",
+    "viewAccount": "عرض الحساب",
+    "contactInfo": "معلومات التواصل",
+    "shippingAddress": "عنوان الشحن",
+    "shippingMethod": "طريقة الشحن",
+    "paymentMethod": "طريقة الدفع",
+    "billingAddress": "عنوان الفواتير",
+    "needHelp": "تحتاج مساعدة؟",
+    "contactUs": "اتصل بنا",
     "continueShopping": "متابعة التسوق",
     "notFound": "تعذر تحميل تفاصيل الطلب."
   },
@@ -173,7 +232,20 @@
   },
   "chatbot": {
     "placeholder": "اكتب رسالتك...",
-    "send": "إرسال"
+    "send": "إرسال",
+    "title": "الدردشة"
   },
-  "storeName": "Al-Noon"
+  "common": {
+    "currency": "ج.م."
+  },
+  "storeName": "Al-Noon",
+  "errors": {
+    "required": "مطلوب",
+    "invalidEmail": "بريد إلكتروني غير صالح",
+    "minChars": "الحد الأدنى {{min}} أحرف",
+    "fieldRequired": "{{field}} مطلوب",
+    "placeOrderFailed": "تعذر إتمام الطلب",
+    "loginFailed": "فشل تسجيل الدخول",
+    "registrationFailed": "فشل إنشاء الحساب"
+  }
 }

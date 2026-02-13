@@ -3,12 +3,12 @@
   <div class="checkout-header-inner">
     <a [routerLink]="['/']" class="checkout-logo">
       @if (checkoutHeaderInfo()?.logo) {
-      <img [src]="api.imageUrl(checkoutHeaderInfo()!.logo!)" [alt]="checkoutHeaderInfo()!.storeName?.en || 'Store'" class="checkout-logo-img" />
+      <img [src]="api.imageUrl(checkoutHeaderInfo()!.logo!)" [alt]="checkoutHeaderInfo()!.storeName?.en || ('checkout.store' | translate)" class="checkout-logo-img" />
       } @else {
-      <span class="checkout-logo-text">{{ getLocalized(checkoutHeaderInfo()?.storeName) || 'Al-Noon' }}</span>
+      <span class="checkout-logo-text">{{ getLocalized(checkoutHeaderInfo()?.storeName) || ('storeName' | translate) }}</span>
       }
     </a>
-    <a [routerLink]="['/cart']" class="checkout-header-cart" aria-label="Cart">
+    <a [routerLink]="['/cart']" class="checkout-header-cart" [attr.aria-label]="'nav.cart' | translate">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
         stroke-linecap="round">
         <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
@@ -33,20 +33,20 @@
 
         <!-- Complete order (top) -->
         <button type="submit" class="checkout-submit-btn checkout-submit-btn-top" [disabled]="submitting()">
-          {{ submitting() ? 'Completing order...' : 'Complete order' }}
+          {{ submitting() ? ('checkout.completingOrder' | translate) : ('checkout.completeOrder' | translate) }}
         </button>
 
         <!-- Contact / Email -->
         <section class="checkout-section">
           <div class="section-header">
-            <h2 class="section-title">Contact</h2>
+            <h2 class="section-title">{{ 'checkout.contactSection' | translate }}</h2>
             @if (!isLoggedIn()) {
-            <a [routerLink]="['/account', 'login']" class="section-action-link">Sign in</a>
+            <a [routerLink]="['/account', 'login']" class="section-action-link">{{ 'checkout.signIn' | translate }}</a>
             }
           </div>
           <div class="form-group">
             <input id="ck-email" type="email" autocomplete="email" [value]="email()"
-              (input)="email.set($any($event.target).value)" placeholder="Email" [class.has-error]="emailErrorMsg()" />
+              (input)="email.set($any($event.target).value)" [placeholder]="'auth.email' | translate" [class.has-error]="emailErrorMsg()" />
             @if (emailErrorMsg()) {
             <span class="field-error">{{ emailErrorMsg() }}</span>
             }
@@ -54,26 +54,26 @@
           @if (newsletterEnabled()) {
           <label class="checkbox-label">
             <input type="checkbox" [checked]="emailNews()" (change)="emailNews.set($any($event.target).checked)" />
-            Email me with news and offers
+            {{ 'checkout.newsletterCheckbox' | translate }}
           </label>
           }
         </section>
 
         <!-- Delivery -->
         <section class="checkout-section">
-          <h2 class="section-title">Delivery</h2>
+          <h2 class="section-title">{{ 'checkout.deliverySection' | translate }}</h2>
 
           <div class="form-group">
-            <label for="ck-country" class="floating-label">Country/Region</label>
+            <label for="ck-country" class="floating-label">{{ 'checkout.countryRegion' | translate }}</label>
             <select id="ck-country" disabled>
-              <option value="EG" selected>Egypt</option>
+              <option value="EG" selected>{{ 'checkout.egypt' | translate }}</option>
             </select>
           </div>
 
           <div class="form-row form-row-2">
             <div class="form-group">
               <input id="ck-first" type="text" autocomplete="given-name" [value]="firstName()"
-                (input)="firstName.set($any($event.target).value)" placeholder="First name"
+                (input)="firstName.set($any($event.target).value)" [placeholder]="'checkout.firstName' | translate"
                 [class.has-error]="firstNameError()" />
               @if (firstNameError()) {
               <span class="field-error">{{ firstNameError() }}</span>
@@ -81,7 +81,7 @@
             </div>
             <div class="form-group">
               <input id="ck-last" type="text" autocomplete="family-name" [value]="lastName()"
-                (input)="lastName.set($any($event.target).value)" placeholder="Last name"
+                (input)="lastName.set($any($event.target).value)" [placeholder]="'checkout.lastName' | translate"
                 [class.has-error]="lastNameError()" />
               @if (lastNameError()) {
               <span class="field-error">{{ lastNameError() }}</span>
@@ -90,31 +90,31 @@
           </div>
 
           <div class="form-group">
-            <input type="text" autocomplete="organization" placeholder="Company (optional)" />
+            <input type="text" autocomplete="organization" [placeholder]="'checkout.companyOptional' | translate" />
           </div>
 
           <div class="form-group">
             <input id="ck-address" type="text" autocomplete="street-address" [value]="address()"
-              (input)="address.set($any($event.target).value)" placeholder="Address"
+              (input)="address.set($any($event.target).value)" [placeholder]="'checkout.address' | translate"
               [class.has-error]="addressError()" />
-            @if (addressError()) {
-            <span class="field-error">{{ addressError() }}</span>
-            }
+              @if (addressError()) {
+              <span class="field-error">{{ addressError() }}</span>
+              }
           </div>
 
           <div class="form-group">
             <input id="ck-apt" type="text" autocomplete="address-line2" [value]="apartment()"
-              (input)="apartment.set($any($event.target).value)" placeholder="Apartment, suite, etc. (optional)" />
+              (input)="apartment.set($any($event.target).value)" [placeholder]="'checkout.apartmentOptional' | translate" />
           </div>
 
           <div class="form-row form-row-2">
             <div class="form-group">
-              <label class="floating-label">City</label>
+              <label class="floating-label">{{ 'checkout.city' | translate }}</label>
               <select [value]="selectedCityId()" (change)="selectedCityId.set($any($event.target).value)"
                 [class.has-error]="cityError()">
-                <option value="">Select city</option>
+                <option value="">{{ 'checkout.selectCity' | translate }}</option>
                 @for (c of cities(); track c.id) {
-                <option [value]="c.id">{{ getLocalized(c.name) }} — {{ currencySymbol() }} {{ c.deliveryFee | number:'1.2-2' }} {{ currencyCode() }}</option>
+                <option [value]="c.id">{{ getLocalized(c.name) }} — {{ c.deliveryFee | priceFormat:'1.2-2' }}</option>
                 }
               </select>
               @if (cityError()) {
@@ -123,13 +123,13 @@
             </div>
             <div class="form-group">
               <input type="text" autocomplete="postal-code" [value]="postalCode()"
-                (input)="postalCode.set($any($event.target).value)" placeholder="Postal code (optional)" />
+                (input)="postalCode.set($any($event.target).value)" [placeholder]="'checkout.postalOptional' | translate" />
             </div>
           </div>
 
           <div class="form-group">
             <input type="tel" autocomplete="tel" [value]="phone()" (input)="phone.set($any($event.target).value)"
-              placeholder="Phone" [class.has-error]="phoneError()" />
+              [placeholder]="'checkout.phone' | translate" [class.has-error]="phoneError()" />
             @if (phoneError()) {
             <span class="field-error">{{ phoneError() }}</span>
             }
@@ -137,24 +137,24 @@
 
           <label class="checkbox-label">
             <input type="checkbox" />
-            Save this information for next time
+            {{ 'checkout.saveInfoNextTime' | translate }}
           </label>
           @if (newsletterEnabled()) {
           <label class="checkbox-label">
             <input type="checkbox" [checked]="textNews()" (change)="textNews.set($any($event.target).checked)" />
-            Text me with news and offers
+            {{ 'checkout.textNewsOffers' | translate }}
           </label>
           }
         </section>
 
         <!-- Shipping method (from GET /api/shipping-methods list) -->
         <section class="checkout-section">
-          <h2 class="section-title">Shipping method</h2>
+          <h2 class="section-title">{{ 'checkout.shippingMethodSection' | translate }}</h2>
           <div class="shipping-options">
             @if (shippingMethodsLoading()) {
-            <p class="shipping-loading">Loading shipping options…</p>
+            <p class="shipping-loading">{{ 'checkout.loadingShipping' | translate }}</p>
             } @else if (shippingMethods().length === 0) {
-            <p class="shipping-empty">No shipping methods available.</p>
+            <p class="shipping-empty">{{ 'checkout.noShippingMethods' | translate }}</p>
             } @else {
             @for (method of shippingMethods(); track method.id) {
             <div class="shipping-option" [class.selected]="selectedShippingMethod() === method.id"
@@ -166,7 +166,7 @@
                   <span class="shipping-est">{{ getLocalized(method.description) }}</span>
                 </div>
               </div>
-              <span class="shipping-price">{{ currencySymbol() }} {{ (method.price != null ? method.price : cityDeliveryFee()) | number:'1.2-2' }} {{ currencyCode() }}</span>
+              <span class="shipping-price">{{ (method.price != null ? method.price : cityDeliveryFee()) | priceFormat:'1.2-2' }}</span>
             </div>
             }
             }
@@ -175,13 +175,13 @@
 
         <!-- Payment (from GET /api/payment-methods) -->
         <section class="checkout-section">
-          <h2 class="section-title">Payment</h2>
-          <p class="section-subtitle">All transactions are secure and encrypted.</p>
+          <h2 class="section-title">{{ 'checkout.paymentSection' | translate }}</h2>
+          <p class="section-subtitle">{{ 'checkout.secureEncrypted' | translate }}</p>
           <div class="payment-options">
             @if (paymentMethodsLoading()) {
-            <p class="payment-loading">Loading payment options…</p>
+            <p class="payment-loading">{{ 'checkout.loadingPayment' | translate }}</p>
             } @else if (paymentMethods().length === 0) {
-            <p class="payment-empty">No payment methods available.</p>
+            <p class="payment-empty">{{ 'checkout.noPaymentMethods' | translate }}</p>
             } @else {
             @for (method of paymentMethods(); track method.id) {
             <div class="payment-option" [class.selected]="paymentMethod() === method.id">
@@ -194,7 +194,7 @@
             }
             @if (selectedPaymentMethod(); as method) {
             @if (method.id === 'INSTAPAY' && method.instaPayNumber) {
-            <p class="instapay-number">Transfer to: <strong>{{ method.instaPayNumber }}</strong></p>
+            <p class="instapay-number">{{ 'checkout.transferTo' | translate }} <strong>{{ method.instaPayNumber }}</strong></p>
             }
             }
             }
@@ -203,57 +203,57 @@
 
         <!-- Billing address -->
         <section class="checkout-section">
-          <h2 class="section-title">Billing address</h2>
+          <h2 class="section-title">{{ 'checkout.billingAddressSection' | translate }}</h2>
           <div class="billing-options">
             <label class="radio-label billing-radio" [class.selected]="billingSameAsShipping()">
               <input type="radio" name="billing" [checked]="billingSameAsShipping()"
                 (change)="billingSameAsShipping.set(true)" />
-              Same as shipping address
+              {{ 'checkout.sameAsShipping' | translate }}
             </label>
             <label class="radio-label billing-radio" [class.selected]="!billingSameAsShipping()">
               <input type="radio" name="billing" [checked]="!billingSameAsShipping()"
                 (change)="billingSameAsShipping.set(false)" />
-              Use a different billing address
+              {{ 'checkout.differentBilling' | translate }}
             </label>
           </div>
 
           @if (!billingSameAsShipping()) {
           <div class="billing-form">
             <div class="form-row form-row-2">
-              <div class="form-group">
-                <input type="text" [value]="billingFirstName()"
-                  (input)="billingFirstName.set($any($event.target).value)" placeholder="First name" />
-              </div>
-              <div class="form-group">
-                <input type="text" [value]="billingLastName()" (input)="billingLastName.set($any($event.target).value)"
-                  placeholder="Last name" />
-              </div>
+            <div class="form-group">
+              <input type="text" [value]="billingFirstName()"
+                (input)="billingFirstName.set($any($event.target).value)" [placeholder]="'checkout.firstName' | translate" />
             </div>
             <div class="form-group">
+              <input type="text" [value]="billingLastName()" (input)="billingLastName.set($any($event.target).value)"
+                [placeholder]="'checkout.lastName' | translate" />
+            </div>
+          </div>
+            <div class="form-group">
               <input type="text" [value]="billingAddress()" (input)="billingAddress.set($any($event.target).value)"
-                placeholder="Address" />
+                [placeholder]="'checkout.address' | translate" />
             </div>
             <div class="form-group">
               <input type="text" [value]="billingApartment()" (input)="billingApartment.set($any($event.target).value)"
-                placeholder="Apartment, suite, etc. (optional)" />
+                [placeholder]="'checkout.apartmentOptional' | translate" />
             </div>
             <div class="form-row form-row-3">
               <div class="form-group">
                 <input type="text" [value]="billingCity()" (input)="billingCity.set($any($event.target).value)"
-                  placeholder="City" />
+                  [placeholder]="'checkout.city' | translate" />
               </div>
               <div class="form-group">
                 <input type="text" [value]="billingGovernorate()" (input)="billingGovernorate.set($any($event.target).value)"
-                  placeholder="Governorate / Region" />
+                  [placeholder]="'checkout.countryRegion' | translate" />
               </div>
               <div class="form-group">
                 <input type="text" [value]="billingPostalCode()"
-                  (input)="billingPostalCode.set($any($event.target).value)" placeholder="Postal code (optional)" />
+                  (input)="billingPostalCode.set($any($event.target).value)" [placeholder]="'checkout.postalOptional' | translate" />
               </div>
             </div>
             <div class="form-group">
               <input type="tel" [value]="billingPhone()" (input)="billingPhone.set($any($event.target).value)"
-                placeholder="Phone" />
+                [placeholder]="'checkout.phone' | translate" />
             </div>
           </div>
           }
@@ -265,7 +265,7 @@
         }
 
         <button type="submit" class="checkout-submit-btn" [disabled]="submitting()">
-          {{ submitting() ? 'Completing order...' : 'Complete order' }}
+          {{ submitting() ? ('checkout.completingOrder' | translate) : ('checkout.completeOrder' | translate) }}
         </button>
 
       </form>
@@ -286,31 +286,31 @@
             <span class="summary-product-qty">{{ item.quantity }}</span>
           </div>
           <div class="summary-product-info">
-            <span class="summary-product-name">{{ item.name ?? 'Product' }}</span>
+            <span class="summary-product-name">{{ item.name ?? ('cart.product' | translate) }}</span>
             @if (item.variant) {
             <span class="summary-product-variant">{{ item.variant }}</span>
             }
           </div>
-          <span class="summary-product-price">{{ currencySymbol() }} {{ (item.price * item.quantity) | number:'1.2-2' }} {{ currencyCode() }}</span>
+          <span class="summary-product-price">{{ (item.price * item.quantity) | priceFormat:'1.2-2' }}</span>
         </div>
         }
       </div>
 
       <!-- Discount code -->
       <div class="summary-discount">
-        <input type="text" placeholder="Discount code" class="discount-input" />
-        <button type="button" class="discount-btn">Apply</button>
+        <input type="text" [placeholder]="'checkout.discountCode' | translate" class="discount-input" />
+        <button type="button" class="discount-btn">{{ 'checkout.apply' | translate }}</button>
       </div>
 
       <!-- Subtotal, Shipping, Total -->
       <div class="summary-totals">
         <div class="summary-row">
-          <span>Subtotal</span>
-          <span>{{ currencySymbol() }} {{ subtotal() | number:'1.2-2' }} {{ currencyCode() }}</span>
+          <span>{{ 'checkout.subtotal' | translate }}</span>
+          <span>{{ subtotal() | priceFormat:'1.2-2' }}</span>
         </div>
         <div class="summary-row">
           <span class="shipping-label">
-            Shipping
+            {{ 'checkout.delivery' | translate }}
             <svg class="info-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round">
               <circle cx="12" cy="12" r="10" />
@@ -318,14 +318,11 @@
               <path d="M12 8h.01" />
             </svg>
           </span>
-          <span>{{ currencySymbol() }} {{ deliveryFee() | number:'1.2-2' }} {{ currencyCode() }}</span>
+          <span>{{ deliveryFee() | priceFormat:'1.2-2' }}</span>
         </div>
         <div class="summary-row summary-total">
-          <span>Total</span>
-          <span class="summary-total-price">
-            <small class="currency-label">{{ currencyCode() }}</small>
-            {{ currencySymbol() }} {{ total() | number:'1.2-2' }}
-          </span>
+          <span>{{ 'checkout.total' | translate }}</span>
+          <span class="summary-total-price">{{ total() | priceFormat:'1.2-2' }}</span>
         </div>
       </div>
     </div>
@@ -345,10 +342,10 @@
         }
       }
     } @else {
-      <a [routerLink]="['/page', 'return-policy']" class="footer-link">Refund policy</a>
-      <a [routerLink]="['/page', 'shipping-policy']" class="footer-link">Shipping</a>
-      <a [routerLink]="['/page', 'privacy']" class="footer-link">Privacy policy</a>
-      <a routerLink="/contact" class="footer-link">Cancellations</a>
+      <a [routerLink]="['/page', 'return-policy']" class="footer-link">{{ 'checkout.refundPolicyLink' | translate }}</a>
+      <a [routerLink]="['/page', 'shipping-policy']" class="footer-link">{{ 'checkout.shippingLink' | translate }}</a>
+      <a [routerLink]="['/page', 'privacy']" class="footer-link">{{ 'checkout.privacyPolicyLink' | translate }}</a>
+      <a routerLink="/contact" class="footer-link">{{ 'checkout.cancellations' | translate }}</a>
     }
   </div>
 </footer>

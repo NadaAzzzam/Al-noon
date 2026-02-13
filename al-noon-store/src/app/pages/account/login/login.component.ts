@@ -2,10 +2,10 @@ import { Component, inject, signal, computed, ChangeDetectionStrategy, DestroyRe
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { LocaleService } from '../../../core/services/locale.service';
-import { emailError, passwordError } from '../../../shared/utils/form-validators';
+import { emailErrorKey, passwordErrorKey } from '../../../shared/utils/form-validators';
 
 @Component({
   selector: 'app-login',
@@ -21,14 +21,22 @@ export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   readonly locale = inject(LocaleService);
+  private readonly translate = inject(TranslateService);
 
   email = signal('');
   password = signal('');
   error = signal<string | null>(null);
 
-  emailError = computed(() => emailError(this.email()));
-  passwordError = computed(() => passwordError(this.password()));
-  valid = computed(() => !this.emailError() && !this.passwordError());
+  emailError = computed(() => {
+    const key = emailErrorKey(this.email());
+    return key ? this.translate.instant(key) : null;
+  });
+  passwordError = computed(() => {
+    const key = passwordErrorKey(this.password());
+    if (!key) return null;
+    return key === 'errors.minChars' ? this.translate.instant(key, { min: 6 }) : this.translate.instant(key);
+  });
+  valid = computed(() => !emailErrorKey(this.email()) && !passwordErrorKey(this.password()));
 
   returnUrl = computed(() => this.route.snapshot.queryParams['returnUrl'] ?? '/account/orders');
 
@@ -39,7 +47,7 @@ export class LoginComponent {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: () => this.router.navigateByUrl(this.returnUrl()),
-      error: (err) => this.error.set(err?.message ?? 'Login failed'),
+      error: (err) => this.error.set(err?.message ?? this.translate.instant('errors.loginFailed')),
     });
   }
 }

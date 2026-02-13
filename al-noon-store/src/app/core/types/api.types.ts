@@ -172,11 +172,17 @@ export interface ProductVariantStock {
   outOfStock?: boolean;
 }
 
-/** Per-color availability (GET product with variant support). */
+/** Per-color availability (GET product with variant support). Includes color-specific image when hasImage is true. */
 export interface ProductAvailabilityColor {
   color: string;
   available: boolean;
   outOfStock: boolean;
+  /** Number of sizes in stock for this color. */
+  availableSizeCount?: number;
+  /** True when at least one image is linked to this color via imageColors. */
+  hasImage?: boolean;
+  /** First image URL for this color when hasImage is true. */
+  imageUrl?: string;
 }
 
 /** Per-size availability (GET product with variant support). */
@@ -188,6 +194,8 @@ export interface ProductAvailabilitySize {
 
 /** Variant availability (colors, sizes, and per-variant stock). */
 export interface ProductAvailabilityInfo {
+  /** Total number of sizes that are available (in stock) for this product. */
+  availableSizeCount?: number;
   colors?: ProductAvailabilityColor[];
   sizes?: ProductAvailabilitySize[];
   variants?: ProductVariantStock[];

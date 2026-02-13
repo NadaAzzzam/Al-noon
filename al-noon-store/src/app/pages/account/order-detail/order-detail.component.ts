@@ -5,12 +5,13 @@ import { OrdersService } from '../../../core/services/orders.service';
 import { ApiService } from '../../../core/services/api.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { TranslatePipe } from '@ngx-translate/core';
+import { PriceFormatPipe } from '../../../shared/pipe/price.pipe';
 import type { Order, StructuredAddress } from '../../../core/types/api.types';
 
 @Component({
   selector: 'app-order-detail',
   standalone: true,
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe, PriceFormatPipe],
   templateUrl: './order-detail.component.html',
   styleUrl: './order-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

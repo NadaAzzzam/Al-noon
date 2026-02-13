@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { DOCUMENT, DecimalPipe } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CartService } from '../../core/services/cart.service';
@@ -12,16 +12,17 @@ import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { AuthService } from '../../core/services/auth.service';
 import { StoreService } from '../../core/services/store.service';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LocalizedPipe } from '../../shared/pipe/localized.pipe';
-import { requiredError, emailError } from '../../shared/utils/form-validators';
+import { PriceFormatPipe } from '../../shared/pipe/price.pipe';
+import { requiredError, emailError, emailErrorKey, requiredErrorKey } from '../../shared/utils/form-validators';
 import type { City, ShippingMethod, CreateOrderBody, StructuredAddress, StoreData, PaymentMethodOption, SettingsContentPage } from '../../core/types/api.types';
 import type { PaymentMethod } from '../../core/types/api.types';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [DecimalPipe, FormsModule, RouterLink, TranslatePipe],
+  imports: [FormsModule, RouterLink, TranslatePipe, PriceFormatPipe],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +40,7 @@ export class CheckoutComponent implements OnInit {
   private readonly doc = inject(DOCUMENT);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
+  private readonly translate = inject(TranslateService);
 
   /** Store data for checkout header (from getStore) */
   store = signal<StoreData | null>(null);
@@ -157,16 +159,37 @@ export class CheckoutComponent implements OnInit {
     return this.paymentMethods().find((m) => m.id === id) ?? null;
   });
 
-  /** Validation */
+  /** Validation (localized messages) */
   emailErrorMsg = computed(() => {
     if (!this.touched()) return null;
-    return emailError(this.email());
+    const key = emailErrorKey(this.email());
+    return key ? this.translate.instant(key) : null;
   });
-  firstNameError = computed(() => this.touched() ? requiredError(this.firstName(), 'First name') : null);
-  lastNameError = computed(() => this.touched() ? requiredError(this.lastName(), 'Last name') : null);
-  addressError = computed(() => this.touched() ? requiredError(this.address(), 'Address') : null);
-  cityError = computed(() => this.touched() ? requiredError(this.selectedCityId(), 'City') : null);
-  phoneError = computed(() => this.touched() ? requiredError(this.phone(), 'Phone') : null);
+  firstNameError = computed(() => {
+    if (!this.touched()) return null;
+    const r = requiredErrorKey(this.firstName(), 'checkout.firstName');
+    return r ? this.translate.instant(r.key, { field: this.translate.instant(r.fieldKey) }) : null;
+  });
+  lastNameError = computed(() => {
+    if (!this.touched()) return null;
+    const r = requiredErrorKey(this.lastName(), 'checkout.lastName');
+    return r ? this.translate.instant(r.key, { field: this.translate.instant(r.fieldKey) }) : null;
+  });
+  addressError = computed(() => {
+    if (!this.touched()) return null;
+    const r = requiredErrorKey(this.address(), 'checkout.address');
+    return r ? this.translate.instant(r.key, { field: this.translate.instant(r.fieldKey) }) : null;
+  });
+  cityError = computed(() => {
+    if (!this.touched()) return null;
+    const r = requiredErrorKey(this.selectedCityId(), 'checkout.city');
+    return r ? this.translate.instant(r.key, { field: this.translate.instant(r.fieldKey) }) : null;
+  });
+  phoneError = computed(() => {
+    if (!this.touched()) return null;
+    const r = requiredErrorKey(this.phone(), 'checkout.phone');
+    return r ? this.translate.instant(r.key, { field: this.translate.instant(r.fieldKey) }) : null;
+  });
 
   formValid = computed(() => {
     const base = !emailError(this.email())
@@ -363,7 +386,7 @@ export class CheckoutComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.error.set(err?.message ?? 'Failed to place order');
+        this.error.set(err?.message ?? this.translate.instant('errors.placeOrderFailed'));
         this.submitting.set(false);
       },
     });

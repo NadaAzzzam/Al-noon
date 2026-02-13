@@ -17,8 +17,8 @@
     <div class="cart-layout">
       <!-- Header row -->
       <div class="cart-table-header">
-        <span class="col-product">PRODUCT</span>
-        <span class="col-total">TOTAL</span>
+        <span class="col-product">{{ 'cart.productHeader' | translate }}</span>
+        <span class="col-total">{{ 'cart.totalHeader' | translate }}</span>
       </div>
 
       <div class="cart-items">
@@ -33,9 +33,9 @@
             </div>
             <div class="cart-item-details">
               <a [routerLink]="['/product', item.productId]" class="cart-item-name">{{ item.name ?? ('cart.product' | translate) }}</a>
-              <p class="cart-item-price">LE {{ item.price | number:'1.2-2' }} EGP</p>
+              <p class="cart-item-price">{{ item.price | priceFormat:'1.2-2' }}</p>
               @if (item.variant) {
-                <p class="cart-item-variant">Size: {{ item.variant }}</p>
+                <p class="cart-item-variant">{{ 'cart.size' | translate }}: {{ item.variant }}</p>
               }
               <div class="cart-item-qty">
                 <div class="quantity-control">
@@ -49,7 +49,7 @@
                 </button>
               </div>
             </div>
-            <div class="cart-item-total">LE {{ (item.price * item.quantity) | number:'1.2-2' }}</div>
+            <div class="cart-item-total">{{ (item.price * item.quantity) | priceFormat:'1.2-2' }}</div>
           </div>
         }
       </div>
@@ -58,21 +58,21 @@
       <div class="cart-footer">
         <div class="cart-instructions">
           <details>
-            <summary>Order special instructions</summary>
+            <summary>{{ 'cart.specialInstructions' | translate }}</summary>
             <textarea
               rows="3"
               [value]="cart.specialInstructions()"
               (input)="cart.setSpecialInstructions($any($event.target).value)"
-              placeholder="Add any special instructions for your order..."></textarea>
+              [placeholder]="'cart.specialInstructionsPlaceholder' | translate"></textarea>
           </details>
         </div>
 
         <div class="cart-summary">
           <div class="summary-row">
-            <span class="summary-label">Estimated total</span>
-            <span class="summary-value">LE {{ subtotal() | number:'1.2-2' }} EGP</span>
+            <span class="summary-label">{{ 'cart.estimatedTotal' | translate }}</span>
+            <span class="summary-value">{{ subtotal() | priceFormat:'1.2-2' }}</span>
           </div>
-          <p class="note">Taxes, discounts and shipping calculated at checkout.</p>
+          <p class="note">{{ 'cart.taxesNote' | translate }}</p>
           <a [routerLink]="['/checkout']" class="btn btn-block">{{ 'cart.checkOut' | translate }}</a>
           <a [routerLink]="['/catalog']" class="btn btn-block btn-outline">{{ 'cart.continueShopping' | translate }}</a>
         </div>

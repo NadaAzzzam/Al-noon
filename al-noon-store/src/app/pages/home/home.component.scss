@@ -46,7 +46,7 @@
 }
 
 [dir='rtl'] .section-link:hover svg {
-  transform: translateX(-3px);
+  transform: rotate(180deg) translateX(-3px);
 }
 
 /* ══════════════════════════════════════════

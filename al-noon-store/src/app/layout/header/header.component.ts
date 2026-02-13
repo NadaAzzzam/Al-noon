@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { DOCUMENT, DecimalPipe } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 import { StoreService } from '../../core/services/store.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
@@ -11,13 +11,14 @@ import { CategoriesService } from '../../core/services/categories.service';
 import type { Category } from '../../core/types/api.types';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LocalizedPipe } from '../../shared/pipe/localized.pipe';
+import { PriceFormatPipe } from '../../shared/pipe/price.pipe';
 import type { StoreData, StoreSocialLink } from '../../core/types/api.types';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [DecimalPipe, RouterLink, RouterLinkActive, TranslatePipe, LocalizedPipe, FormsModule],
+  imports: [RouterLink, RouterLinkActive, TranslatePipe, LocalizedPipe, PriceFormatPipe, FormsModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })

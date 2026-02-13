@@ -1,6 +1,7 @@
 import { Component, input, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import { PriceFormatPipe } from '../../pipe/price.pipe';
 import { ApiService } from '../../../core/services/api.service';
 import { LocaleService } from '../../../core/services/locale.service';
 import { StarRatingComponent } from '../star-rating/star-rating.component';
@@ -9,7 +10,7 @@ import type { Product } from '../../../core/types/api.types';
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, StarRatingComponent],
+  imports: [RouterLink, TranslatePipe, PriceFormatPipe, StarRatingComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @let p = product();
@@ -45,7 +46,7 @@ import type { Product } from '../../../core/types/api.types';
           } @else if (discountPercent() > 0) {
             <span class="discount-badge">-{{ discountPercent() }}%</span>
           }
-          <span class="quick-view">View</span>
+          <span class="quick-view">{{ 'product.quickView' | translate }}</span>
         </div>
         <div class="product-card-body">
           <h3 class="product-name">{{ name() }}</h3>
@@ -54,10 +55,10 @@ import type { Product } from '../../../core/types/api.types';
           }
           <div class="price">
             @if (hasSale()) {
-              <span class="original">{{ originalPrice() }} EGP</span>
-              <span class="current sale-price">{{ currentPrice() }} EGP</span>
+              <span class="original">{{ originalPrice() | priceFormat }}</span>
+              <span class="current sale-price">{{ currentPrice() | priceFormat }}</span>
             } @else {
-              <span class="current">{{ p.price }} EGP</span>
+              <span class="current">{{ p.price | priceFormat }}</span>
             }
           </div>
         </div>

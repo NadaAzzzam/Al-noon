@@ -78,8 +78,8 @@
   }
 </header>
 
-<!-- Sidebar -->
-<aside class="sidebar" [class.sidebar-open]="sidebarOpen()">
+<!-- Sidebar (always LTR layout like cart drawer) -->
+<aside class="sidebar" [class.sidebar-open]="sidebarOpen()" dir="ltr">
   <div class="sidebar-header">
     <button type="button" class="sidebar-close" (click)="closeSidebar()" aria-label="Close menu">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -90,6 +90,7 @@
     </button>
   </div>
 
+  <div class="sidebar-body">
   <nav class="sidebar-nav">
     <!-- SHOP COLLECTION (collapsible) -->
     <div class="sidebar-section">
@@ -147,7 +148,7 @@
 
   <!-- Language toggle in sidebar -->
   <button type="button" class="sidebar-lang" (click)="toggleLocale()">
-    {{ currentLocale() === 'ar' ? 'English' : 'العربية' }}
+    {{ currentLocale() === 'ar' ? ('nav.english' | translate) : ('nav.arabic' | translate) }}
   </button>
 
   @if (isLoggedIn()) {
@@ -202,6 +203,7 @@
       {{ 'nav.wishlist' | translate }}
     </a>
   </div>
+  </div>
 </aside>
 
 <!-- Sidebar overlay -->
@@ -212,14 +214,14 @@
 <!-- ═══════════════════════════════════════════════════
      Cart Drawer (slides in from right)
      ═══════════════════════════════════════════════════ -->
-<aside class="cart-drawer" [class.cart-drawer-open]="cartDrawerOpen()">
+<aside class="cart-drawer" [class.cart-drawer-open]="cartDrawerOpen()" dir="ltr">
   <div class="cart-drawer-header">
-    <h2 class="cart-drawer-title">Your cart</h2>
+    <h2 class="cart-drawer-title">{{ 'cart.title' | translate }}</h2>
     <div class="cart-drawer-cols">
-      <span class="cart-col-label">PRODUCT</span>
-      <span class="cart-col-label">TOTAL</span>
+      <span class="cart-col-label">{{ 'cart.productHeader' | translate }}</span>
+      <span class="cart-col-label">{{ 'cart.totalHeader' | translate }}</span>
     </div>
-    <button type="button" class="cart-drawer-close" (click)="closeCartDrawer()" aria-label="Close cart">
+    <button type="button" class="cart-drawer-close" (click)="closeCartDrawer(); $event.stopPropagation()" aria-label="Close cart">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round">
         <line x1="18" y1="6" x2="6" y2="18" />
@@ -236,7 +238,7 @@
         <line x1="3" y1="6" x2="21" y2="6" />
         <path d="M16 10a4 4 0 0 1-8 0" />
       </svg>
-      <p>Your cart is empty</p>
+      <p>{{ 'cart.empty' | translate }}</p>
     </div>
     } @else {
     <div class="cart-drawer-items">
@@ -251,10 +253,10 @@
         </div>
         <div class="cart-drawer-item-info">
           <a [routerLink]="['/product', item.productId]" class="cart-drawer-item-name" (click)="closeCartDrawer()">{{
-            item.name ?? 'Product' }}</a>
-          <p class="cart-drawer-item-price">LE {{ item.price | number:'1.2-2' }} EGP</p>
+            item.name ?? ('cart.product' | translate) }}</a>
+          <p class="cart-drawer-item-price">{{ item.price | priceFormat:'1.2-2' }}</p>
           @if (item.variant) {
-          <p class="cart-drawer-item-variant">Size: {{ item.variant }}</p>
+          <p class="cart-drawer-item-variant">{{ 'cart.size' | translate }}: {{ item.variant }}</p>
           }
           <div class="cart-drawer-item-actions">
             <div class="qty-control">
@@ -276,7 +278,7 @@
           </div>
         </div>
         <div class="cart-drawer-item-total">
-          LE {{ (item.price * item.quantity) | number:'1.2-2' }}
+          {{ (item.price * item.quantity) | priceFormat:'1.2-2' }}
         </div>
       </div>
       }
@@ -287,17 +289,17 @@
   @if (cartItems().length > 0) {
   <div class="cart-drawer-footer">
     <details class="cart-drawer-instructions">
-      <summary>Order special instructions</summary>
+      <summary>{{ 'cart.specialInstructions' | translate }}</summary>
       <textarea rows="3" [value]="cart.specialInstructions()"
         (input)="cart.setSpecialInstructions($any($event.target).value)"
-        placeholder="Add any special instructions for your order..."></textarea>
+        [placeholder]="'cart.specialInstructionsPlaceholder' | translate"></textarea>
     </details>
     <div class="cart-drawer-total">
-      <span class="cart-drawer-total-label">Estimated total</span>
-      <span class="cart-drawer-total-value">LE {{ cartSubtotal() | number:'1.2-2' }} EGP</span>
+      <span class="cart-drawer-total-label">{{ 'cart.estimatedTotal' | translate }}</span>
+      <span class="cart-drawer-total-value">{{ cartSubtotal() | priceFormat:'1.2-2' }}</span>
     </div>
-    <p class="cart-drawer-tax-note">Taxes, discounts and shipping calculated at checkout.</p>
-    <button type="button" class="cart-drawer-checkout-btn" (click)="goToCheckout()">Check out</button>
+    <p class="cart-drawer-tax-note">{{ 'cart.taxesNote' | translate }}</p>
+    <button type="button" class="cart-drawer-checkout-btn" (click)="goToCheckout()">{{ 'cart.checkOut' | translate }}</button>
   </div>
   }
 </aside>
