@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════
-   Ramadan Celebration Animated Background
+   Ramadan — single full-screen snow-drop background
    ══════════════════════════════════════════════════════ */
 
 .ramadan-bg {
@@ -8,182 +8,113 @@
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
+  /* Single layer: no background image so nothing repeats */
+  background: transparent;
 }
 
-/* ── Lanterns (فانوس) ── */
-.lantern {
+.ramadan-drops {
   position: absolute;
-  top: -20px;
-  width: 45px;
-  height: 75px;
-  animation: lantern-sway 4s ease-in-out infinite;
-  z-index: 0;
+  inset: 0;
+  overflow: hidden;
 }
 
-.lantern-svg {
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 4px 12px rgba(201, 163, 79, 0.3));
-}
-
-.lantern-light {
+.drop {
   position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 30px;
-  height: 30px;
-  background: radial-gradient(circle, rgba(240, 192, 64, 0.25) 0%, transparent 70%);
+  top: -8px;
+  animation: snow-drop linear infinite;
+  will-change: transform;
+}
+
+/* Dot — small gold circle */
+.drop.shape-dot {
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
-  animation: lantern-glow 2s ease-in-out infinite alternate;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 248, 220, 0.9),
+    rgba(201, 163, 79, 0.5) 40%,
+    rgba(201, 163, 79, 0.2)
+  );
+  box-shadow: 0 0 6px rgba(201, 163, 79, 0.25);
 }
 
-.lantern-1 {
-  left: 5%;
-  animation-delay: 0s;
-  animation-duration: 3.5s;
-  opacity: 0.6;
+/* Crescent (hilal) — CSS-only */
+.drop.shape-crescent {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(
+      circle at 58% 50%,
+      var(--color-bg, #faf9f7) 0%,
+      var(--color-bg, #faf9f7) 38%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(201, 163, 79, 0.85) 0%,
+      rgba(201, 163, 79, 0.5) 45%,
+      transparent 48%
+    );
+  box-shadow: 0 0 8px rgba(201, 163, 79, 0.3);
 }
 
-.lantern-2 {
-  right: 8%;
-  left: auto;
-  animation-delay: 1s;
-  animation-duration: 4.5s;
-  opacity: 0.5;
-  width: 35px;
-  height: 60px;
+/* Star — small 5-point star */
+.drop.shape-star {
+  width: 10px;
+  height: 10px;
+  background: rgba(201, 163, 79, 0.8);
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+  box-shadow: 0 0 6px rgba(201, 163, 79, 0.35);
 }
 
-.lantern-3 {
-  left: 45%;
-  animation-delay: 0.5s;
-  animation-duration: 5s;
-  opacity: 0.35;
-  width: 30px;
-  height: 50px;
+/* Emoji — when ramadanEmojis is set */
+.drop.drop-emoji {
+  display: inline-block;
+  font-size: 1.25rem;
+  line-height: 1;
+  width: auto;
+  height: auto;
+  background: none;
+  box-shadow: none;
+  filter: drop-shadow(0 0 6px rgba(201, 163, 79, 0.25));
 }
 
-.lantern-4 {
-  right: 30%;
-  left: auto;
-  animation-delay: 2s;
-  animation-duration: 4s;
-  opacity: 0.45;
-  width: 38px;
-  height: 65px;
-}
-
-@keyframes lantern-sway {
-  0%,
-  100% {
-    transform: rotate(-3deg);
-  }
-  50% {
-    transform: rotate(3deg);
-  }
-}
-
-@keyframes lantern-glow {
+@keyframes snow-drop {
   0% {
-    opacity: 0.5;
-    transform: translateX(-50%) scale(1);
+    transform: translateY(-10px) translateX(0);
+    opacity: 0.85;
   }
-  100% {
-    opacity: 1;
-    transform: translateX(-50%) scale(1.3);
-  }
-}
-
-/* ── Twinkling Stars ── */
-.star {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  background: #c9a34f;
-  border-radius: 50%;
-  animation: twinkle 3s ease-in-out infinite;
-  opacity: 0;
-}
-
-.star-1 {
-  top: 8%;
-  left: 15%;
-  animation-delay: 0s;
-}
-.star-2 {
-  top: 12%;
-  right: 20%;
-  animation-delay: 0.5s;
-}
-.star-3 {
-  top: 5%;
-  left: 40%;
-  animation-delay: 1s;
-}
-.star-4 {
-  top: 15%;
-  right: 35%;
-  animation-delay: 1.5s;
-}
-.star-5 {
-  top: 3%;
-  left: 70%;
-  animation-delay: 2s;
-}
-.star-6 {
-  top: 18%;
-  left: 25%;
-  animation-delay: 0.8s;
-}
-.star-7 {
-  top: 6%;
-  right: 60%;
-  animation-delay: 1.3s;
-}
-.star-8 {
-  top: 10%;
-  left: 55%;
-  animation-delay: 2.5s;
-}
-
-@keyframes twinkle {
-  0%,
-  100% {
-    opacity: 0;
-    transform: scale(0.5);
+  15% {
+    transform: translateY(18vh) translateX(8px);
+    opacity: 0.9;
   }
   50% {
+    transform: translateY(55vh) translateX(-5px);
     opacity: 0.7;
-    transform: scale(1.2);
   }
-}
-
-/* ── Crescent Moon ── */
-.crescent {
-  position: absolute;
-  top: 2%;
-  right: 12%;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  box-shadow: -6px 0 0 0 #c9a34f;
-  opacity: 0.3;
-  animation: crescent-glow 4s ease-in-out infinite alternate;
-}
-
-@keyframes crescent-glow {
-  0% {
-    opacity: 0.2;
-    filter: drop-shadow(0 0 4px rgba(201, 163, 79, 0.2));
+  85% {
+    transform: translateY(92vh) translateX(6px);
+    opacity: 0.5;
   }
   100% {
-    opacity: 0.4;
-    filter: drop-shadow(0 0 12px rgba(201, 163, 79, 0.5));
+    transform: translateY(105vh) translateX(-3px);
+    opacity: 0.2;
   }
 }
 
-/* ── Ensure content is above the background ── */
+/* Ensure content is above the background */
 :host {
   position: relative;
   display: block;
@@ -194,28 +125,27 @@
   z-index: 1;
 }
 
-/* ── Reduce motion for accessibility ── */
 @media (prefers-reduced-motion: reduce) {
-  .lantern,
-  .star,
-  .crescent,
-  .lantern-light {
+  .drop {
     animation: none !important;
-    opacity: 0.3;
+    opacity: 0.25;
   }
 }
 
-/* ── Hide on very small screens to save performance ── */
 @media (max-width: 480px) {
-  .lantern-3,
-  .lantern-4,
-  .star-5,
-  .star-6,
-  .star-7,
-  .star-8 {
-    display: none;
+  .drop.shape-dot {
+    width: 3px;
+    height: 3px;
   }
-  .lantern {
-    opacity: 0.3;
+  .drop.shape-crescent {
+    width: 8px;
+    height: 8px;
+  }
+  .drop.shape-star {
+    width: 8px;
+    height: 8px;
+  }
+  .drop.drop-emoji {
+    font-size: 1rem;
   }
 }

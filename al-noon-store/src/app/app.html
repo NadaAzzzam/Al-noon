@@ -1,76 +1,24 @@
-<!-- Ramadan celebration animated background -->
+<!-- Ramadan background: single full-screen layer with snow-drop animation -->
 <div class="ramadan-bg" aria-hidden="true">
-  <div class="lantern lantern-1">
-    <div class="lantern-light"></div>
-    <svg class="lantern-svg" viewBox="0 0 60 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M30 5 L30 15" stroke="#c9a34f" stroke-width="2"/>
-      <ellipse cx="30" cy="15" rx="2" ry="2" fill="#c9a34f"/>
-      <path d="M18 25 Q18 15 30 15 Q42 15 42 25 L42 60 Q42 75 30 80 Q18 75 18 60 Z" fill="url(#lantern-grad-1)" opacity="0.7"/>
-      <path d="M22 30 L22 65 M30 25 L30 70 M38 30 L38 65" stroke="#c9a34f" stroke-width="0.5" opacity="0.4"/>
-      <defs>
-        <linearGradient id="lantern-grad-1" x1="30" y1="15" x2="30" y2="80" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#f0c040"/>
-          <stop offset="100%" stop-color="#c9602a"/>
-        </linearGradient>
-      </defs>
-    </svg>
+  <div class="ramadan-drops">
+    @for (i of dropIndices; track i) {
+      @if (ramadanEmojis.length > 0) {
+        <span
+          class="drop drop-emoji"
+          [style.left.%]="(i * 1.85) % 100"
+          [style.animation-delay.s]="(i % 17) * 0.4"
+          [style.animation-duration.s]="12 + (i % 9)"
+        >{{ getEmoji(i) }}</span>
+      } @else {
+        <span
+          class="drop shape-{{ getShape(i) }}"
+          [style.left.%]="(i * 1.85) % 100"
+          [style.animation-delay.s]="(i % 17) * 0.4"
+          [style.animation-duration.s]="12 + (i % 9)"
+        ></span>
+      }
+    }
   </div>
-  <div class="lantern lantern-2">
-    <div class="lantern-light"></div>
-    <svg class="lantern-svg" viewBox="0 0 60 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M30 5 L30 15" stroke="#c9a34f" stroke-width="2"/>
-      <ellipse cx="30" cy="15" rx="2" ry="2" fill="#c9a34f"/>
-      <path d="M18 25 Q18 15 30 15 Q42 15 42 25 L42 60 Q42 75 30 80 Q18 75 18 60 Z" fill="url(#lantern-grad-2)" opacity="0.7"/>
-      <path d="M22 30 L22 65 M30 25 L30 70 M38 30 L38 65" stroke="#c9a34f" stroke-width="0.5" opacity="0.4"/>
-      <defs>
-        <linearGradient id="lantern-grad-2" x1="30" y1="15" x2="30" y2="80" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#e8b830"/>
-          <stop offset="100%" stop-color="#9b4dca"/>
-        </linearGradient>
-      </defs>
-    </svg>
-  </div>
-  <div class="lantern lantern-3">
-    <div class="lantern-light"></div>
-    <svg class="lantern-svg" viewBox="0 0 60 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M30 5 L30 15" stroke="#c9a34f" stroke-width="2"/>
-      <ellipse cx="30" cy="15" rx="2" ry="2" fill="#c9a34f"/>
-      <path d="M18 25 Q18 15 30 15 Q42 15 42 25 L42 60 Q42 75 30 80 Q18 75 18 60 Z" fill="url(#lantern-grad-3)" opacity="0.7"/>
-      <path d="M22 30 L22 65 M30 25 L30 70 M38 30 L38 65" stroke="#c9a34f" stroke-width="0.5" opacity="0.4"/>
-      <defs>
-        <linearGradient id="lantern-grad-3" x1="30" y1="15" x2="30" y2="80" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#f0c040"/>
-          <stop offset="100%" stop-color="#c9602a"/>
-        </linearGradient>
-      </defs>
-    </svg>
-  </div>
-  <div class="lantern lantern-4">
-    <div class="lantern-light"></div>
-    <svg class="lantern-svg" viewBox="0 0 60 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M30 5 L30 15" stroke="#c9a34f" stroke-width="2"/>
-      <ellipse cx="30" cy="15" rx="2" ry="2" fill="#c9a34f"/>
-      <path d="M18 25 Q18 15 30 15 Q42 15 42 25 L42 60 Q42 75 30 80 Q18 75 18 60 Z" fill="url(#lantern-grad-4)" opacity="0.7"/>
-      <path d="M22 30 L22 65 M30 25 L30 70 M38 30 L38 65" stroke="#c9a34f" stroke-width="0.5" opacity="0.4"/>
-      <defs>
-        <linearGradient id="lantern-grad-4" x1="30" y1="15" x2="30" y2="80" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#e8b830"/>
-          <stop offset="100%" stop-color="#9b4dca"/>
-        </linearGradient>
-      </defs>
-    </svg>
-  </div>
-  <!-- Stars -->
-  <div class="star star-1"></div>
-  <div class="star star-2"></div>
-  <div class="star star-3"></div>
-  <div class="star star-4"></div>
-  <div class="star star-5"></div>
-  <div class="star star-6"></div>
-  <div class="star star-7"></div>
-  <div class="star star-8"></div>
-  <!-- Crescent -->
-  <div class="crescent"></div>
 </div>
 
 <router-outlet />

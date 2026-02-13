@@ -261,6 +261,10 @@ export interface Product {
   category?: ProductCategory;
   /** Variant availability (colors/sizes/variants with stock). Real variant data lives in availability.variants. */
   availability?: ProductAvailabilityInfo;
+  /** API: effective price to display (discount applied). When present, use instead of computing from discountPrice/price. */
+  effectivePrice?: number;
+  /** API: whether product has any stock (any variant or global stock > 0). Use for sold-out badge when present. */
+  inStock?: boolean;
   /** API: preferred type for default media (e.g. "video", "image"). */
   defaultMediaType?: string;
   /** API: preferred type for hover media (e.g. "image", "video"). */
@@ -275,15 +279,15 @@ export interface Product {
   [key: string]: unknown;
 }
 
+/** Sort values from GET /api/products/filters/sort (e.g. BEST_SELLING, CREATED_DESC, PRICE_ASC). */
 export type ProductSort =
-  | 'newest'
-  | 'priceAsc'
-  | 'priceDesc'
-  | 'nameAsc'
-  | 'nameDesc'
-  | 'bestSelling'
-  | 'highestSelling'
-  | 'lowSelling';
+  | 'BEST_SELLING'
+  | 'CREATED_DESC'
+  | 'PRICE_ASC'
+  | 'PRICE_DESC'
+  | 'TITLE_ASC'
+  | 'TITLE_DESC'
+  | 'MANUAL';
 
 export type ProductAvailability = 'inStock' | 'outOfStock' | 'all';
 

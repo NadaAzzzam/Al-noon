@@ -29,6 +29,26 @@ import type {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CatalogComponent implements OnInit {
+  /** Sort values from GET /api/products/filters/sort – used to validate query param and as fallback options before API loads. */
+  private static readonly FALLBACK_SORTS: ProductSort[] = [
+    'BEST_SELLING', 'CREATED_DESC', 'PRICE_ASC', 'PRICE_DESC', 'TITLE_ASC', 'TITLE_DESC', 'MANUAL',
+  ];
+  private static readonly FALLBACK_SORT_OPTIONS: ProductFilterOption[] = [
+    { value: 'BEST_SELLING', labelEn: 'Best selling', labelAr: 'الأكثر مبيعاً' },
+    { value: 'CREATED_DESC', labelEn: 'Newest', labelAr: 'الأحدث' },
+    { value: 'PRICE_ASC', labelEn: 'Price: Low to High', labelAr: 'السعر: منخفض إلى عالي' },
+    { value: 'PRICE_DESC', labelEn: 'Price: High to Low', labelAr: 'السعر: عالي إلى منخفض' },
+    { value: 'TITLE_ASC', labelEn: 'Name A–Z', labelAr: 'الاسم أ–ي' },
+    { value: 'TITLE_DESC', labelEn: 'Name Z–A', labelAr: 'الاسم ي–أ' },
+    { value: 'MANUAL', labelEn: 'Manual', labelAr: 'يدوي' },
+  ];
+  private static readonly FALLBACK_AVAILABILITY: ProductAvailability[] = ['all', 'inStock', 'outOfStock'];
+  private static readonly AVAILABILITY_OPTIONS: ProductFilterOption[] = [
+    { value: 'all', labelEn: 'All', labelAr: 'الكل' },
+    { value: 'inStock', labelEn: 'In stock', labelAr: 'متوفر' },
+    { value: 'outOfStock', labelEn: 'Out of stock', labelAr: 'غير متوفر' },
+  ];
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly productsService = inject(ProductsService);
@@ -48,7 +68,7 @@ export class CatalogComponent implements OnInit {
 
   search = signal('');
   categoryId = signal<string | undefined>(undefined);
-  sort = signal<ProductSort>('newest');
+  sort = signal<ProductSort>('CREATED_DESC');
   availability = signal<ProductAvailability>('all');
   minPrice = signal<number | undefined>(undefined);
   maxPrice = signal<number | undefined>(undefined);
@@ -67,7 +87,18 @@ export class CatalogComponent implements OnInit {
       return true;
     });
   });
-  sortOptions = signal<ProductFilterOption[]>([]);
+  /** Sort options from API; fallback to FALLBACK_SORT_OPTIONS before API loads. */
+  sortOptions = signal<ProductFilterOption[]>(CatalogComponent.FALLBACK_SORT_OPTIONS);
+  /** Options to show in sort dropdown (API data or fallback), deduplicated by value. */
+  sortOptionsForSelect = computed(() => {
+    const opts = this.sortOptions();
+    const seen = new Set<string>();
+    return opts.filter((o) => {
+      if (seen.has(o.value)) return false;
+      seen.add(o.value);
+      return true;
+    });
+  });
   filtersOpen = signal(false);
 
   // Collapsible sidebar sections
@@ -82,11 +113,6 @@ export class CatalogComponent implements OnInit {
   toggleSection(key: string): void {
     this.sectionOpen[key] = !this.sectionOpen[key];
   }
-
-  private static readonly FALLBACK_SORTS: ProductSort[] = [
-    'newest', 'priceAsc', 'priceDesc', 'nameAsc', 'nameDesc', 'bestSelling', 'highestSelling', 'lowSelling',
-  ];
-  private static readonly FALLBACK_AVAILABILITY: ProductAvailability[] = ['all', 'inStock', 'outOfStock'];
 
   private readonly queryParams = toSignal(this.route.queryParams, { initialValue: {} as Record<string, string> });
 
@@ -125,7 +151,7 @@ export class CatalogComponent implements OnInit {
         this.search.set(typeof qp['search'] === 'string' ? qp['search'].trim() : '');
         this.categoryId.set(qp['category']?.trim() || undefined);
         const sortVal = qp['sort']?.trim();
-        const validSort = CatalogComponent.FALLBACK_SORTS.includes(sortVal as ProductSort) ? (sortVal as ProductSort) : 'newest';
+        const validSort = CatalogComponent.FALLBACK_SORTS.includes(sortVal as ProductSort) ? (sortVal as ProductSort) : 'CREATED_DESC';
         this.sort.set(validSort);
         const avVal = qp['availability']?.trim();
         const validAv = CatalogComponent.FALLBACK_AVAILABILITY.includes(avVal as ProductAvailability) ? (avVal as ProductAvailability) : 'all';
@@ -150,7 +176,7 @@ export class CatalogComponent implements OnInit {
     const pageNum = qp['page'] != null && qp['page'] !== '' ? Number(qp['page']) : NaN;
     const page = Number.isInteger(pageNum) && pageNum >= 1 ? pageNum : 1;
     const sortVal = qp['sort']?.trim();
-    const sort = CatalogComponent.FALLBACK_SORTS.includes(sortVal as ProductSort) ? (sortVal as ProductSort) : 'newest';
+    const sort = CatalogComponent.FALLBACK_SORTS.includes(sortVal as ProductSort) ? (sortVal as ProductSort) : 'CREATED_DESC';
     const avVal = qp['availability']?.trim();
     const availability = CatalogComponent.FALLBACK_AVAILABILITY.includes(avVal as ProductAvailability) ? (avVal as ProductAvailability) : 'all';
     const query: ProductsQuery = { page, limit: this.limit, status: 'ACTIVE', sort };
@@ -193,8 +219,10 @@ export class CatalogComponent implements OnInit {
         Array.isArray(c) ? c.filter((x) => x.status === 'PUBLISHED' || x.status === 'visible') : []
       )
     );
-    this.productsService.getAvailabilityFilters().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((opts) => this.availabilityOptions.set(opts));
-    this.productsService.getSortFilters().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((opts) => this.sortOptions.set(opts));
+    this.availabilityOptions.set(CatalogComponent.AVAILABILITY_OPTIONS);
+    this.productsService.getSortFilters().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((opts) =>
+      this.sortOptions.set(Array.isArray(opts) && opts.length > 0 ? opts : CatalogComponent.FALLBACK_SORT_OPTIONS)
+    );
   }
 
   load(): void {
@@ -257,7 +285,7 @@ export class CatalogComponent implements OnInit {
   clearFilters(): void {
     this.search.set('');
     this.categoryId.set(undefined);
-    this.sort.set('newest');
+    this.sort.set('CREATED_DESC');
     this.availability.set('all');
     this.minPrice.set(undefined);
     this.maxPrice.set(undefined);

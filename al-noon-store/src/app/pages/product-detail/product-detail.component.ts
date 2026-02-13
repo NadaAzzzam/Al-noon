@@ -223,24 +223,28 @@ export class ProductDetailComponent implements OnInit {
     return items;
   });
 
-  /** True when API sends discountPrice and it differs from price. */
+  /** True when API sends effectivePrice/discountPrice and it differs from price. */
   hasSale = computed(() => {
     const p = this.product();
-    return p?.discountPrice != null && p.discountPrice !== p.price;
+    if (!p) return false;
+    if (typeof p.effectivePrice === 'number' && p.effectivePrice < p.price) return true;
+    return p.discountPrice != null && p.discountPrice !== p.price;
   });
 
-  /** Original (higher) price when on sale. */
+  /** Original (higher) price when on sale. Uses price when API sends effectivePrice. */
   originalPrice = computed(() => {
     const p = this.product();
     if (!p) return 0;
+    if (typeof p.effectivePrice === 'number' && p.effectivePrice < p.price) return p.price;
     if (p.discountPrice == null) return p.price;
     return Math.max(p.price, p.discountPrice);
   });
 
-  /** Current (lower) price when on sale; used for add-to-cart and display. */
+  /** Current price: API effectivePrice when present, else discountPrice vs price. */
   currentPrice = computed(() => {
     const p = this.product();
     if (!p) return 0;
+    if (typeof p.effectivePrice === 'number') return p.effectivePrice;
     if (p.discountPrice == null) return p.price;
     return Math.min(p.price, p.discountPrice);
   });
@@ -299,7 +303,7 @@ export class ProductDetailComponent implements OnInit {
       description: desc,
       image: p.images?.[0] ? this.api.imageUrl(p.images[0]) : undefined,
       price: this.currentPrice(),
-      availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      availability: (p.inStock !== undefined ? p.inStock : p.stock > 0) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       averageRating: p.averageRating ?? undefined,
       ratingCount: p.ratingCount ?? undefined,
     });

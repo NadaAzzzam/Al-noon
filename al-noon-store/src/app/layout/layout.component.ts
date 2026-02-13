@@ -45,7 +45,7 @@ import { getLocalized } from '../core/utils/localized';
 
     /* ── Infinite sliding announcement banner (sticky like header); background set from API ── */
     .announcement-bar {
-      position: sticky;
+      // position: sticky;
       top: 0;
       z-index: 101;
       color: #f5e6ca;

@@ -51,7 +51,7 @@ import type { Product } from '../../../core/types/api.types';
           @if (hasSale()) {
             <span class="sale-badge">{{ 'sale' | translate }}</span>
           }
-          @if (p.stock <= 0) {
+          @if (soldOut()) {
             <span class="sold-out-badge">{{ 'soldOut' | translate }}</span>
           } @else if (discountPercent() > 0) {
             <span class="discount-badge">-{{ discountPercent() }}%</span>
@@ -265,26 +265,38 @@ export class ProductCardComponent {
     return !!hover && (hover.url !== main?.url || hover.type !== main?.type);
   });
 
-  /** True when API sends discountPrice and it differs from price (sale = lower is current). */
+  /** True when API sends effectivePrice/discountPrice and it differs from price. */
   hasSale = computed(() => {
     const p = this.product();
-    return p?.discountPrice != null && p.discountPrice !== p.price;
+    if (!p) return false;
+    if (typeof p.effectivePrice === 'number' && p.effectivePrice < p.price) return true;
+    return p.discountPrice != null && p.discountPrice !== p.price;
   });
 
-  /** Original (higher) price when on sale; otherwise same as price. */
+  /** Original (higher) price when on sale. Uses price when API sends effectivePrice. */
   originalPrice = computed(() => {
     const p = this.product();
     if (!p) return 0;
+    if (typeof p.effectivePrice === 'number' && p.effectivePrice < p.price) return p.price;
     if (p.discountPrice == null) return p.price;
     return Math.max(p.price, p.discountPrice);
   });
 
-  /** Current (lower) price when on sale; otherwise price. */
+  /** Current price: API effectivePrice when present, else discountPrice vs price. */
   currentPrice = computed(() => {
     const p = this.product();
     if (!p) return 0;
+    if (typeof p.effectivePrice === 'number') return p.effectivePrice;
     if (p.discountPrice == null) return p.price;
     return Math.min(p.price, p.discountPrice);
+  });
+
+  /** Sold-out: API inStock when present, else stock <= 0. */
+  soldOut = computed(() => {
+    const p = this.product();
+    if (!p) return false;
+    if (typeof p.inStock === 'boolean') return !p.inStock;
+    return p.stock <= 0;
   });
 
   discountPercent = computed(() => {

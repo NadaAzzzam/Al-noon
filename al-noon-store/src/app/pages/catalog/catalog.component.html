@@ -26,8 +26,7 @@
 
     <div class="toolbar-sort">
       <select [ngModel]="sort()" (ngModelChange)="sort.set($event); applyFilters()">
-        <option value="newest">{{ 'catalog.newest' | translate }}</option>
-        @for (opt of sortOptions(); track opt.value) {
+        @for (opt of sortOptionsForSelect(); track opt.value) {
         <option [value]="opt.value">{{ getLocalized({ en: opt.labelEn, ar: opt.labelAr }) }}</option>
         }
       </select>
@@ -161,35 +160,7 @@
         [placeholder]="'catalog.search' | translate" />
     </div>
 
-    <!-- ── AVAILABILITY ── -->
-    <div class="sidebar-section">
-      <button type="button" class="section-toggle" (click)="toggleSection('availability')">
-        <span class="section-label">{{ 'catalog.availability' | translate }}</span>
-        <svg class="section-chevron" [class.collapsed]="!sectionOpen['availability']" width="14" height="14"
-          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </button>
-      @if (sectionOpen['availability']) {
-      <div class="section-content">
-        <label class="checkbox-item">
-          <input type="radio" name="availability" value="all" [checked]="availability() === 'all'"
-            (change)="availability.set('all'); applyFilters()" />
-          <span class="checkbox-label">{{ 'catalog.all' | translate }}</span>
-        </label>
-        @for (opt of availabilityOptionsUnique(); track opt.value) {
-          @if (opt.value !== 'all') {
-        <label class="checkbox-item">
-          <input type="radio" name="availability" [value]="opt.value" [checked]="availability() === opt.value"
-            (change)="availability.set($any($event.target).value); applyFilters()" />
-          <span class="checkbox-label">{{ getLocalized({ en: opt.labelEn, ar: opt.labelAr }) }}</span>
-        </label>
-          }
-        }
-      </div>
-      }
-    </div>
+
 
     <!-- ── CATEGORY ── -->
     <div class="sidebar-section">

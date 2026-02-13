@@ -8,6 +8,7 @@ import type {
   ProductFilterOption,
   ProductsQuery,
   ProductsListResponse,
+  ProductsListAppliedFilters,
   ProductApiResponse,
   SchemaPaginatedProductsResponse,
   SchemaProductResponse,
@@ -64,7 +65,7 @@ export class ProductsService {
                   sub.next({
                     data: list,
                     pagination: r.pagination ?? { total: 0, page: 1, limit: 12, totalPages: 0 },
-                    ...(r.appliedFilters != null ? { appliedFilters: r.appliedFilters } : {}),
+                    ...(r.appliedFilters != null ? { appliedFilters: r.appliedFilters as ProductsListAppliedFilters } : {}),
                   });
                 }
               },
@@ -112,20 +113,6 @@ export class ProductsService {
               const raw = r.success && r.data && Array.isArray(r.data) ? r.data : [];
               sub.next(raw.map((p) => normalizeProductFromApi(p)));
             },
-            error: () => sub.next([]),
-            complete: () => sub.complete(),
-          });
-        })
-    );
-  }
-
-  /** GET /api/products/filters/availability – options for availability dropdown */
-  getAvailabilityFilters(): Observable<ProductFilterOption[]> {
-    return this.http.get<ApiSuccess<ProductFilterOption[]>>('products/filters/availability').pipe(
-      (o) =>
-        new Observable<ProductFilterOption[]>((sub) => {
-          o.subscribe({
-            next: (r) => sub.next(r.success && Array.isArray(r.data) ? r.data : []),
             error: () => sub.next([]),
             complete: () => sub.complete(),
           });

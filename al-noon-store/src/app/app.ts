@@ -20,10 +20,33 @@ export class App implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
 
+  /** Indices for snow-drop particles (single full-screen layer, no repeat) */
+  readonly dropIndices = Array.from({ length: 55 }, (_, i) => i);
+
+  /**
+   * Optional emojis for the snow-drop animation.
+   * When set (non-empty), these emojis fall instead of the default shapes.
+   * Example: ramadanEmojis = ['🌙', '⭐', '✨', '🕌'];
+   * Leave empty to use the default crescent/star/dot shapes.
+   */
+  ramadanEmojis: string[] = ['🌙', '⭐', '✨'];
+
+  /** Ramadan shape per particle: crescent, star, or dot (used when ramadanEmojis is empty) */
+  getShape(i: number): 'crescent' | 'star' | 'dot' {
+    const shapes: ('crescent' | 'star' | 'dot')[] = ['crescent', 'star', 'dot'];
+    return shapes[i % 3];
+  }
+
+  /** Emoji for drop at index i (cycles through ramadanEmojis); used when ramadanEmojis is set */
+  getEmoji(i: number): string {
+    if (!this.ramadanEmojis.length) return '';
+    return this.ramadanEmojis[i % this.ramadanEmojis.length];
+  }
+
   ngOnInit(): void {
     this.auth.loadProfile().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {},
-      error: () => {},
+      next: () => { },
+      error: () => { },
     });
     const lang = this.locale.getLocale();
     this.translate.use(lang);

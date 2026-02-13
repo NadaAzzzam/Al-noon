@@ -3,7 +3,7 @@
    ══════════════════════════════════════════════════════ */
 
 .header {
-  position: sticky;
+  // position: sticky;
   top: var(--announcement-height, 0);
   z-index: 100;
   background: var(--color-surface);
@@ -750,6 +750,7 @@
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 
   &:hover {
