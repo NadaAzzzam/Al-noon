@@ -119,13 +119,13 @@
       <div class="description" [innerHTML]="getLocalized(p.description)"></div>
       }
 
-      <!-- Sizes (with availability: disable out-of-stock) -->
-      @if (p.sizes?.length) {
+      <!-- Sizes (filtered by selected color when variants exist) -->
+      @if (availableSizesForSelectedColor().length) {
       <div class="form-group">
         <label>{{ 'product.size' | translate }}</label>
         <div class="size-options">
-          @for (sz of p.sizes; track sz) {
-          @let sizeOutOfStock = isSizeOutOfStock(sz);
+          @for (sz of availableSizesForSelectedColor(); track sz) {
+          @let sizeOutOfStock = isSizeOutOfStockForSelectedColor(sz);
           <button type="button" class="size-btn" [class.selected]="selectedSize() === sz"
             [class.out-of-stock]="sizeOutOfStock" [disabled]="sizeOutOfStock"
             (click)="!sizeOutOfStock && selectedSize.set(sz)">
@@ -136,16 +136,16 @@
       </div>
       }
 
-      <!-- Color swatches (with availability: disable out-of-stock; click fetches color-specific images) -->
-      @if (p.colors?.length) {
+      <!-- Color swatches (filtered by selected size when variants exist; click fetches color-specific images) -->
+      @if (availableColorsForSelectedSize().length) {
       <div class="form-group">
         <label>{{ 'product.color' | translate }}@if (selectedColor()) {: <strong>{{ selectedColor() }}</strong>}</label>
         @if (loadingColor()) {
         <span class="color-loading" aria-busy="true">Loading…</span>
         }
         <div class="color-swatches">
-          @for (c of p.colors; track c) {
-          @let colorOutOfStock = isColorOutOfStock(c);
+          @for (c of availableColorsForSelectedSize(); track c) {
+          @let colorOutOfStock = isColorOutOfStockForSelectedSize(c);
           <button type="button" class="color-swatch" [class.selected]="selectedColor() === c"
             [class.out-of-stock]="colorOutOfStock" [style.background-color]="c" [attr.aria-label]="c"
             [disabled]="colorOutOfStock || loadingColor()" (click)="selectColor(c)">
@@ -155,7 +155,7 @@
       </div>
       }
 
-      <!-- Quantity +/- (capped by effective stock and remaining can-add so we don't exceed) -->
+      <!-- Quantity +/- (capped by remaining can-add so stock message updates when user adds to cart) -->
       <div class="form-group">
         <label>{{ 'product.quantity' | translate }}</label>
         <div class="quantity-control">
@@ -167,12 +167,15 @@
             [disabled]="quantity() >= effectiveStock() || quantity() >= remainingCanAdd()"
             aria-label="Increase quantity">+</button>
         </div>
-        @if (effectiveStock() > 0 && effectiveStock() <= lowStockThreshold()) { <p class="low-stock">{{
-          'product.lowStock' | translate: { count: effectiveStock() } }}</p>
-          }
-          @if (effectiveStock() > lowStockThreshold() && effectiveStock() <= stockInfoThreshold()) { <p
-            class="stock-info">{{ 'product.stockAvailable' | translate: { count: effectiveStock() } }}</p>
-            }
+        @if (cartQuantityForCurrent() > 0) {
+          <p class="in-cart-hint">{{ 'product.inCart' | translate: { count: cartQuantityForCurrent() } }}</p>
+        }
+        @if (remainingCanAdd() > 0 && remainingCanAdd() <= lowStockThreshold()) {
+          <p class="low-stock">{{ 'product.lowStock' | translate: { count: remainingCanAdd() } }}</p>
+        }
+        @if (remainingCanAdd() > lowStockThreshold() && remainingCanAdd() <= stockInfoThreshold()) {
+          <p class="stock-info">{{ 'product.stockAvailable' | translate: { count: remainingCanAdd() } }}</p>
+        }
       </div>
 
       @if (effectiveStock() <= 0) { <p class="out-of-stock">{{ 'product.outOfStock' | translate }}</p>

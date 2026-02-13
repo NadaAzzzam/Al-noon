@@ -196,8 +196,11 @@ export interface ProductAvailabilitySize {
 export interface ProductAvailabilityInfo {
   /** Total number of sizes that are available (in stock) for this product. */
   availableSizeCount?: number;
+  /** e.g. "estimated" when variants are derived from product stock; omitted when variants are explicit. */
+  variantsSource?: string;
   colors?: ProductAvailabilityColor[];
   sizes?: ProductAvailabilitySize[];
+  /** Per color+size stock. Use this for filtering; product.variants at root may be empty. */
   variants?: ProductVariantStock[];
 }
 
@@ -256,8 +259,12 @@ export interface Product {
   formattedDetails?: FormattedDetails;
   stylingTip?: LocalizedText;
   category?: ProductCategory;
-  /** Variant availability (colors/sizes/variants with stock). */
+  /** Variant availability (colors/sizes/variants with stock). Real variant data lives in availability.variants. */
   availability?: ProductAvailabilityInfo;
+  /** API: preferred type for default media (e.g. "video", "image"). */
+  defaultMediaType?: string;
+  /** API: preferred type for hover media (e.g. "image", "video"). */
+  hoverMediaType?: string;
   /** Present on list when ratings exist (OpenAPI) */
   averageRating?: number | null;
   ratingCount?: number | null;

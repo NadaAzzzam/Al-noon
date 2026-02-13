@@ -56,18 +56,12 @@ export class ProductDetailComponent implements OnInit {
   added = signal(false);
   loadingColor = signal(false);
 
-  /** Effective stock: selected variant stock when both color and size match, else global product.stock. */
+  /** Effective stock: selected variant stock (from product service helper) or global product.stock. */
   effectiveStock = computed(() => {
     const p = this.product();
     if (!p) return 0;
-    const av = p.availability;
-    const color = this.selectedColor();
-    const size = this.selectedSize();
-    if (av?.variants?.length && color != null && size != null) {
-      const v = av.variants.find((x) => x.color === color && x.size === size);
-      if (v) return v.outOfStock ? 0 : v.stock;
-    }
-    return p.stock;
+    const variantStock = this.productsService.getVariantStock(p, this.selectedColor(), this.selectedSize());
+    return variantStock > 0 ? variantStock : p.stock;
   });
 
   /** Variant key for cart (same as used in addToCart). */
@@ -89,13 +83,15 @@ export class ProductDetailComponent implements OnInit {
     Math.max(0, this.effectiveStock() - this.cartQuantityForCurrent())
   );
 
-  /** True when add-to-cart should be disabled (quantity exceeded or none left to add). */
-  addToCartDisabled = computed(() =>
-    this.added() ||
-    this.effectiveStock() <= 0 ||
-    this.remainingCanAdd() <= 0 ||
-    this.quantity() > this.remainingCanAdd()
-  );
+  /** True when add-to-cart should be disabled (missing selection, quantity exceeded, or none left to add). */
+  addToCartDisabled = computed(() => {
+    const p = this.product();
+    if (this.added()) return true;
+    if (p?.colors?.length && !this.selectedColor()) return true;
+    if (p?.sizes?.length && !this.selectedSize()) return true;
+    if (!this.productsService.isVariantAvailable(p ?? null, this.selectedColor(), this.selectedSize()) && p?.availability?.variants?.length) return true;
+    return this.effectiveStock() <= 0 || this.remainingCanAdd() <= 0 || this.quantity() > this.remainingCanAdd();
+  });
 
   constructor() {
     // Clamp quantity when remaining can-add drops (e.g. after adding to cart or cart changed)
@@ -104,6 +100,21 @@ export class ProductDetailComponent implements OnInit {
       const qty = this.quantity();
       if (remaining > 0 && qty > remaining) {
         this.quantity.set(remaining);
+      }
+    });
+    // Clear dependent selection when it becomes unavailable (e.g. color changed → current size not available for that color)
+    effect(() => {
+      const p = this.product();
+      const color = this.selectedColor();
+      const size = this.selectedSize();
+      const availableSizes = this.availableSizesForSelectedColor();
+      const availableColors = this.availableColorsForSelectedSize();
+      if (!p) return;
+      if (size != null && availableSizes.length > 0 && !availableSizes.includes(size)) {
+        this.selectedSize.set(availableSizes[0] ?? null);
+      }
+      if (color != null && availableColors.length > 0 && !availableColors.includes(color)) {
+        this.selectedColor.set(availableColors[0] ?? null);
       }
     });
   }
@@ -130,23 +141,65 @@ export class ProductDetailComponent implements OnInit {
     return info?.outOfStock ?? false;
   };
 
-  /** Image URLs only (for backward compatibility). */
+  /** Sizes available for the selected color (from product service helper). */
+  availableSizesForSelectedColor = computed(() =>
+    this.productsService.getAvailableSizesForColor(this.product(), this.selectedColor())
+  );
+
+  /** Colors available for the selected size (from product service helper). */
+  availableColorsForSelectedSize = computed(() =>
+    this.productsService.getAvailableColorsForSize(this.product(), this.selectedSize())
+  );
+
+  /** True when this size is out of stock for the selected color (validates size against color). */
+  isSizeOutOfStockForSelectedColor = (size: string): boolean => {
+    const p = this.product();
+    const color = this.selectedColor();
+    if (!p) return true;
+    if (p.availability?.variants?.length && color != null)
+      return !this.productsService.isVariantAvailable(p, color, size);
+    return this.isSizeOutOfStock(size);
+  };
+
+  /** True when this color is out of stock for the selected size (when variants exist). */
+  isColorOutOfStockForSelectedSize = (color: string): boolean => {
+    const p = this.product();
+    const size = this.selectedSize();
+    if (!p) return true;
+    if (p.availability?.variants?.length && size != null)
+      return !this.productsService.isVariantAvailable(p, color, size);
+    return this.isColorOutOfStock(color);
+  };
+
+  /** Image URLs only (for poster/thumb fallback when media is video). */
   images = computed(() => {
     const p = this.product();
     if (!p) return [];
-    // When color is selected, backend returns filtered images array
-    // Just use the images array directly as it's already filtered by color
     return p.images ?? [];
   });
 
-  /** Gallery items: images first, then videos (each { type, url }) so we can show both in the gallery. */
+  /** Gallery items: from media.default, media.hover, media.previewVideo (with correct types); else images + videos. */
   galleryItems = computed(() => {
     const p = this.product();
     if (!p) return [] as { type: 'image' | 'video'; url: string }[];
+    const media = p.media;
+    if (media) {
+      const items: { type: 'image' | 'video'; url: string }[] = [];
+      const seen = new Set<string>();
+      const add = (item: { type: 'image' | 'video'; url: string } | undefined) => {
+        if (item?.url && !seen.has(item.url)) {
+          seen.add(item.url);
+          items.push(item);
+        }
+      };
+      add(media.default ? { type: media.default.type === 'video' ? 'video' : 'image', url: media.default.url } : undefined);
+      add(media.hover ? { type: media.hover.type === 'video' ? 'video' : 'image', url: media.hover.url } : undefined);
+      add(media.previewVideo ? { type: 'video', url: media.previewVideo.url } : undefined);
+      if (items.length) return items;
+    }
     const imgs = this.images();
     const items: { type: 'image' | 'video'; url: string }[] = imgs.map((url) => ({ type: 'image' as const, url }));
-    const videos = p.videos ?? [];
-    videos.forEach((url) => items.push({ type: 'video', url }));
+    (p.videos ?? []).forEach((url) => items.push({ type: 'video', url }));
     return items;
   });
 
@@ -209,6 +262,7 @@ export class ProductDetailComponent implements OnInit {
     ).subscribe({
       next: (p) => {
         this.product.set(p);
+        this.setDefaultSelections(p);
         this.updateProductMeta(p);
       },
       error: () => this.product.set(null),
@@ -231,6 +285,35 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
+  /** First available color: from availability.colors or product.colors. */
+  private getFirstAvailableColor(p: Product): string | null {
+    if (p.availability?.colors?.length) {
+      const first = p.availability.colors.find((c) => !c.outOfStock);
+      return first?.color ?? p.availability.colors[0]?.color ?? null;
+    }
+    return p.colors?.[0] ?? null;
+  }
+
+  /** First available size for a given color (from variants or global availability). */
+  private getFirstAvailableSizeForColor(p: Product, color: string | null): string | null {
+    const av = p.availability;
+    if (av?.variants?.length && color != null) {
+      const first = av.variants.find((v) => v.color === color && !v.outOfStock);
+      if (first?.size) return first.size;
+    }
+    const firstAvailable = av?.sizes?.find((s) => !s.outOfStock);
+    if (firstAvailable?.size) return firstAvailable.size;
+    return p.sizes?.[0] ?? null;
+  }
+
+  /** Set default selected color (first) and size (first for that color). Call after setting product so page does not show until selections are set. */
+  private setDefaultSelections(p: Product): void {
+    const firstColor = this.getFirstAvailableColor(p);
+    this.selectedColor.set(firstColor);
+    const firstSize = this.getFirstAvailableSizeForColor(p, firstColor);
+    this.selectedSize.set(firstSize);
+  }
+
   /** Select color and fetch product with color-specific images (GET ?color=...). */
   selectColor(color: string): void {
     if (this.isColorOutOfStock(color)) return;
@@ -244,6 +327,8 @@ export class ProductDetailComponent implements OnInit {
       next: (p) => {
         this.product.set(p);
         this.selectedImageIndex.set(0);
+        const firstSize = this.getFirstAvailableSizeForColor(p, color);
+        this.selectedSize.set(firstSize);
         this.loadingColor.set(false);
       },
       error: () => this.loadingColor.set(false),
@@ -252,8 +337,27 @@ export class ProductDetailComponent implements OnInit {
 
   addToCart(): void {
     const p = this.product();
+    if (!p) return;
+
+    if (p.colors?.length && !this.selectedColor()) {
+      this.toast.show('Please select a color', 'error');
+      return;
+    }
+    if (p.sizes?.length && !this.selectedSize()) {
+      this.toast.show('Please select a size', 'error');
+      return;
+    }
+    const color = this.selectedColor();
+    const size = this.selectedSize();
+    if (p.availability?.variants?.length && (color != null || size != null)) {
+      if (!this.productsService.isVariantAvailable(p, color, size)) {
+        this.toast.show('This color and size combination is out of stock', 'error');
+        return;
+      }
+    }
+
     const stock = this.effectiveStock();
-    if (!p || stock < 1) {
+    if (stock < 1) {
       this.toast.show('This item is out of stock', 'error');
       return;
     }

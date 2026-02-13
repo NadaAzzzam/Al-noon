@@ -1,7 +1,8 @@
 import type { Product, ProductApiShape, ProductCategory } from '../types/api.types';
 
 /**
- * Build images array: use full API images[] when present (product detail); else viewImage/hoverImage or media.default/hover for cards.
+ * Build images array: image URLs only (for cart/order thumbnails, SEO).
+ * Uses full API images[] when present; else viewImage/hoverImage; else media.default/hover where type === 'image'.
  */
 function imagesFromMedia(raw: ProductApiShape): string[] {
   if (Array.isArray(raw.images) && raw.images.length > 0) return raw.images;
@@ -13,21 +14,32 @@ function imagesFromMedia(raw: ProductApiShape): string[] {
   const media = raw.media;
   if (media) {
     const urls: string[] = [];
-    if (media.default?.url) urls.push(media.default.url);
-    if (media.hover?.url && media.hover.url !== media.default?.url) urls.push(media.hover.url);
+    if (media.default?.type === 'image' && media.default.url) urls.push(media.default.url);
+    if (media.hover?.type === 'image' && media.hover.url && media.hover.url !== urls[0]) urls.push(media.hover.url);
     if (urls.length) return urls;
   }
   return [];
 }
 
 /**
- * Build videos array: prefer API shape video, else media.previewVideo, else videos[].
+ * Build videos array: all video URLs from default, hover, previewVideo, and legacy video/videos[].
  */
 function videosFromMedia(raw: ProductApiShape): string[] {
-  if (raw.video) return [raw.video];
-  const url = raw.media?.previewVideo?.url;
-  if (url) return [url];
-  return Array.isArray(raw.videos) ? raw.videos : [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const add = (url: string | undefined) => {
+    if (url && !seen.has(url)) {
+      seen.add(url);
+      out.push(url);
+    }
+  };
+  const media = raw.media;
+  if (media?.default?.type === 'video' && media.default.url) add(media.default.url);
+  if (media?.hover?.type === 'video' && media.hover.url) add(media.hover.url);
+  if (media?.previewVideo?.url) add(media.previewVideo.url);
+  if (raw.video) add(raw.video);
+  if (Array.isArray(raw.videos)) raw.videos.forEach(add);
+  return out;
 }
 
 /** Category as returned by API: string id, or object with _id/id and optional name, status (OpenAPI ProductCategoryRef). */

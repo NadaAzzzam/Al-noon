@@ -14,6 +14,7 @@ import type {
   SchemaRelatedProductsResponse,
 } from '../types/api.types';
 import { normalizeProductFromApi } from '../utils/product-normalizer';
+import * as productAvailability from '../utils/product-availability';
 
 @Injectable({ providedIn: 'root' })
 export class ProductsService {
@@ -144,5 +145,27 @@ export class ProductsService {
           });
         })
     );
+  }
+
+  // ─── Availability helpers (delegate to product-availability utils) ───
+
+  /** Get available sizes for the given color (from variants or all sizes). */
+  getAvailableSizesForColor(product: Product | null, color: string | null): string[] {
+    return productAvailability.getAvailableSizesForColor(product, color);
+  }
+
+  /** Get available colors for the given size (from variants or all colors). */
+  getAvailableColorsForSize(product: Product | null, size: string | null): string[] {
+    return productAvailability.getAvailableColorsForSize(product, size);
+  }
+
+  /** Check if color+size combination is available (in stock). */
+  isVariantAvailable(product: Product | null, color: string | null, size: string | null): boolean {
+    return productAvailability.isVariantAvailable(product, color, size);
+  }
+
+  /** Get stock count for the selected variant (color+size). */
+  getVariantStock(product: Product | null, color: string | null, size: string | null): number {
+    return productAvailability.getVariantStock(product, color, size);
   }
 }

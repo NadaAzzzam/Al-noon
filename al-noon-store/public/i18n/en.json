@@ -175,6 +175,7 @@
     "outOfStock": "Out of stock",
     "lowStock": "Only {{count}} left in stock",
     "stockAvailable": "{{count}} available in stock",
+    "inCart": "{{count}} in your cart",
     "save": "Save",
     "stylingTip": "Styling tip",
     "details": "Details",

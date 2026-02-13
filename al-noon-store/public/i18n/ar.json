@@ -175,6 +175,7 @@
     "outOfStock": "نفذ من المخزون",
     "lowStock": "متبقي {{count}} فقط",
     "stockAvailable": "{{count}} متوفر في المخزون",
+    "inCart": "{{count}} في سلتك",
     "save": "وفر",
     "stylingTip": "نصيحة تنسيق",
     "details": "التفاصيل",

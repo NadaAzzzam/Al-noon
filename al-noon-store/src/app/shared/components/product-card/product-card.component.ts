@@ -17,19 +17,29 @@ import type { Product } from '../../../core/types/api.types';
     @if (p) {
       <a [routerLink]="['/product', p.id]" class="product-card">
         <div class="product-image-wrap"
-             [class.has-hover-image]="hasSecondImage()">
-          @if (mainImageUrl()) {
-            <img
-              [src]="api.imageUrl(mainImageUrl())"
-              [alt]="name()"
-              loading="lazy"
-              class="product-img product-img-main" />
-            @if (hasSecondImage()) {
+             [class.has-hover-image]="hasSecondMedia()">
+          @if (mainMedia()) {
+            @if (mainMedia()!.type === 'video') {
+              <video [src]="api.imageUrl(mainMedia()!.url)" class="product-img product-img-main" muted loop playsinline autoplay
+                [poster]="(p.images && p.images[0]) ? api.imageUrl(p.images[0]) : null" [attr.aria-label]="name()"></video>
+            } @else {
               <img
-                [src]="api.imageUrl(hoverImageUrl())"
+                [src]="api.imageUrl(mainMedia()!.url)"
                 [alt]="name()"
                 loading="lazy"
-                class="product-img product-img-hover" />
+                class="product-img product-img-main" />
+            }
+            @if (hasSecondMedia()) {
+              @if (hoverMedia()!.type === 'video') {
+                <video [src]="api.imageUrl(hoverMedia()!.url)" class="product-img product-img-hover" muted loop playsinline autoplay
+                  [poster]="(p.images && p.images[0]) ? api.imageUrl(p.images[0]) : null" [attr.aria-label]="name()"></video>
+              } @else {
+                <img
+                  [src]="api.imageUrl(hoverMedia()!.url)"
+                  [alt]="name()"
+                  loading="lazy"
+                  class="product-img product-img-hover" />
+              }
             }
           } @else {
             <div class="product-image-placeholder">
@@ -222,20 +232,24 @@ export class ProductCardComponent {
 
   product = input.required<Product>();
 
-  /** Main image: media.default (catalog); fallback images[0]. */
-  mainImageUrl = computed(() => {
+  /** Main media: media.default (image or video); fallback images[0] as image. */
+  mainMedia = computed(() => {
     const p = this.product();
-    if (!p) return undefined;
-    const url = p.media?.default?.type === 'image' ? p.media.default.url : p.media?.default?.url;
-    return url ?? p.images?.[0];
+    if (!p) return undefined as { type: 'image' | 'video'; url: string } | undefined;
+    const d = p.media?.default;
+    if (d?.url) return { type: (d.type === 'video' ? 'video' : 'image') as 'image' | 'video', url: d.url };
+    const url = p.images?.[0];
+    return url ? { type: 'image' as const, url } : undefined;
   });
 
-  /** Hover image: media.hover only (previewVideo ignored). Fallback images[1]. */
-  hoverImageUrl = computed(() => {
+  /** Hover media: media.hover (image or video); fallback images[1] as image. */
+  hoverMedia = computed(() => {
     const p = this.product();
-    if (!p) return undefined;
-    const url = p.media?.hover?.type === 'image' ? p.media.hover.url : p.media?.hover?.url;
-    return url ?? p.images?.[1];
+    if (!p) return undefined as { type: 'image' | 'video'; url: string } | undefined;
+    const h = p.media?.hover;
+    if (h?.url) return { type: (h.type === 'video' ? 'video' : 'image') as 'image' | 'video', url: h.url };
+    const url = p.images?.[1];
+    return url ? { type: 'image' as const, url } : undefined;
   });
 
   name = computed(() => {
@@ -245,11 +259,10 @@ export class ProductCardComponent {
     return (p.name[lang] ?? p.name.en ?? p.name.ar ?? '') as string;
   });
 
-  hasSecondImage = computed(() => {
-    const p = this.product();
-    if (!p) return false;
-    const hover = this.hoverImageUrl();
-    return !!hover && hover !== this.mainImageUrl();
+  hasSecondMedia = computed(() => {
+    const main = this.mainMedia();
+    const hover = this.hoverMedia();
+    return !!hover && (hover.url !== main?.url || hover.type !== main?.type);
   });
 
   /** True when API sends discountPrice and it differs from price (sale = lower is current). */
