@@ -9,26 +9,29 @@
     }
     <div class="form-group">
       <label>{{ 'contact.name' | translate }} *</label>
-      <input type="text" [value]="name()" (input)="name.set($any($event.target).value)" />
-      @if (nameError()) {
+      <input type="text" [value]="name()" (input)="name.set($any($event.target).value)" [class.has-error]="submitted() && nameError()" />
+      @if (submitted() && nameError()) {
       <span class="field-error">{{ nameError() }}</span>
       }
     </div>
     <div class="form-group">
       <label>{{ 'auth.email' | translate }} *</label>
-      <input type="email" [value]="email()" (input)="email.set($any($event.target).value)" />
-      @if (emailError()) {
+      <input type="email" [value]="email()" (input)="email.set($any($event.target).value)" [class.has-error]="submitted() && emailError()" />
+      @if (submitted() && emailError()) {
       <span class="field-error">{{ emailError() }}</span>
       }
     </div>
     <div class="form-group">
       <label>{{ 'contact.phone' | translate }}</label>
-      <input type="tel" [value]="phone()" (input)="phone.set($any($event.target).value)" />
+      <input type="tel" [value]="phone()" (input)="phone.set($any($event.target).value)" [class.has-error]="submitted() && phoneErrorMsg()" />
+      @if (submitted() && phoneErrorMsg()) {
+      <span class="field-error">{{ phoneErrorMsg() }}</span>
+      }
     </div>
     <div class="form-group">
       <label>{{ 'contact.message' | translate }} *</label>
-      <textarea [value]="comment()" (input)="comment.set($any($event.target).value)" rows="5"></textarea>
-      @if (commentError()) {
+      <textarea [value]="comment()" (input)="comment.set($any($event.target).value)" rows="5" [class.has-error]="submitted() && commentError()"></textarea>
+      @if (submitted() && commentError()) {
       <span class="field-error">{{ commentError() }}</span>
       }
     </div>

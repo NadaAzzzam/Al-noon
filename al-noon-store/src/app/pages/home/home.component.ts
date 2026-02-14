@@ -1,11 +1,12 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, effect, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { StoreService } from '../../core/services/store.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { SeoService } from '../../core/services/seo.service';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { getLocalized } from '../../core/utils/localized';
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
 import { LoadingSkeletonComponent } from '../../shared/components/loading-skeleton/loading-skeleton.component';
 import { StarRatingComponent } from '../../shared/components/star-rating/star-rating.component';
@@ -23,6 +24,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly storeService = inject(StoreService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly seo = inject(SeoService);
+  private readonly translate = inject(TranslateService);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
 
@@ -41,10 +43,21 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private heroInterval: ReturnType<typeof setInterval> | null = null;
 
+  constructor() {
+    effect(() => {
+      const s = this.storeService.settings();
+      if (!s) return;
+      const lang = this.locale.getLocale();
+      const meta = s.seoSettings?.homePageMeta;
+      const title = meta?.title ? getLocalized(meta.title, lang) : this.translate.instant('home.pageTitle');
+      const description = meta?.description ? getLocalized(meta.description, lang) : this.translate.instant('home.pageDescription');
+      this.seo.setPage({ title, description });
+    });
+  }
+
   ngOnInit(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.seo.setPage({ title: 'Home', description: 'Al-Noon — Fashion & lifestyle store. Explore new arrivals, collections, and exclusive offers.' });
     this.storeService.getStore().pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({

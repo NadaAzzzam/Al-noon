@@ -26,16 +26,21 @@ export class RegisterComponent {
   email = signal('');
   password = signal('');
   error = signal<string | null>(null);
+  /** Set on first submit so validation messages show only after user clicks submit */
+  submitted = signal(false);
 
   nameError = computed(() => {
+    if (!this.submitted()) return null;
     const key = minLengthErrorKey(this.name(), 2);
     return key ? (key === 'errors.minChars' ? this.translate.instant(key, { min: 2 }) : this.translate.instant(key)) : null;
   });
   emailError = computed(() => {
+    if (!this.submitted()) return null;
     const key = emailErrorKey(this.email());
     return key ? this.translate.instant(key) : null;
   });
   passwordError = computed(() => {
+    if (!this.submitted()) return null;
     const key = passwordErrorKey(this.password());
     if (!key) return null;
     return key === 'errors.minChars' ? this.translate.instant(key, { min: 6 }) : this.translate.instant(key);
@@ -46,6 +51,7 @@ export class RegisterComponent {
 
   submit(): void {
     this.error.set(null);
+    this.submitted.set(true);
     if (!this.valid()) return;
     this.auth
       .signUp({

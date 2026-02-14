@@ -51,3 +51,21 @@ export function minLengthErrorKey(value: string, min: number, _fieldKey?: string
   if (value.trim().length < min) return 'errors.minChars';
   return null;
 }
+
+/** Optional phone: when value is provided, validate format (digits, 10–15 chars). Return error message or null. */
+export function phoneError(value: string): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  const digits = trimmed.replace(/\D/g, '');
+  if (digits.length < 10 || digits.length > 15) return 'Invalid phone (10–15 digits)';
+  return null;
+}
+
+/** Return i18n key for optional phone validation. */
+export function phoneErrorKey(value: string): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  const digits = trimmed.replace(/\D/g, '');
+  if (digits.length < 10 || digits.length > 15) return 'errors.invalidPhone';
+  return null;
+}

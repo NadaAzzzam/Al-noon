@@ -109,6 +109,8 @@
   },
   "contact": {
     "title": "Contact us",
+    "pageTitle": "Contact Us",
+    "pageDescription": "Get in touch with Al-Noon. We would love to hear from you.",
     "success": "Your message has been sent. We will get back to you soon.",
     "error": "Something went wrong. Please try again.",
     "name": "Name",
@@ -133,6 +135,8 @@
     "subscribeError": "Something went wrong. Try again later."
   },
   "catalog": {
+    "pageTitle": "Shop",
+    "pageDescription": "Browse our full catalog of products. Filter by category, price, and more.",
     "shop": "Shop",
     "search": "Search",
     "category": "Category",
@@ -225,6 +229,8 @@
     "notFound": "Page not found"
   },
   "home": {
+    "pageTitle": "Home",
+    "pageDescription": "Al-Noon — Fashion & lifestyle store. Explore new arrivals, collections, and exclusive offers.",
     "newArrivals": "New Arrivals",
     "collections": "Collections",
     "ourCollection": "Our Collection",
@@ -234,7 +240,12 @@
   "chatbot": {
     "placeholder": "Type your message...",
     "send": "Send",
-    "title": "Chat"
+    "title": "Chat",
+    "greetingTitle": "Hi, I'm AlNoon!",
+    "greetingDesc": "Your personal shopping assistant — ask me about products, sizes, styles, or anything you need help with!",
+    "startChat": "Start chatting →",
+    "panelTitle": "AlNoon Assistant",
+    "online": "Online"
   },
   "common": {
     "currency": "EGP"
@@ -243,6 +254,7 @@
   "errors": {
     "required": "Required",
     "invalidEmail": "Invalid email",
+    "invalidPhone": "Invalid phone (10–15 digits)",
     "minChars": "Min {{min}} characters",
     "fieldRequired": "{{field}} is required",
     "placeOrderFailed": "Failed to place order",

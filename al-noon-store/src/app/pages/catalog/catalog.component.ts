@@ -4,10 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProductsService } from '../../core/services/products.service';
 import { CategoriesService } from '../../core/services/categories.service';
+import { StoreService } from '../../core/services/store.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { SeoService } from '../../core/services/seo.service';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { getLocalized } from '../../core/utils/localized';
 import { PriceFormatPipe } from '../../shared/pipe/price.pipe';
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
 import { LoadingSkeletonComponent } from '../../shared/components/loading-skeleton/loading-skeleton.component';
@@ -53,8 +55,10 @@ export class CatalogComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly productsService = inject(ProductsService);
   private readonly categoriesService = inject(CategoriesService);
+  private readonly storeService = inject(StoreService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly seo = inject(SeoService);
+  private readonly translate = inject(TranslateService);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
 
@@ -145,6 +149,16 @@ export class CatalogComponent implements OnInit {
   });
 
   constructor() {
+    effect(() => {
+      const s = this.storeService.settings();
+      if (s) {
+        const lang = this.locale.getLocale();
+        const meta = s.seoSettings?.catalogPageMeta;
+        const title = meta?.title ? getLocalized(meta.title, lang) : this.translate.instant('catalog.pageTitle');
+        const description = meta?.description ? getLocalized(meta.description, lang) : this.translate.instant('catalog.pageDescription');
+        this.seo.setPage({ title, description });
+      }
+    });
     effect(
       () => {
         const qp = this.queryParams();
@@ -213,7 +227,6 @@ export class CatalogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.seo.setPage({ title: 'Shop', description: 'Browse our full catalog of products. Filter by category, price, and more.' });
     this.categoriesService.getCategories({ status: 'PUBLISHED' }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((c) =>
       this.categories.set(
         Array.isArray(c) ? c.filter((x) => x.status === 'PUBLISHED' || x.status === 'visible') : []

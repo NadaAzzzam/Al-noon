@@ -2,11 +2,7 @@
 <header class="checkout-header">
   <div class="checkout-header-inner">
     <a [routerLink]="['/']" class="checkout-logo">
-      @if (checkoutHeaderInfo()?.logo) {
-      <img [src]="api.imageUrl(checkoutHeaderInfo()!.logo!)" [alt]="checkoutHeaderInfo()!.storeName?.en || ('checkout.store' | translate)" class="checkout-logo-img" />
-      } @else {
-      <span class="checkout-logo-text">{{ getLocalized(checkoutHeaderInfo()?.storeName) || ('storeName' | translate) }}</span>
-      }
+      <img [src]="api.imageUrl(checkoutHeaderInfo()?.logo ?? 'uploads/logos/default-logo.png')" [alt]="getLocalized(checkoutHeaderInfo()?.storeName) || ('storeName' | translate)" class="checkout-logo-img" />
     </a>
     <a [routerLink]="['/cart']" class="checkout-header-cart" [attr.aria-label]="'nav.cart' | translate">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"

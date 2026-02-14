@@ -6,8 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { StoreService } from '../../core/services/store.service';
 import { NewsletterService } from '../../core/services/newsletter.service';
 import { LocaleService } from '../../core/services/locale.service';
-import { TranslatePipe } from '@ngx-translate/core';
-import { emailError } from '../../shared/utils/form-validators';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { emailErrorKey } from '../../shared/utils/form-validators';
 import type { StoreData, SettingsContentPage } from '../../core/types/api.types';
 
 @Component({
@@ -22,36 +22,55 @@ export class FooterComponent implements OnInit {
   private readonly storeService = inject(StoreService);
   private readonly newsletterService = inject(NewsletterService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
   readonly locale = inject(LocaleService);
 
   store = signal<StoreData | null>(null);
-  /** Content pages from settings API (privacy, return-policy, shipping-policy, about, contact) */
-  contentPages = signal<SettingsContentPage[]>([]);
-  /** Newsletter section visibility from settings (fallback when store not loaded, e.g. checkout) */
-  newsletterEnabledFromSettings = signal<boolean | null>(null);
+  /** Content pages from settings() signal */
+  contentPages = computed<SettingsContentPage[]>(() => this.storeService.settings()?.contentPages ?? []);
+  /** Newsletter section visibility from settings (fallback when store not loaded) */
+  newsletterEnabledFromSettings = computed(() => this.storeService.settings()?.newsletterEnabled ?? null);
+  /** When false, hide social links. From settings(); default true when not set. */
+  showSocialLinksFromSettings = computed(() => this.storeService.settings()?.showSocialLinks ?? null);
+  /** Social links from settings() (fallback when store has none). */
+  socialLinksFromSettings = computed(() => this.storeService.settings()?.socialLinks ?? null);
   newsletterEmail = signal('');
   newsletterMessage = signal<'idle' | 'success' | 'error' | 'already'>('idle');
   newsletterLoading = signal(false);
+  newsletterSubmitted = signal(false);
   readonly currentYear = new Date().getFullYear();
 
-  newsletterValid = computed(() => !emailError(this.newsletterEmail()));
+  newsletterValid = computed(() => !emailErrorKey(this.newsletterEmail()));
+  newsletterEmailError = computed(() => {
+    if (!this.newsletterSubmitted()) return null;
+    const key = emailErrorKey(this.newsletterEmail());
+    return key ? this.translate.instant(key) : null;
+  });
   currentLocale = computed(() => this.locale.getLocale());
 
+  /** Social links: from store first, fallback to settings(). */
   socialLinks = computed(() => {
-    const links = this.store()?.socialLinks;
-    if (Array.isArray(links)) return links;
-    if (links && typeof links === 'object' && !Array.isArray(links)) {
-      return Object.entries(links).map(([platform, url]) => ({ platform, url: String(url ?? '') }));
-    }
+    const fromStore = this.store()?.socialLinks;
+    let storeList: { platform: string; url: string }[] = [];
+    if (Array.isArray(fromStore)) storeList = fromStore;
+    else if (fromStore && typeof fromStore === 'object')
+      storeList = Object.entries(fromStore).map(([platform, url]) => ({ platform, url: String(url ?? '') }));
+    if (storeList.length > 0) return storeList;
+    const fromSettings = this.socialLinksFromSettings();
+    if (fromSettings && typeof fromSettings === 'object')
+      return Object.entries(fromSettings).map(([platform, url]) => ({ platform, url: String(url ?? '') }));
     return [];
   });
+
+  showSocialSection = computed(
+    () => (this.showSocialLinksFromSettings() !== false) && this.socialLinks().length > 0
+  );
 
   quickLinks = computed(() => {
     const links = this.store()?.quickLinks;
     return Array.isArray(links) ? links : [];
   });
 
-  /** Show newsletter section when enabled in store or in settings (settings used when store not loaded). */
   showNewsletterSection = computed(
     () => this.store()?.newsletterEnabled ?? this.newsletterEnabledFromSettings() ?? true
   );
@@ -64,14 +83,11 @@ export class FooterComponent implements OnInit {
 
   ngOnInit(): void {
     this.storeService.getStore().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((s) => this.store.set(s));
-    this.storeService.getSettings().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((settings) => {
-      if (settings.contentPages?.length) this.contentPages.set(settings.contentPages);
-      this.newsletterEnabledFromSettings.set(settings.newsletterEnabled ?? null);
-    });
   }
 
   submitNewsletter(event?: Event): void {
     event?.preventDefault();
+    this.newsletterSubmitted.set(true);
     if (!this.newsletterValid()) return;
     this.newsletterMessage.set('idle');
     this.newsletterLoading.set(true);

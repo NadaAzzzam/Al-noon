@@ -1,11 +1,11 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, inject, computed, effect, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { BackToTopComponent } from '../shared/components/back-to-top/back-to-top.component';
 import { StoreService } from '../core/services/store.service';
 import { LocaleService } from '../core/services/locale.service';
+import { SeoService } from '../core/services/seo.service';
 import { getLocalized } from '../core/utils/localized';
 
 @Component({
@@ -86,26 +86,28 @@ import { getLocalized } from '../core/utils/localized';
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent {
   private readonly storeService = inject(StoreService);
   private readonly locale = inject(LocaleService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly seo = inject(SeoService);
 
-  /** Text repeated 3 times in the marquee (from API settings announcementBar.text) */
+  /** Text repeated 3 times in the marquee (from settings() signal) */
   repeatedText = [1, 2, 3];
-  bannerText = signal('');
-  announcementEnabled = signal(false);
-  announcementBg = signal<string>('');
+  announcementEnabled = computed(() => this.storeService.settings()?.announcementBar?.enabled === true);
+  bannerText = computed(() => {
+    const bar = this.storeService.settings()?.announcementBar;
+    const lang = this.locale.getLocale();
+    return bar?.text ? getLocalized(bar.text, lang) : '';
+  });
+  announcementBg = computed(() => {
+    const bg = this.storeService.settings()?.announcementBar?.backgroundColor?.trim();
+    return bg || 'linear-gradient(90deg, #1a1a2e, #16213e, #0f3460, #16213e, #1a1a2e)';
+  });
 
-  ngOnInit(): void {
-    this.storeService.getSettings().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((settings) => {
-      const bar = settings?.announcementBar;
-      this.announcementEnabled.set(bar?.enabled === true);
-      const lang = this.locale.getLocale();
-      const text = getLocalized(bar?.text, lang);
-      this.bannerText.set(text || '');
-      const bg = bar?.backgroundColor?.trim();
-      this.announcementBg.set(bg || 'linear-gradient(90deg, #1a1a2e, #16213e, #0f3460, #16213e, #1a1a2e)');
+  constructor() {
+    effect(() => {
+      const s = this.storeService.settings();
+      if (s) this.seo.setSeoSettings(s.seoSettings ?? null, s.storeName);
     });
   }
 }

@@ -2,10 +2,12 @@ import { Component, OnInit, inject, ChangeDetectionStrategy, DestroyRef } from '
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from './core/services/auth.service';
+import { StoreService } from './core/services/store.service';
 import { LocaleService } from './core/services/locale.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ChatbotComponent } from './shared/chatbot/chatbot.component';
 import { ToastComponent } from './shared/components/toast/toast.component';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +18,7 @@ import { ToastComponent } from './shared/components/toast/toast.component';
 })
 export class App implements OnInit {
   private readonly auth = inject(AuthService);
+  private readonly storeService = inject(StoreService);
   private readonly locale = inject(LocaleService);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
@@ -44,6 +47,7 @@ export class App implements OnInit {
   }
 
   ngOnInit(): void {
+    this.storeService.getSettings().pipe(take(1)).subscribe();
     this.auth.loadProfile().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => { },
       error: () => { },

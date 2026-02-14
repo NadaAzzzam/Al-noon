@@ -36,6 +36,15 @@ export class ChatbotComponent implements OnInit {
   error = signal<string | null>(null);
   sessionId = signal<string | null>(null);
 
+  /** Greeting toast visibility */
+  showGreetingToast = signal(false);
+  toastDismissed = signal(false);
+
+  /** Widget entrance animation */
+  widgetReady = signal(false);
+
+  private toastTimer: ReturnType<typeof setTimeout> | null = null;
+
   /** Show widget when we have settings and either enabled or any content (greeting / suggested questions). */
   showWidget = computed(() => {
     const s = this.settings();
@@ -53,7 +62,29 @@ export class ChatbotComponent implements OnInit {
       this.settings.set(s);
       const greeting = this.getLocalized(s.greeting);
       if (greeting?.trim()) this.messages.set([{ role: 'assistant', text: greeting }]);
+
+      // Animate widget entrance after a short delay
+      setTimeout(() => {
+        this.widgetReady.set(true);
+        // Show greeting toast after widget is visible
+        if (!this.toastDismissed()) {
+          setTimeout(() => {
+            this.showGreetingToast.set(true);
+            // Auto-dismiss toast after 8 seconds
+            this.toastTimer = setTimeout(() => this.dismissToast(), 8000);
+          }, 800);
+        }
+      }, 500);
     });
+  }
+
+  dismissToast(): void {
+    this.showGreetingToast.set(false);
+    this.toastDismissed.set(true);
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+      this.toastTimer = null;
+    }
   }
 
   getLocalized(obj: { en?: string; ar?: string } | undefined): string {
@@ -70,6 +101,10 @@ export class ChatbotComponent implements OnInit {
   toggle(): void {
     this.open.update((v) => !v);
     this.error.set(null);
+    // Dismiss toast when opening chat
+    if (this.open()) {
+      this.dismissToast();
+    }
   }
 
   sendSuggested(q: string): void {

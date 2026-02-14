@@ -6,26 +6,26 @@
     }
     <div class="form-group">
       <label>{{ 'auth.name' | translate }}</label>
-      <input type="text" [value]="name()" (input)="name.set($any($event.target).value)" />
+      <input type="text" [value]="name()" (input)="name.set($any($event.target).value)" [class.has-error]="nameError()" />
       @if (nameError()) {
         <span class="field-error">{{ nameError() }}</span>
       }
     </div>
     <div class="form-group">
       <label>{{ 'auth.email' | translate }}</label>
-      <input type="email" [value]="email()" (input)="email.set($any($event.target).value)" />
+      <input type="email" [value]="email()" (input)="email.set($any($event.target).value)" [class.has-error]="emailError()" />
       @if (emailError()) {
         <span class="field-error">{{ emailError() }}</span>
       }
     </div>
     <div class="form-group">
       <label>{{ 'auth.password' | translate }} ({{ 'auth.passwordMin' | translate }})</label>
-      <input type="password" [value]="password()" (input)="password.set($any($event.target).value)" />
+      <input type="password" [value]="password()" (input)="password.set($any($event.target).value)" [class.has-error]="passwordError()" />
       @if (passwordError()) {
         <span class="field-error">{{ passwordError() }}</span>
       }
     </div>
-    <button type="submit" class="btn btn-block" [disabled]="!valid()">
+    <button type="submit" class="btn btn-block">
       {{ 'auth.submitRegister' | translate }}
     </button>
   </form>

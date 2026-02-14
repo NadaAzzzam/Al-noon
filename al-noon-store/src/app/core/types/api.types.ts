@@ -678,6 +678,28 @@ export interface AnnouncementBarSettings {
   backgroundColor?: string;
 }
 
+/** SEO page meta (title + description per locale) from GET /api/settings seoSettings */
+export interface SeoPageMeta {
+  title?: LocalizedText;
+  description?: LocalizedText;
+}
+
+/** Product page SEO: title suffix appended to product name (e.g. " - Al-noon Store") */
+export interface SeoProductPageMeta {
+  titleSuffix?: LocalizedText;
+}
+
+/** SEO settings from GET /api/settings (data.settings.seoSettings) */
+export interface SeoSettings {
+  homePageMeta?: SeoPageMeta;
+  catalogPageMeta?: SeoPageMeta;
+  productPageMeta?: SeoProductPageMeta;
+  ogImage?: string;
+  twitterCard?: string;
+  defaultMetaDescription?: LocalizedText;
+  defaultMetaKeywords?: LocalizedText;
+}
+
 /** Stock display thresholds from BE: when to show "low stock" vs "stock available" messages */
 export interface StockDisplaySettings {
   /** Show "low stock" when 0 < stock <= this (BE-driven, e.g. 5) */
@@ -699,6 +721,8 @@ export interface Settings {
   announcementBar?: AnnouncementBarSettings;
   /** Social links as object (e.g. { facebook, instagram }). */
   socialLinks?: Record<string, string>;
+  /** When false, hide social links in header/footer. Default true when not set. */
+  showSocialLinks?: boolean;
   newsletterEnabled?: boolean;
   /** Content pages (privacy, return-policy, shipping-policy, about, contact). */
   contentPages?: SettingsContentPage[];
@@ -707,6 +731,8 @@ export interface Settings {
   currency?: string;
   /** Currency symbol/prefix (e.g. LE); used for price display. */
   currencySymbol?: string;
+  /** SEO meta (home/catalog/product page meta, og image, twitter card, defaults). */
+  seoSettings?: SeoSettings;
 }
 
 /**
@@ -720,6 +746,8 @@ export interface SettingsRaw {
   announcementBar?: AnnouncementBarSettings;
   /** Social links as object (e.g. { facebook: string, instagram: string }). */
   socialLinks?: Record<string, string>;
+  /** When false, hide social links in header/footer. Default true when not set. */
+  showSocialLinks?: boolean;
   newsletterEnabled?: boolean;
   /** Content pages (privacy, return-policy, shipping-policy, about, contact). */
   contentPages?: SettingsContentPage[];
@@ -730,6 +758,8 @@ export interface SettingsRaw {
   currency?: string;
   /** Currency symbol/prefix (e.g. LE). */
   currencySymbol?: string;
+  /** SEO settings (homePageMeta, catalogPageMeta, productPageMeta, ogImage, twitterCard, etc.). */
+  seoSettings?: SeoSettings;
   [key: string]: unknown;
 }
 

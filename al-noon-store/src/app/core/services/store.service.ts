@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap, shareReplay } from 'rxjs';
 import type {
@@ -172,6 +172,10 @@ export class StoreService {
   /** Pending shared request so header + footer (and others) trigger only one HTTP call */
   private store$: Observable<StoreData> | null = null;
 
+  /** Settings from GET /api/settings – loaded once from app root, updated by getSettings() tap. Read everywhere via settings(). */
+  private readonly settingsSignal = signal<Settings | null>(null);
+  readonly settings = this.settingsSignal.asReadonly();
+
   /**
    * GET /api/store/home – single source for store + home data.
    * BE returns { success, data: { home: StoreHomeData } }; home is a flat object with all store
@@ -242,7 +246,7 @@ export class StoreService {
 
   /**
    * GET /api/settings – BE returns { success, data: { settings: SettingsRaw } }.
-   * Maps SettingsRaw to Settings for use across the app (layout, checkout, product-detail, etc.).
+   * Call once from app root (App.ngOnInit). Response is also written to settings() signal so the whole app can read it reactively.
    */
   getSettings(): Observable<Settings> {
     return this.http.get<SettingsApiResponse | ApiSuccess<{ settings: SettingsRaw }>>('settings').pipe(
@@ -258,6 +262,7 @@ export class StoreService {
                 logo: raw.logo,
                 announcementBar: raw.announcementBar,
                 socialLinks: raw.socialLinks,
+                showSocialLinks: raw.showSocialLinks,
                 newsletterEnabled: raw.newsletterEnabled,
                 contentPages: raw.contentPages,
                 stockDisplay: {
@@ -266,6 +271,7 @@ export class StoreService {
                 },
                 currency: raw.currency,
                 currencySymbol: raw.currencySymbol,
+                seoSettings: raw.seoSettings,
               };
               sub.next(mapped);
             },
@@ -273,6 +279,7 @@ export class StoreService {
             complete: () => sub.complete(),
           });
         }),
+      tap((s) => this.settingsSignal.set(s)),
       shareReplay(1)
     );
   }

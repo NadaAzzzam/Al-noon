@@ -43,11 +43,12 @@ export class ProductDetailComponent implements OnInit {
   /** Number of thumbnail slides visible at once in the gallery strip. Easy to change (e.g. 3, 4, 5). */
   thumbsPerView = input(6);
 
-  /** From GET /api/settings (stockDisplay); fallbacks for when BE does not send. */
+  /** From settings() signal (stockDisplay); fallbacks for when BE does not send. */
   lowStockThreshold = signal(5);
   stockInfoThreshold = signal(10);
 
   product = signal<Product | null>(null);
+
   related = signal<Product[]>([]);
   selectedImageIndex = signal(0);
   selectedSize = signal<string | null>(null);
@@ -94,15 +95,18 @@ export class ProductDetailComponent implements OnInit {
   });
 
   constructor() {
-    // Clamp quantity when remaining can-add drops (e.g. after adding to cart or cart changed)
+    effect(() => {
+      const sd = this.storeService.settings()?.stockDisplay;
+      const low = sd?.lowStockThreshold;
+      const info = sd?.stockInfoThreshold;
+      this.lowStockThreshold.set(typeof low === 'number' && Number.isFinite(low) ? low : 5);
+      this.stockInfoThreshold.set(typeof info === 'number' && Number.isFinite(info) ? info : 10);
+    });
     effect(() => {
       const remaining = this.remainingCanAdd();
       const qty = this.quantity();
-      if (remaining > 0 && qty > remaining) {
-        this.quantity.set(remaining);
-      }
+      if (remaining > 0 && qty > remaining) this.quantity.set(remaining);
     });
-    // Clear dependent selection when it becomes unavailable (e.g. color changed → current size not available for that color)
     effect(() => {
       const p = this.product();
       const color = this.selectedColor();
@@ -258,14 +262,6 @@ export class ProductDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    // From GET /api/settings; fallbacks when BE does not send
-    this.storeService.getSettings().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((settings) => {
-      const sd = settings?.stockDisplay;
-      const low = sd?.lowStockThreshold;
-      const info = sd?.stockInfoThreshold;
-      this.lowStockThreshold.set(typeof low === 'number' && Number.isFinite(low) ? low : 5);
-      this.stockInfoThreshold.set(typeof info === 'number' && Number.isFinite(info) ? info : 10);
-    });
     this.route.paramMap.pipe(
       map(p => p.get('id')),
       distinctUntilChanged(),

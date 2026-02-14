@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -45,14 +45,33 @@ export class CheckoutComponent implements OnInit {
   /** Store data for checkout header (from getStore) */
   store = signal<StoreData | null>(null);
 
-  /** Fallback for header when store not yet loaded (from getSettings: storeName, logo) */
+  /** Fallback for header when store not yet loaded (from settings() signal: storeName, logo) */
   settingsStoreFallback = signal<{ storeName?: { en?: string; ar?: string }; logo?: string } | null>(null);
 
-  /** Content pages from settings (for footer links: privacy, return-policy, etc.) */
+  /** Content pages from settings() (for footer links: privacy, return-policy, etc.) */
   contentPages = signal<SettingsContentPage[]>([]);
 
-  /** When true, show "Email me with news and offers" checkbox (from settings.newsletterEnabled). */
+  /** When true, show "Email me with news and offers" checkbox (from settings().newsletterEnabled). */
   newsletterEnabled = signal(true);
+
+  constructor() {
+    effect(() => {
+      const s = this.storeService.settings();
+      if (!s) return;
+      if (s.currency?.trim()) this.currencyCode.set(s.currency.trim());
+      if (s.currencySymbol?.trim()) this.currencySymbol.set(s.currencySymbol.trim());
+      if (s.storeName != null || s.logo != null) {
+        this.settingsStoreFallback.set({ storeName: s.storeName, logo: s.logo });
+      }
+      if (s.contentPages?.length) this.contentPages.set(s.contentPages);
+      const newsletterOn = s.newsletterEnabled !== false;
+      this.newsletterEnabled.set(newsletterOn);
+      if (!newsletterOn) {
+        this.emailNews.set(false);
+        this.textNews.set(false);
+      }
+    });
+  }
 
   /** Header display: store first, then settings fallback */
   checkoutHeaderInfo = computed(() => {
@@ -260,27 +279,6 @@ export class CheckoutComponent implements OnInit {
 
     // Default test data for checkout (avoids validation errors when testing)
     this.setDefaultTestData();
-
-    // Settings API: currency, header fallback (storeName/logo), contentPages for footer
-    this.storeService.getSettings().pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe((settings) => {
-      if (settings.currency?.trim()) this.currencyCode.set(settings.currency.trim());
-      if (settings.currencySymbol?.trim()) this.currencySymbol.set(settings.currencySymbol.trim());
-      if (settings.storeName != null || settings.logo != null) {
-        this.settingsStoreFallback.set({
-          storeName: settings.storeName,
-          logo: settings.logo,
-        });
-      }
-      if (settings.contentPages?.length) this.contentPages.set(settings.contentPages);
-      const newsletterOn = settings.newsletterEnabled !== false;
-      this.newsletterEnabled.set(newsletterOn);
-      if (!newsletterOn) {
-        this.emailNews.set(false);
-        this.textNews.set(false);
-      }
-    });
   }
 
   /** Pre-fill empty fields with test data for easier testing; avoids billing address validation errors. */
@@ -302,7 +300,8 @@ export class CheckoutComponent implements OnInit {
   }
 
   private updateFavicon(logoPath: string | undefined | null): void {
-    const url = logoPath ? this.api.imageUrl(logoPath) : null;
+    const path = logoPath ?? 'uploads/logos/default-logo.png';
+    const url = this.api.imageUrl(path) || null;
     let link = this.doc.querySelector<HTMLLinkElement>('link[rel="icon"]');
     if (url) {
       if (!link) {

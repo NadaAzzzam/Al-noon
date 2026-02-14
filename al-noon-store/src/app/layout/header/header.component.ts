@@ -46,14 +46,27 @@ export class HeaderComponent implements OnInit {
   searchQuery = signal('');
   sidebarOpen = signal(false);
 
+  /** When false, hide social links. From settings() signal; default true when not set. */
+  showSocialLinksFromSettings = computed(() => this.storeService.settings()?.showSocialLinks ?? null);
+  /** Social links from settings() (fallback when store has none). */
+  socialLinksFromSettings = computed(() => this.storeService.settings()?.socialLinks ?? null);
+
   socialLinks = computed<StoreSocialLink[]>(() => {
-    const links = this.store()?.socialLinks;
-    if (Array.isArray(links)) return links;
-    if (links && typeof links === 'object' && !Array.isArray(links)) {
-      return Object.entries(links).map(([platform, url]) => ({ platform, url: String(url ?? '') }));
-    }
+    const fromStore = this.store()?.socialLinks;
+    let storeList: StoreSocialLink[] = [];
+    if (Array.isArray(fromStore)) storeList = fromStore;
+    else if (fromStore && typeof fromStore === 'object')
+      storeList = Object.entries(fromStore).map(([platform, url]) => ({ platform, url: String(url ?? '') }));
+    if (storeList.length > 0) return storeList;
+    const fromSettings = this.socialLinksFromSettings();
+    if (fromSettings && typeof fromSettings === 'object')
+      return Object.entries(fromSettings).map(([platform, url]) => ({ platform, url: String(url ?? '') }));
     return [];
   });
+
+  showSocialSection = computed(
+    () => (this.showSocialLinksFromSettings() !== false) && this.socialLinks().length > 0
+  );
 
   ngOnInit(): void {
     this.storeService.getStore().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((s) => {
@@ -70,7 +83,8 @@ export class HeaderComponent implements OnInit {
   }
 
   private updateFavicon(logoPath: string | undefined | null): void {
-    const url = logoPath ? this.api.imageUrl(logoPath) : null;
+    const path = logoPath ?? 'uploads/logos/default-logo.png';
+    const url = this.api.imageUrl(path) || null;
     let link = this.doc.querySelector<HTMLLinkElement>('link[rel="icon"]');
     if (url) {
       if (!link) {

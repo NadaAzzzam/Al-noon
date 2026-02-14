@@ -1,10 +1,15 @@
 import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ContactService } from '../../core/services/contact.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { SeoService } from '../../core/services/seo.service';
-import { emailError, minLengthError, requiredError } from '../../shared/utils/form-validators';
+import {
+  emailErrorKey,
+  minLengthErrorKey,
+  requiredErrorKey,
+  phoneErrorKey,
+} from '../../shared/utils/form-validators';
 
 @Component({
   selector: 'app-contact',
@@ -17,10 +22,14 @@ import { emailError, minLengthError, requiredError } from '../../shared/utils/fo
 export class ContactComponent {
   private readonly contactService = inject(ContactService);
   private readonly seo = inject(SeoService);
+  private readonly translate = inject(TranslateService);
   readonly locale = inject(LocaleService);
 
   constructor() {
-    this.seo.setPage({ title: 'Contact Us', description: 'Get in touch with Al-Noon. We would love to hear from you.' });
+    this.seo.setPage({
+      title: this.translate.instant('contact.pageTitle'),
+      description: this.translate.instant('contact.pageDescription'),
+    });
   }
 
   name = signal('');
@@ -29,19 +38,43 @@ export class ContactComponent {
   comment = signal('');
   message = signal<'idle' | 'success' | 'error'>('idle');
   submitting = signal(false);
+  /** Set on first submit attempt so validation messages show only after user clicks submit */
+  submitted = signal(false);
 
-  nameError = computed(() => minLengthError(this.name(), 2, 'Name'));
-  emailError = computed(() => emailError(this.email()));
-  commentError = computed(() => requiredError(this.comment(), 'Message'));
+  nameError = computed(() => {
+    if (!this.submitted()) return null;
+    const key = minLengthErrorKey(this.name(), 2);
+    return key ? this.translate.instant(key, { min: 2 }) : null;
+  });
+  emailError = computed(() => {
+    if (!this.submitted()) return null;
+    const key = emailErrorKey(this.email());
+    return key ? this.translate.instant(key) : null;
+  });
+  phoneErrorMsg = computed(() => {
+    if (!this.submitted()) return null;
+    const key = phoneErrorKey(this.phone());
+    return key ? this.translate.instant(key) : null;
+  });
+  commentError = computed(() => {
+    if (!this.submitted()) return null;
+    const r = requiredErrorKey(this.comment(), 'contact.message');
+    return r ? this.translate.instant(r.key, { field: this.translate.instant(r.fieldKey) }) : null;
+  });
   valid = computed(
-    () => !this.nameError() && !this.emailError() && !this.commentError()
+    () =>
+      !minLengthErrorKey(this.name(), 2) &&
+      !emailErrorKey(this.email()) &&
+      !phoneErrorKey(this.phone()) &&
+      !requiredErrorKey(this.comment(), 'contact.message')
   );
-  submitDisabled = computed(() => !this.valid() || this.submitting());
+  submitDisabled = computed(() => this.submitting());
 
   submit(event?: Event): void {
     event?.preventDefault();
     event?.stopPropagation();
     this.message.set('idle');
+    this.submitted.set(true);
     if (!this.valid() || this.submitting()) return;
     this.submitting.set(true);
     this.contactService
