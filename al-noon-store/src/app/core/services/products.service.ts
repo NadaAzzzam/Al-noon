@@ -36,7 +36,7 @@ export class ProductsService {
     set('page', query.page);
     set('limit', query.limit);
     set('category', query.category);
-    set('search', query.search);
+    set('search', typeof query.search === 'string' ? query.search.trim() : query.search);
     set('status', query.status);
     if (query.newArrival === true) params = params.set('newArrival', 'true');
     else if (query.newArrival === false) params = params.set('newArrival', 'false');

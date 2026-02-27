@@ -125,7 +125,17 @@ export class OrderConfirmationComponent {
 
   constructor() {
     const state = this.router.getCurrentNavigation()?.extras?.state as { order?: Order } | undefined;
-    if (state?.order) this.order.set(state.order);
+    if (state?.order) {
+      this.order.set(state.order);
+    } else {
+      try {
+        const stored = sessionStorage.getItem('al_noon_last_order');
+        if (stored) {
+          const parsed = JSON.parse(stored) as Order;
+          if (parsed?.id) this.order.set(parsed);
+        }
+      } catch {}
+    }
   }
 
   getLocalized(obj: { en?: string; ar?: string } | undefined): string {

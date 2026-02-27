@@ -91,10 +91,12 @@
     "shippingMethodSection": "Shipping method",
     "loadingShipping": "Loading shipping options…",
     "noShippingMethods": "No shipping methods available.",
+    "selectShippingMethod": "Please select a shipping method.",
     "paymentSection": "Payment",
     "secureEncrypted": "All transactions are secure and encrypted.",
     "loadingPayment": "Loading payment options…",
     "noPaymentMethods": "No payment methods available.",
+    "selectPaymentMethod": "Please select a payment method.",
     "transferTo": "Transfer to:",
     "billingAddressSection": "Billing address",
     "sameAsShipping": "Same as shipping address",
@@ -151,6 +153,7 @@
     "filters": "Filters",
     "results": "products",
     "noProducts": "No products found.",
+    "noSearchResults": "No results for \"{{query}}\". Try different keywords or clear filters.",
     "loading": "Loading...",
     "newest": "Newest",
     "priceAsc": "Price: Low to High",
@@ -259,6 +262,7 @@
     "fieldRequired": "{{field}} is required",
     "placeOrderFailed": "Failed to place order",
     "loginFailed": "Login failed",
-    "registrationFailed": "Registration failed"
+    "registrationFailed": "Registration failed",
+    "pleaseFillRequired": "Please fill in all required fields."
   }
 }

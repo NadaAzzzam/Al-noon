@@ -91,10 +91,12 @@
     "shippingMethodSection": "طريقة الشحن",
     "loadingShipping": "جاري تحميل خيارات الشحن…",
     "noShippingMethods": "لا توجد طرق شحن.",
+    "selectShippingMethod": "يرجى اختيار طريقة الشحن.",
     "paymentSection": "الدفع",
     "secureEncrypted": "جميع المعاملات آمنة ومشفرة.",
     "loadingPayment": "جاري تحميل خيارات الدفع…",
     "noPaymentMethods": "لا توجد طرق دفع.",
+    "selectPaymentMethod": "يرجى اختيار طريقة الدفع.",
     "transferTo": "تحويل إلى:",
     "billingAddressSection": "عنوان الفواتير",
     "sameAsShipping": "نفس عنوان الشحن",
@@ -151,6 +153,7 @@
     "filters": "الفلاتر",
     "results": "منتجات",
     "noProducts": "لا توجد منتجات.",
+    "noSearchResults": "لا توجد نتائج لـ \"{{query}}\". جرب كلمات مختلفة أو امسح الفلاتر.",
     "loading": "جاري التحميل...",
     "newest": "الأحدث",
     "priceAsc": "السعر: منخفض إلى عالي",
@@ -259,6 +262,7 @@
     "fieldRequired": "{{field}} مطلوب",
     "placeOrderFailed": "تعذر إتمام الطلب",
     "loginFailed": "فشل تسجيل الدخول",
-    "registrationFailed": "فشل إنشاء الحساب"
+    "registrationFailed": "فشل إنشاء الحساب",
+    "pleaseFillRequired": "يرجى ملء جميع الحقول المطلوبة."
   }
 }

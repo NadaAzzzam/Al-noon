@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, ActivatedRoute } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
 import { StoreService } from '../../core/services/store.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -28,6 +28,7 @@ export class HeaderComponent implements OnInit {
   readonly cart = inject(CartService);
   private readonly locale = inject(LocaleService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly doc = inject(DOCUMENT);
   readonly api = inject(ApiService);
@@ -98,6 +99,13 @@ export class HeaderComponent implements OnInit {
   }
 
   toggleSearch(): void {
+    const willOpen = !this.searchOpen();
+    if (willOpen) {
+      const searchFromUrl = this.route.snapshot.queryParams['search'];
+      if (typeof searchFromUrl === 'string' && searchFromUrl.trim()) {
+        this.searchQuery.set(searchFromUrl.trim());
+      }
+    }
     this.searchOpen.update((v) => !v);
   }
 
@@ -106,12 +114,17 @@ export class HeaderComponent implements OnInit {
   }
 
   toggleSidebar(): void {
-    this.sidebarOpen.update((v) => !v);
-    if (this.sidebarOpen()) {
+    const willOpen = !this.sidebarOpen();
+    if (willOpen) {
+      const searchFromUrl = this.route.snapshot.queryParams['search'];
+      if (typeof searchFromUrl === 'string' && searchFromUrl.trim()) {
+        this.searchQuery.set(searchFromUrl.trim());
+      }
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
+    this.sidebarOpen.update((v) => !v);
   }
 
   closeSidebar(): void {
@@ -127,7 +140,14 @@ export class HeaderComponent implements OnInit {
     this.searchOpen.set(false);
     this.closeSidebar();
     const q = this.searchQuery().trim();
-    this.router.navigate(['/catalog'], { queryParams: q ? { search: q } : {} });
+    const currentParams = { ...this.route.snapshot.queryParams };
+    if (q) {
+      currentParams['search'] = q;
+      currentParams['page'] = '1';
+    } else {
+      delete currentParams['search'];
+    }
+    this.router.navigate(['/catalog'], { queryParams: currentParams, queryParamsHandling: '' });
   }
 
   /** Cart drawer methods */

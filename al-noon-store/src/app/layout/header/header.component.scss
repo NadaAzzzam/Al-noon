@@ -260,6 +260,26 @@
 }
 
 /* Scrollable body so logout/footer stay reachable when categories are expanded */
+.sidebar-search-form {
+  display: flex;
+  gap: 8px;
+  padding: 12px 24px 16px;
+  border-bottom: 1px solid var(--color-border);
+
+  input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 14px;
+  }
+
+  .btn {
+    flex-shrink: 0;
+  }
+}
+
 .sidebar-body {
   flex: 1;
   min-height: 0;

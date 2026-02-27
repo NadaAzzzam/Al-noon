@@ -89,6 +89,13 @@
   </div>
 
   <div class="sidebar-body">
+    <!-- Sidebar search (mobile) -->
+    <form class="sidebar-search-form" (ngSubmit)="submitSearch(); closeSidebar()">
+      <input type="search" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)"
+        [placeholder]="'nav.searchPlaceholder' | translate" [attr.aria-label]="'nav.search' | translate" />
+      <button type="submit" class="btn btn-sm">{{ 'nav.search' | translate }}</button>
+    </form>
+
     <nav class="sidebar-nav">
       <!-- SHOP COLLECTION (collapsible) -->
       <div class="sidebar-section">

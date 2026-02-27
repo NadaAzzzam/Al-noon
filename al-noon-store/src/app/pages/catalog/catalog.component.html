@@ -98,7 +98,11 @@
         <circle cx="11" cy="11" r="8" />
         <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
+      @if (search()) {
+      <p>{{ 'catalog.noSearchResults' | translate:{ query: search() } }}</p>
+      } @else {
       <p>{{ 'catalog.noProducts' | translate }}</p>
+      }
       @if (activeFilterCount() > 0) {
       <button type="button" class="btn btn-outline" (click)="clearFilters()">{{ 'catalog.clearAll' | translate
         }}</button>
@@ -157,7 +161,8 @@
     <!-- Search -->
     <div class="sidebar-search">
       <input type="search" [value]="search()" (input)="search.set($any($event.target).value)"
-        [placeholder]="'catalog.search' | translate" />
+        (keydown.enter)="$event.preventDefault(); applyFilters()"
+        [placeholder]="'catalog.search' | translate" [attr.aria-label]="'catalog.search' | translate" />
     </div>
 
 

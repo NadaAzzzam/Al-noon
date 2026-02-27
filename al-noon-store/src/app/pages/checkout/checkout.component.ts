@@ -210,6 +210,27 @@ export class CheckoutComponent implements OnInit {
     return r ? this.translate.instant(r.key, { field: this.translate.instant(r.fieldKey) }) : null;
   });
 
+  billingFirstNameError = computed(() => {
+    if (!this.touched() || this.billingSameAsShipping()) return null;
+    const r = requiredErrorKey(this.billingFirstName(), 'checkout.firstName');
+    return r ? this.translate.instant(r.key, { field: this.translate.instant(r.fieldKey) }) : null;
+  });
+  billingLastNameError = computed(() => {
+    if (!this.touched() || this.billingSameAsShipping()) return null;
+    const r = requiredErrorKey(this.billingLastName(), 'checkout.lastName');
+    return r ? this.translate.instant(r.key, { field: this.translate.instant(r.fieldKey) }) : null;
+  });
+  billingAddressError = computed(() => {
+    if (!this.touched() || this.billingSameAsShipping()) return null;
+    const r = requiredErrorKey(this.billingAddress(), 'checkout.address');
+    return r ? this.translate.instant(r.key, { field: this.translate.instant(r.fieldKey) }) : null;
+  });
+  billingCityError = computed(() => {
+    if (!this.touched() || this.billingSameAsShipping()) return null;
+    const r = requiredErrorKey(this.billingCity(), 'checkout.city');
+    return r ? this.translate.instant(r.key, { field: this.translate.instant(r.fieldKey) }) : null;
+  });
+
   formValid = computed(() => {
     const base = !emailError(this.email())
       && !requiredError(this.firstName(), 'First name')
@@ -218,10 +239,17 @@ export class CheckoutComponent implements OnInit {
       && !requiredError(this.selectedCityId(), 'City')
       && !requiredError(this.phone(), 'Phone');
     const shippingMethods = this.shippingMethods();
-    const shippingOk = shippingMethods.length === 0 || !!this.selectedShippingMethod();
+    const shippingOk = shippingMethods.length > 0 && !!this.selectedShippingMethod();
     const paymentMethods = this.paymentMethods();
-    const paymentOk = paymentMethods.length === 0 || !!this.paymentMethod();
-    return base && shippingOk && paymentOk;
+    const paymentOk = paymentMethods.length > 0 && !!this.paymentMethod();
+    let billingOk = true;
+    if (!this.billingSameAsShipping()) {
+      billingOk = !requiredError(this.billingFirstName(), 'First name')
+        && !requiredError(this.billingLastName(), 'Last name')
+        && !requiredError(this.billingAddress(), 'Address')
+        && !requiredError(this.billingCity(), 'City');
+    }
+    return base && shippingOk && paymentOk && billingOk;
   });
 
   ngOnInit(): void {
@@ -322,7 +350,21 @@ export class CheckoutComponent implements OnInit {
 
   submit(): void {
     this.touched.set(true);
-    if (!this.formValid() || this.items().length === 0) return;
+    if (this.items().length === 0) return;
+    if (!this.formValid()) {
+      if (this.shippingMethods().length === 0) {
+        this.error.set(this.translate.instant('checkout.noShippingMethods'));
+      } else if (this.paymentMethods().length === 0) {
+        this.error.set(this.translate.instant('checkout.noPaymentMethods'));
+      } else if (!this.selectedShippingMethod()) {
+        this.error.set(this.translate.instant('checkout.selectShippingMethod'));
+      } else if (!this.paymentMethod()) {
+        this.error.set(this.translate.instant('checkout.selectPaymentMethod'));
+      } else {
+        this.error.set(this.translate.instant('errors.pleaseFillRequired'));
+      }
+      return;
+    }
     this.error.set(null);
     this.submitting.set(true);
 
@@ -381,6 +423,9 @@ export class CheckoutComponent implements OnInit {
         if (this.isLoggedIn()) {
           this.router.navigate(['/account', 'orders', order.id]);
         } else {
+          try {
+            sessionStorage.setItem('al_noon_last_order', JSON.stringify(order));
+          } catch {}
           this.router.navigate(['/order-confirmation'], { state: { order } });
         }
       },

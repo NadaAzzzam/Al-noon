@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "data": {
+    "store": {
+      "name": { "en": "Al-Noon", "ar": "الظهر" },
+      "logo": null
+    },
+    "hero": {
+      "images": [],
+      "title": { "en": "Welcome", "ar": "مرحبا" }
+    },
+    "newArrivals": [],
+    "collections": [],
+    "feedbacks": []
+  }
+}

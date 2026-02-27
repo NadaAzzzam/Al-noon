@@ -218,16 +218,26 @@
             <div class="form-row form-row-2">
             <div class="form-group">
               <input type="text" [value]="billingFirstName()"
-                (input)="billingFirstName.set($any($event.target).value)" [placeholder]="'checkout.firstName' | translate" />
+                (input)="billingFirstName.set($any($event.target).value)" [placeholder]="'checkout.firstName' | translate"
+                [class.has-error]="billingFirstNameError()" />
+              @if (billingFirstNameError()) {
+              <span class="field-error">{{ billingFirstNameError() }}</span>
+              }
             </div>
             <div class="form-group">
               <input type="text" [value]="billingLastName()" (input)="billingLastName.set($any($event.target).value)"
-                [placeholder]="'checkout.lastName' | translate" />
+                [placeholder]="'checkout.lastName' | translate" [class.has-error]="billingLastNameError()" />
+              @if (billingLastNameError()) {
+              <span class="field-error">{{ billingLastNameError() }}</span>
+              }
             </div>
           </div>
             <div class="form-group">
               <input type="text" [value]="billingAddress()" (input)="billingAddress.set($any($event.target).value)"
-                [placeholder]="'checkout.address' | translate" />
+                [placeholder]="'checkout.address' | translate" [class.has-error]="billingAddressError()" />
+              @if (billingAddressError()) {
+              <span class="field-error">{{ billingAddressError() }}</span>
+              }
             </div>
             <div class="form-group">
               <input type="text" [value]="billingApartment()" (input)="billingApartment.set($any($event.target).value)"
@@ -236,7 +246,10 @@
             <div class="form-row form-row-3">
               <div class="form-group">
                 <input type="text" [value]="billingCity()" (input)="billingCity.set($any($event.target).value)"
-                  [placeholder]="'checkout.city' | translate" />
+                  [placeholder]="'checkout.city' | translate" [class.has-error]="billingCityError()" />
+                @if (billingCityError()) {
+                <span class="field-error">{{ billingCityError() }}</span>
+                }
               </div>
               <div class="form-group">
                 <input type="text" [value]="billingGovernorate()" (input)="billingGovernorate.set($any($event.target).value)"
@@ -292,11 +305,7 @@
         }
       </div>
 
-      <!-- Discount code -->
-      <div class="summary-discount">
-        <input type="text" [placeholder]="'checkout.discountCode' | translate" class="discount-input" />
-        <button type="button" class="discount-btn">{{ 'checkout.apply' | translate }}</button>
-      </div>
+      <!-- Discount code (hidden until BE supports discountCode in checkout API) -->
 
       <!-- Subtotal, Shipping, Total -->
       <div class="summary-totals">
