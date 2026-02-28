@@ -24,7 +24,7 @@ export class App implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   /** Indices for snow-drop particles (single full-screen layer, no repeat) */
-  readonly dropIndices = Array.from({ length: 55 }, (_, i) => i);
+  readonly dropIndices = Array.from({ length: 35 }, (_, i) => i);
 
   /**
    * Optional emojis for the snow-drop animation.

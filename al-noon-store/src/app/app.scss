@@ -20,15 +20,15 @@
 
 .drop {
   position: absolute;
-  top: -8px;
+  top: -50px; /* Start well above viewport so drops don't linger at top */
   animation: snow-drop linear infinite;
   will-change: transform;
 }
 
 /* Dot — small gold circle */
 .drop.shape-dot {
-  width: 4px;
-  height: 4px;
+  width: 3px;
+  height: 3px;
   border-radius: 50%;
   background: radial-gradient(
     circle at 30% 30%,
@@ -36,13 +36,13 @@
     rgba(201, 163, 79, 0.5) 40%,
     rgba(201, 163, 79, 0.2)
   );
-  box-shadow: 0 0 6px rgba(201, 163, 79, 0.25);
+  box-shadow: 0 0 4px rgba(201, 163, 79, 0.2);
 }
 
 /* Crescent (hilal) — CSS-only */
 .drop.shape-crescent {
-  width: 10px;
-  height: 10px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: radial-gradient(
       circle at 58% 50%,
@@ -61,8 +61,8 @@
 
 /* Star — small 5-point star */
 .drop.shape-star {
-  width: 10px;
-  height: 10px;
+  width: 7px;
+  height: 7px;
   background: rgba(201, 163, 79, 0.8);
   clip-path: polygon(
     50% 0%,
@@ -79,38 +79,38 @@
   box-shadow: 0 0 6px rgba(201, 163, 79, 0.35);
 }
 
-/* Emoji — when ramadanEmojis is set */
+/* Emoji — when ramadanEmojis is set (smaller for better UX) */
 .drop.drop-emoji {
   display: inline-block;
-  font-size: 1.25rem;
+  font-size: 0.8rem;
   line-height: 1;
   width: auto;
   height: auto;
   background: none;
   box-shadow: none;
-  filter: drop-shadow(0 0 6px rgba(201, 163, 79, 0.25));
+  filter: drop-shadow(0 0 4px rgba(201, 163, 79, 0.2));
 }
 
 @keyframes snow-drop {
   0% {
-    transform: translateY(-10px) translateX(0);
-    opacity: 0.85;
+    transform: translateY(0) translateX(0);
+    opacity: 0.2; /* Subtle at top — avoids visible row when page loads */
   }
-  15% {
-    transform: translateY(18vh) translateX(8px);
-    opacity: 0.9;
+  8% {
+    transform: translateY(12vh) translateX(4px);
+    opacity: 0.5;
   }
   50% {
     transform: translateY(55vh) translateX(-5px);
-    opacity: 0.7;
+    opacity: 0.75;
   }
-  85% {
-    transform: translateY(92vh) translateX(6px);
+  92% {
+    transform: translateY(98vh) translateX(6px);
     opacity: 0.5;
   }
   100% {
-    transform: translateY(105vh) translateX(-3px);
-    opacity: 0.2;
+    transform: translateY(110vh) translateX(-3px);
+    opacity: 0.15;
   }
 }
 
@@ -134,18 +134,18 @@
 
 @media (max-width: 480px) {
   .drop.shape-dot {
-    width: 3px;
-    height: 3px;
+    width: 2px;
+    height: 2px;
   }
   .drop.shape-crescent {
-    width: 8px;
-    height: 8px;
+    width: 5px;
+    height: 5px;
   }
   .drop.shape-star {
-    width: 8px;
-    height: 8px;
+    width: 5px;
+    height: 5px;
   }
   .drop.drop-emoji {
-    font-size: 1rem;
+    font-size: 0.65rem;
   }
 }
