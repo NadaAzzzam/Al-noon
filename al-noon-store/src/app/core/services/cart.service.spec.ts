@@ -154,4 +154,86 @@ describe('CartService', () => {
     expect(service.getItemQuantity('p1', 'M')).toBe(0);
     expect(service.getItemQuantity('p1')).toBe(0);
   });
+
+  describe('localized product name (en/ar)', () => {
+    it('should add and persist item with LocalizedText name', () => {
+      const result = service.add({
+        productId: 'p1',
+        quantity: 1,
+        price: 100,
+        name: { en: 'Wool Cape', ar: 'كاب صوف' },
+        image: 'uploads/cape.jpg',
+      });
+      expect(result.success).toBe(true);
+      const items = service.items();
+      expect(items).toHaveLength(1);
+      expect(items[0].name).toEqual({ en: 'Wool Cape', ar: 'كاب صوف' });
+      expect(items[0].image).toBe('uploads/cape.jpg');
+    });
+
+    it('should persist LocalizedText name to localStorage', () => {
+      service.add({
+        productId: 'p1',
+        quantity: 1,
+        price: 100,
+        name: { en: 'Wool Cape', ar: 'كاب صوف' },
+      });
+      const stored = JSON.parse(localStorageMock['al_noon_cart']);
+      expect(stored).toHaveLength(1);
+      expect(stored[0].name).toEqual({ en: 'Wool Cape', ar: 'كاب صوف' });
+    });
+
+    it('should load cart with LocalizedText name from storage', () => {
+      const cartWithLocalizedName = [
+        {
+          productId: 'p1',
+          quantity: 2,
+          price: 100,
+          name: { en: 'Abaya', ar: 'عباية' },
+          variant: undefined,
+        },
+      ];
+      localStorageMock['al_noon_cart'] = JSON.stringify(cartWithLocalizedName);
+      service = new CartService();
+      const items = service.items();
+      expect(items).toHaveLength(1);
+      expect(items[0].name).toEqual({ en: 'Abaya', ar: 'عباية' });
+    });
+
+    it('should support legacy string name (backward compat)', () => {
+      const cartWithLegacyName = [
+        {
+          productId: 'p1',
+          quantity: 1,
+          price: 99.99,
+          name: 'Test Product',
+          variant: undefined,
+        },
+      ];
+      localStorageMock['al_noon_cart'] = JSON.stringify(cartWithLegacyName);
+      service = new CartService();
+      const items = service.items();
+      expect(items).toHaveLength(1);
+      expect(items[0].name).toBe('Test Product');
+    });
+
+    it('should merge quantity and preserve LocalizedText name when adding same product', () => {
+      service.add({
+        productId: 'p1',
+        quantity: 1,
+        price: 100,
+        name: { en: 'Wool Cape', ar: 'كاب صوف' },
+      });
+      service.add({
+        productId: 'p1',
+        quantity: 2,
+        price: 100,
+        name: { en: 'Wool Cape', ar: 'كاب صوف' },
+      });
+      const items = service.items();
+      expect(items).toHaveLength(1);
+      expect(items[0].quantity).toBe(3);
+      expect(items[0].name).toEqual({ en: 'Wool Cape', ar: 'كاب صوف' });
+    });
+  });
 });

@@ -254,14 +254,14 @@
       <div class="cart-drawer-item">
         <div class="cart-drawer-item-image">
           @if (item.image) {
-          <img [src]="api.imageUrl(item.image)" [alt]="item.name ?? ''" loading="lazy" />
+          <img [src]="api.imageUrl(item.image)" [alt]="(item.name | localized) ?? ''" loading="lazy" />
           } @else {
           <div class="cart-drawer-item-placeholder"></div>
           }
         </div>
         <div class="cart-drawer-item-info">
           <a [routerLink]="['/product', item.productId]" class="cart-drawer-item-name" (click)="closeCartDrawer()">{{
-            item.name ?? ('cart.product' | translate) }}</a>
+            (item.name | localized) || ('cart.product' | translate) }}</a>
           <p class="cart-drawer-item-price">{{ item.price | priceFormat:'1.2-2' }}</p>
           @if (item.variant) {
           <p class="cart-drawer-item-variant">{{ 'cart.size' | translate }}: {{ item.variant }}</p>

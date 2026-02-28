@@ -7,8 +7,10 @@ import { LocaleService } from '../../core/services/locale.service';
 export class LocalizedPipe implements PipeTransform {
   constructor(private readonly locale: LocaleService) {}
 
-  transform(value: LocalizedText | undefined | null, lang?: 'en' | 'ar'): string {
-    if (!value || typeof value !== 'object') return '';
+  transform(value: LocalizedText | string | undefined | null, lang?: 'en' | 'ar'): string {
+    if (value == null) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value !== 'object') return '';
     const l = lang ?? this.locale.getLocale();
     return (value[l] ?? value.en ?? value.ar ?? '') as string;
   }

@@ -1,4 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
+import type { LocalizedText } from '../types/api.types';
 
 export interface CartItem {
   productId: string;
@@ -6,7 +7,8 @@ export interface CartItem {
   variant?: string;
   quantity: number;
   price: number;
-  name?: string;
+  /** Product name in en and ar; supports legacy string for backward compat with existing cart data */
+  name?: string | LocalizedText;
   image?: string;
 }
 

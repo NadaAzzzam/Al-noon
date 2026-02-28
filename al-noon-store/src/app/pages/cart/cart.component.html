@@ -28,13 +28,13 @@
       <div class="cart-item">
         <div class="cart-item-image">
           @if (item.image) {
-          <img [src]="api.imageUrl(item.image)" [alt]="item.name ?? ''" loading="lazy" />
+          <img [src]="api.imageUrl(item.image)" [alt]="(item.name | localized) ?? ''" loading="lazy" />
           } @else {
           <div class="image-placeholder"></div>
           }
         </div>
         <div class="cart-item-details">
-          <a [routerLink]="['/product', item.productId]" class="cart-item-name">{{ item.name ?? ('cart.product' |
+          <a [routerLink]="['/product', item.productId]" class="cart-item-name">{{ (item.name | localized) || ('cart.product' |
             translate) }}</a>
           <p class="cart-item-price">{{ item.price | priceFormat:'1.2-2' }}</p>
           @if (item.variant) {

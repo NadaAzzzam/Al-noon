@@ -295,12 +295,12 @@
         <div class="summary-product">
           <div class="summary-product-image">
             @if (item.image) {
-            <img [src]="api.imageUrl(item.image)" [alt]="item.name ?? ''" loading="lazy" />
+            <img [src]="api.imageUrl(item.image)" [alt]="(item.name | localized) ?? ''" loading="lazy" />
             }
             <span class="summary-product-qty">{{ item.quantity }}</span>
           </div>
           <div class="summary-product-info">
-            <span class="summary-product-name">{{ item.name ?? ('cart.product' | translate) }}</span>
+            <span class="summary-product-name">{{ (item.name | localized) || ('cart.product' | translate) }}</span>
             @if (item.variant) {
             <span class="summary-product-variant">{{ item.variant }}</span>
             }

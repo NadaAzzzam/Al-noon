@@ -46,14 +46,10 @@ export class ChatbotComponent implements OnInit {
 
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
-  /** Show widget when we have settings and either enabled or any content (greeting / suggested questions). */
+  /** Show widget only when AI chat is enabled. */
   showWidget = computed(() => {
     const s = this.settings();
-    if (!s) return false;
-    if (s.enabled) return true;
-    const hasGreeting = this.getLocalized(s.greeting).trim().length > 0;
-    const hasSuggestions = (s.suggestedQuestions?.length ?? 0) > 0;
-    return hasGreeting || hasSuggestions;
+    return !!(s && s.enabled);
   });
 
   ngOnInit(): void {

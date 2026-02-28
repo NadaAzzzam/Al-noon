@@ -26,7 +26,7 @@ import type { PaymentMethod } from '../../core/types/api.types';
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslatePipe, PriceFormatPipe],
+  imports: [FormsModule, RouterLink, TranslatePipe, PriceFormatPipe, LocalizedPipe],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

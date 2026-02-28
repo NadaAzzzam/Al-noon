@@ -36,4 +36,9 @@ describe('LocalizedPipe', () => {
   it('falls back to en when locale missing', () => {
     expect(pipe.transform({ en: 'Hello', ar: 'مرحبا' })).toBe('Hello');
   });
+
+  it('returns string as-is for backward compat (legacy cart item names)', () => {
+    expect(pipe.transform('Test Product')).toBe('Test Product');
+    expect(pipe.transform('Wool Cape')).toBe('Wool Cape');
+  });
 });
