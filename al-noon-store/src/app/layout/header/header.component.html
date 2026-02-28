@@ -14,7 +14,7 @@
     <!-- Centered Logo (store logo or default; @if keeps hydration in sync with SSR) -->
     <a [routerLink]="['/']" class="logo" (click)="closeSidebar()">
       @if (true) {
-      <img [src]="api.imageUrl(store()?.logo ?? 'uploads/logos/default-logo.png')" [alt]="(store()?.storeName | localized) || ('storeName' | translate)" />
+      <img [src]="api.imageUrl(store()?.logo ?? 'uploads/logos/default-logo.png')" [alt]="(store()?.storeName | localized:locale.lang()) || ('storeName' | translate)" />
       }
     </a>
 
@@ -111,7 +111,7 @@
         <div class="sidebar-section-list">
           @for (cat of categories(); track cat.id) {
           <a [routerLink]="['/catalog']" [queryParams]="{ category: cat.id }" routerLinkActive="active"
-            (click)="closeSidebar()">{{ cat.name | localized }}</a>
+            (click)="closeSidebar()">{{ cat.name | localized:locale.lang() }}</a>
           }
           @if (categories().length === 0) {
           <a routerLink="/catalog" routerLinkActive="active" (click)="closeSidebar()">{{ 'nav.shop' | translate }}</a>

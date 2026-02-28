@@ -35,7 +35,7 @@
       }
       @if (newsletterMessage() === 'error') {
       <p class="newsletter-msg error">{{ 'footer.subscribeError' | translate }}</p>
-      }
+      }in
     </form>
   </div>
 </section>
@@ -44,28 +44,16 @@
 <!-- ═══════ Dark Footer ═══════ -->
 <footer class="footer">
   <div class="container">
-    <!-- Quick links -->
+    <!-- Footer links (from BE: settings.contentPages + store.quickLinks, deduplicated) -->
     <div class="footer-top">
       <h3 class="footer-title">{{ currentLocale() === 'ar' ? 'روابط سريعة' : 'Quick links' }}</h3>
       <nav class="footer-links">
-        <a [routerLink]="['/']">{{ 'nav.home' | translate }}</a>
-        <a routerLink="/catalog">{{ 'nav.shop' | translate }}</a>
-        @for (link of quickLinks(); track link.url) {
-        @if (link.url.startsWith('/')) {
-        <a [routerLink]="link.url">{{ getLocalized(link.title) }}</a>
+        @for (link of footerLinks(); track link.url + link.title) {
+        @if (link.external) {
+        <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.title }}</a>
         } @else {
-        <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ getLocalized(link.title) }}</a>
+        <a [routerLink]="link.url">{{ link.title }}</a>
         }
-        }
-        @for (page of contentPages(); track page.slug) {
-        @if (page.slug === 'contact') {
-        <a routerLink="/contact">{{ getLocalized(page.title) || ('nav.contact' | translate) }}</a>
-        } @else {
-        <a [routerLink]="['/page', page.slug]">{{ getLocalized(page.title) || page.slug }}</a>
-        }
-        }
-        @if (contentPages().length === 0) {
-        <a routerLink="/contact">{{ 'nav.contact' | translate }}</a>
         }
       </nav>
     </div>

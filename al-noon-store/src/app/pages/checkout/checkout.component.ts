@@ -14,6 +14,7 @@ import { environment } from '../../../environments/environment';
 import { LocaleService } from '../../core/services/locale.service';
 import { AuthService } from '../../core/services/auth.service';
 import { StoreService } from '../../core/services/store.service';
+import { getLocalizedSlug } from '../../core/utils/localized';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LocalizedPipe } from '../../shared/pipe/localized.pipe';
 import { PriceFormatPipe } from '../../shared/pipe/price.pipe';
@@ -368,6 +369,20 @@ export class CheckoutComponent implements OnInit {
     if (!obj) return '';
     const lang = this.locale.getLocale();
     return (obj[lang] ?? obj.en ?? obj.ar ?? '') as string;
+  }
+
+  getPageSlug(page: SettingsContentPage): string {
+    return getLocalizedSlug(page.slug, this.locale.getLocale());
+  }
+
+  isContactPage(page: SettingsContentPage): boolean {
+    const slugVal = page.slug;
+    if (typeof slugVal === 'string') return slugVal.trim().toLowerCase() === 'contact';
+    if (slugVal && typeof slugVal === 'object') {
+      return (slugVal.en ?? '').trim().toLowerCase() === 'contact'
+        || (slugVal.ar ?? '').trim().toLowerCase() === 'contact';
+    }
+    return false;
   }
 
   /**

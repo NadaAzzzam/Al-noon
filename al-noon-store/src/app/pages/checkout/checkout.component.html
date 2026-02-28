@@ -363,11 +363,11 @@
 <footer class="checkout-footer">
   <div class="checkout-footer-inner">
     @if (contentPages().length) {
-      @for (page of contentPages(); track page.slug) {
-        @if (page.slug === 'contact') {
+      @for (page of contentPages(); track getPageSlug(page) || $index) {
+        @if (isContactPage(page)) {
           <a routerLink="/contact" class="footer-link">{{ getLocalized(page.title) || 'Contact' }}</a>
         } @else {
-          <a [routerLink]="['/page', page.slug]" class="footer-link">{{ getLocalized(page.title) || page.slug }}</a>
+          <a [routerLink]="['/page', getPageSlug(page)]" class="footer-link">{{ getLocalized(page.title) || getPageSlug(page) }}</a>
         }
       }
     } @else {

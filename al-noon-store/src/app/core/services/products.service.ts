@@ -99,7 +99,7 @@ export class ProductsService {
                     effectivePrice?: number;
                     inStock?: boolean;
                     formattedDetails?: unknown;
-                    slug?: string;
+                    slug?: { en?: string; ar?: string } | string;
                     seoTitle?: { en?: string; ar?: string };
                     seoDescription?: { en?: string; ar?: string };
                     canonicalUrl?: string;
@@ -113,7 +113,7 @@ export class ProductsService {
                   effectivePrice?: number;
                   inStock?: boolean;
                   formattedDetails?: unknown;
-                  slug?: string;
+                  slug?: { en?: string; ar?: string } | string;
                   seoTitle?: { en?: string; ar?: string };
                   seoDescription?: { en?: string; ar?: string };
                   canonicalUrl?: string;

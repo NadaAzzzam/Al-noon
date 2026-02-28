@@ -1,8 +1,29 @@
 import { describe, it, expect } from 'vitest';
-import { getLocalized } from './localized';
+import { getLocalized, getLocalizedSlug } from './localized';
 import type { LocalizedText } from '../types/api.types';
 
 describe('localized', () => {
+  describe('getLocalizedSlug', () => {
+    it('returns empty string for null or undefined', () => {
+      expect(getLocalizedSlug(null, 'en')).toBe('');
+      expect(getLocalizedSlug(undefined, 'en')).toBe('');
+    });
+
+    it('returns string when slug is a string', () => {
+      expect(getLocalizedSlug('wool-cape', 'en')).toBe('wool-cape');
+    });
+
+    it('returns en/ar by locale when slug is { en, ar }', () => {
+      expect(getLocalizedSlug({ en: 'wool-cape', ar: 'كاب-صوف' }, 'en')).toBe('wool-cape');
+      expect(getLocalizedSlug({ en: 'wool-cape', ar: 'كاب-صوف' }, 'ar')).toBe('كاب-صوف');
+    });
+
+    it('falls back across locales when one missing', () => {
+      expect(getLocalizedSlug({ en: 'only-en' }, 'ar')).toBe('only-en');
+      expect(getLocalizedSlug({ ar: 'only-ar' }, 'en')).toBe('only-ar');
+    });
+  });
+
   describe('getLocalized', () => {
     it('returns empty string for null or undefined', () => {
       expect(getLocalized(null, 'en')).toBe('');

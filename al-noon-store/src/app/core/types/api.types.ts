@@ -115,9 +115,13 @@ export interface StoreData {
   feedbacks: StoreFeedback[];
 }
 
+/** Localized slug from BE: { en, ar } same shape as LocalizedText */
+export type LocalizedSlug = LocalizedText;
+
 /** Content page */
 export interface ContentPage {
-  slug: string;
+  /** URL-friendly identifier by locale (e.g. { en: "privacy", ar: "الخصوصية" }) */
+  slug?: LocalizedSlug | string;
   title: LocalizedText;
   content: LocalizedText;
 }
@@ -269,8 +273,8 @@ export interface Product {
   defaultMediaType?: string;
   /** API: preferred type for hover media (e.g. "image", "video"). */
   hoverMediaType?: string;
-  /** URL-friendly identifier for product (e.g. melton-abaya). Use for links and canonical when present. */
-  slug?: string;
+  /** URL-friendly identifier by locale (e.g. { en: "wool-cape", ar: "كاب-صوف" }) */
+  slug?: LocalizedSlug | string;
   /** Product-level SEO meta when API provides. Overrides name/description for meta tags. */
   seoTitle?: LocalizedText;
   seoDescription?: LocalizedText;
@@ -726,7 +730,8 @@ export interface StockDisplaySettings {
 
 /** Content page item in GET /api/settings (data.settings.contentPages). */
 export interface SettingsContentPage {
-  slug: string;
+  /** URL-friendly identifier by locale (e.g. { en: "privacy", ar: "الخصوصية" }) */
+  slug?: LocalizedSlug | string;
   title?: LocalizedText;
 }
 

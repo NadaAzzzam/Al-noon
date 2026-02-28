@@ -10,6 +10,7 @@ import { CartService } from '../../core/services/cart.service';
 import { StoreService } from '../../core/services/store.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
+import { getLocalizedSlug } from '../../core/utils/localized';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PriceFormatPipe } from '../../shared/pipe/price.pipe';
 import { SanitizeHtmlPipe } from '../../shared/pipe/sanitize-html.pipe';
@@ -282,7 +283,7 @@ export class ProductDetailComponent implements OnInit {
         this.quantity.set(1);
         if (!id || id === 'undefined' || id === '') return [];
         // After redirect ID→slug, param becomes slug but BE expects _id. Skip refetch when param matches our product's slug.
-        if (existingProduct?.slug === id) {
+        if (existingProduct && this.slugMatches(id, existingProduct)) {
           this.product.set(existingProduct);
           this.related.set(existingRelated);
           return of(existingProduct);
@@ -311,11 +312,12 @@ export class ProductDetailComponent implements OnInit {
         this.product.set(p);
         this.setDefaultSelections(p);
         this.updateProductMeta(p);
-        if (p.slug && p.id) this.cacheSlugId(p.slug, p.id);
+        const slug = getLocalizedSlug(p.slug, this.locale.getLocale());
+        if (slug && p.id) this.cacheSlugId(slug, p.id);
         // Replace URL with slug when loaded by ID so route reflects BE SEO (canonical slug)
         const currentParam = this.route.snapshot.paramMap.get('id');
-        if (p.slug && currentParam && currentParam !== p.slug) {
-          this.router.navigate(['/product', p.slug], { replaceUrl: true });
+        if (slug && currentParam && currentParam !== slug) {
+          this.router.navigate(['/product', slug], { replaceUrl: true });
         }
       },
       error: () => this.product.set(null),
@@ -328,10 +330,11 @@ export class ProductDetailComponent implements OnInit {
     const desc = this.getLocalized(p.description);
     const seoTitle = p.seoTitle ? this.getLocalized(p.seoTitle) : name;
     const seoDesc = p.seoDescription ? this.getLocalized(p.seoDescription) : desc;
+    const slug = getLocalizedSlug(p.slug, this.locale.getLocale());
     const canonicalUrl =
       p.canonicalUrl ||
-      (p.slug && typeof this.doc?.defaultView?.location?.origin === 'string'
-        ? `${this.doc.defaultView.location.origin}/product/${p.slug}`
+      (slug && typeof this.doc?.defaultView?.location?.origin === 'string'
+        ? `${this.doc.defaultView.location.origin}/product/${slug}`
         : undefined);
     this.seo.setPage({
       title: seoTitle,
@@ -589,7 +592,7 @@ export class ProductDetailComponent implements OnInit {
   private resolveApiId(param: string | null, product?: Product | null): string | null {
     if (!param) return null;
     if (ProductDetailComponent.OBJECT_ID_REGEX.test(param)) return param;
-    if (product?.slug === param) return product.id;
+    if (product && this.slugMatches(param, product)) return product.id;
     try {
       const raw = typeof sessionStorage !== 'undefined' && sessionStorage.getItem(ProductDetailComponent.SLUG_ID_CACHE_KEY);
       const map = raw ? (JSON.parse(raw) as Record<string, string>) : {};
@@ -597,6 +600,20 @@ export class ProductDetailComponent implements OnInit {
     } catch {
       return null;
     }
+  }
+
+  /** Check if param matches product's slug (slug.en, slug.ar, or legacy string). */
+  private slugMatches(param: string, product: Product): boolean {
+    if (!param) return false;
+    const p = param.trim().toLowerCase();
+    const slug = product.slug;
+    if (typeof slug === 'string') return slug.trim().toLowerCase() === p;
+    if (slug && typeof slug === 'object') {
+      const en = (slug.en ?? '').trim().toLowerCase();
+      const ar = (slug.ar ?? '').trim().toLowerCase();
+      return (en !== '' && p === en) || (ar !== '' && p === ar);
+    }
+    return false;
   }
 
   private cacheSlugId(slug: string, id: string): void {

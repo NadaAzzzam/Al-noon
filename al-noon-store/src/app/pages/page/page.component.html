@@ -5,8 +5,8 @@
     <p class="page-loading">{{ 'catalog.loading' | translate }}</p>
   } @else if (page(); as p) {
     <article>
-      <h1 class="page-title">{{ p.title | localized }}</h1>
-      <div class="page-body" [innerHTML]="(p.content | localized) ?? ''"></div>
+      <h1 class="page-title">{{ p.title | localized:locale.lang() }}</h1>
+      <div class="page-body" [innerHTML]="(p.content | localized:locale.lang()) ?? ''"></div>
     </article>
   }
 </div>

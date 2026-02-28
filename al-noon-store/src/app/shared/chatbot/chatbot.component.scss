@@ -117,7 +117,8 @@
   }
 }
 
-[dir='rtl'] .chatbot-widget {
+[dir='rtl'] .chatbot-widget,
+:host-context([dir='rtl']) .chatbot-widget {
   right: auto;
   left: 24px;
   align-items: flex-start;

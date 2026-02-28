@@ -4,6 +4,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { PriceFormatPipe } from '../../pipe/price.pipe';
 import { ApiService } from '../../../core/services/api.service';
 import { LocaleService } from '../../../core/services/locale.service';
+import { getLocalizedSlug } from '../../../core/utils/localized';
 import { StarRatingComponent } from '../star-rating/star-rating.component';
 import type { Product } from '../../../core/types/api.types';
 
@@ -15,7 +16,7 @@ import type { Product } from '../../../core/types/api.types';
   template: `
     @let p = product();
     @if (p) {
-      <a [routerLink]="['/product', p.slug || p.id]" class="product-card">
+      <a [routerLink]="['/product', slugForLink() || p.id]" class="product-card">
         <div class="product-image-wrap"
              [class.has-hover-image]="hasSecondMedia()">
           @if (mainMedia()) {
@@ -257,6 +258,13 @@ export class ProductCardComponent {
     if (!p?.name) return '';
     const lang = this.locale.getLocale();
     return (p.name[lang] ?? p.name.en ?? p.name.ar ?? '') as string;
+  });
+
+  /** Slug for links (slug: { en, ar } by locale, or legacy string). */
+  slugForLink = computed(() => {
+    const p = this.product();
+    if (!p) return '';
+    return getLocalizedSlug(p.slug, this.locale.getLocale());
   });
 
   hasSecondMedia = computed(() => {

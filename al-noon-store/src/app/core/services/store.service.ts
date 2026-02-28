@@ -30,25 +30,21 @@ function normalizeSocialLinks(raw: unknown): StoreSocialLink[] {
   return [];
 }
 
-/** Known content page slugs (backend GET /store/page/:slug). Contact is a separate route /contact. */
-const PAGE_SLUG_MAP: Record<string, string> = {
-  privacy: '/page/privacy',
-  'shipping-policy': '/page/shipping-policy',
-  shipping: '/page/shipping-policy',
-  'return-policy': '/page/return-policy',
-  about: '/page/about',
-};
-
-/** Normalize quickLink URL so internal page slugs match app routes (e.g. /privacy → /page/privacy). */
+/**
+ * Normalize quickLink URL from BE. Uses BE url/slug as-is; only applies app route conventions:
+ * - Absolute URLs (http/https): pass through
+ * - Full paths (/page/privacy, /contact): pass through
+ * - Single segment (e.g. "privacy", "contact"): slug → /page/slug; "contact" → /contact
+ */
 function normalizeQuickLinkUrl(url: string): string {
   if (!url || typeof url !== 'string') return '';
   const trimmed = url.trim();
   if (!trimmed) return '';
-  const path = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed;
-  const slug = path.split('/')[0]?.toLowerCase();
-  if (slug && PAGE_SLUG_MAP[slug]) return PAGE_SLUG_MAP[slug];
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+  if (trimmed.startsWith('/')) return trimmed;
+  const slug = trimmed.split('/')[0]?.toLowerCase() ?? trimmed.toLowerCase();
   if (slug === 'contact') return '/contact';
-  return trimmed.startsWith('/') || trimmed.startsWith('http') ? trimmed : `/${trimmed}`;
+  return `/page/${slug}`;
 }
 
 /** Ensure quickLinks is always an array; BE sends label, FE uses title. */
@@ -237,7 +233,9 @@ export class StoreService {
               next: (r) => {
                 if (!r.success || !r.data) return;
                 const d = r.data as { page?: ContentPage } & ContentPage;
-                const page = d.page ?? (d.slug != null && (d.title != null || d.content != null) ? (d as ContentPage) : null);
+                const slugVal = (d as { slug?: { en?: string; ar?: string } | string }).slug;
+                const hasSlug = slugVal != null && (typeof slugVal === 'string' ? slugVal !== '' : (slugVal.en != null || slugVal.ar != null));
+                const page = d.page ?? (hasSlug && (d.title != null || d.content != null) ? (d as ContentPage) : null);
                 if (page) sub.next(page);
               },
               error: (e) => sub.error(e),

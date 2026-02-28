@@ -26,7 +26,7 @@ export class HeaderComponent implements OnInit {
   private readonly storeService = inject(StoreService);
   private readonly auth = inject(AuthService);
   readonly cart = inject(CartService);
-  private readonly locale = inject(LocaleService);
+  readonly locale = inject(LocaleService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);

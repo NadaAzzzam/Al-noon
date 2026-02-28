@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs/operators';
@@ -8,7 +8,7 @@ import { SeoService } from '../../core/services/seo.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LocaleService } from '../../core/services/locale.service';
 import { LocalizedPipe } from '../../shared/pipe/localized.pipe';
-import { getLocalized } from '../../core/utils/localized';
+import { getLocalized, getLocalizedSlug } from '../../core/utils/localized';
 import type { ContentPage } from '../../core/types/api.types';
 
 function stripHtml(html: string, maxLength = 160): string {
@@ -35,6 +35,21 @@ export class PageComponent implements OnInit {
   notFound = signal(false);
   loading = signal(true);
 
+  constructor() {
+    effect(() => {
+      const p = this.page();
+      const lang = this.locale.lang();
+      if (p) {
+        const title = getLocalized(p.title, lang);
+        const contentStr = getLocalized(p.content, lang);
+        this.seo.setPage({
+          title: title || getLocalizedSlug(p.slug, lang),
+          description: contentStr ? stripHtml(contentStr) : undefined,
+        });
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.route.paramMap.pipe(
       switchMap((params) => {
@@ -55,13 +70,7 @@ export class PageComponent implements OnInit {
         this.loading.set(false);
         if (p) {
           this.page.set(p);
-          const lang = this.locale.getLocale();
-          const title = getLocalized(p.title, lang);
-          const contentStr = getLocalized(p.content, lang);
-          this.seo.setPage({
-            title: title || p.slug,
-            description: contentStr ? stripHtml(contentStr) : undefined,
-          });
+          // SEO updated by effect() when page or locale changes
         } else if (!this.notFound()) {
           this.loading.set(false);
         }

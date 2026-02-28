@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OrdersService } from '../../../core/services/orders.service';
 import { ApiService } from '../../../core/services/api.service';
 import { LocaleService } from '../../../core/services/locale.service';
+import { getLocalizedSlug } from '../../../core/utils/localized';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PriceFormatPipe } from '../../../shared/pipe/price.pipe';
 import type { Order, StructuredAddress } from '../../../core/types/api.types';
@@ -44,6 +45,10 @@ export class OrderDetailComponent implements OnInit {
     if (!obj) return '';
     const lang = this.locale.getLocale();
     return (obj[lang] ?? obj.en ?? obj.ar ?? '') as string;
+  }
+
+  getProductSlug(product: { slug?: { en?: string; ar?: string } | string; id?: string }): string {
+    return getLocalizedSlug(product.slug, this.locale.getLocale()) || product?.id || '';
   }
 
   /** Format shipping address — handles both structured object and flat string */
