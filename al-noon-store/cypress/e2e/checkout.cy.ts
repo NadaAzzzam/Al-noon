@@ -126,4 +126,31 @@ describe('Checkout', () => {
     cy.get('.error-block, .error-msg, .discount-error').should('exist').and('contain.text', 'Invalid');
     cy.get('.discount-applied').should('not.exist');
   });
+
+  it('should disable submit button during checkout (double-click prevention)', () => {
+    cy.intercept('POST', '**/checkout', {
+      delay: 1500,
+      statusCode: 201,
+      body: {
+        success: true,
+        data: { order: { id: 'ord-1', items: [], total: 100, status: 'PENDING' } },
+      },
+    }).as('checkout');
+    cy.visit('/checkout', { onBeforeLoad: (w) => w.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)) });
+    cy.get('button[type="submit"]').first().click();
+    cy.get('button[type="submit"]').first().should('be.disabled');
+    cy.wait('@checkout');
+  });
+
+  it('should show update cart link when checkout returns out-of-stock 400', () => {
+    cy.intercept('POST', '**/checkout', {
+      statusCode: 400,
+      body: { success: false, message: 'Product X is out of stock' },
+    }).as('checkout');
+    cy.visit('/checkout', { onBeforeLoad: (w) => w.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)) });
+    cy.get('button[type="submit"]').first().click();
+    cy.wait('@checkout');
+    cy.get('.error-block').should('exist');
+    cy.get('.error-update-cart, a[href*="cart"]').should('exist');
+  });
 });

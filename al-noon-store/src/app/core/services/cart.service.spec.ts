@@ -125,4 +125,33 @@ describe('CartService', () => {
     service.setQuantity('p2', -1);
     expect(service.items()).toHaveLength(0);
   });
+
+  it('should respect maxStock when setQuantity exceeds availability', () => {
+    service.add({ productId: 'p1', quantity: 2, price: 100 });
+    const result = service.setQuantity('p1', 9999, undefined, 5);
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('Only 5 available');
+    expect(service.getItemQuantity('p1')).toBe(2);
+  });
+
+  it('should persist special instructions to localStorage', () => {
+    service.add({ productId: 'p1', quantity: 1, price: 100 });
+    service.setSpecialInstructions('Handle with care');
+    expect(service.specialInstructions()).toBe('Handle with care');
+    expect(localStorageMock['al_noon_cart_instructions']).toBe('Handle with care');
+  });
+
+  it('should compute subtotal correctly for multiple items', () => {
+    service.add({ productId: 'p1', quantity: 2, price: 100 });
+    service.add({ productId: 'p2', quantity: 3, price: 50 });
+    expect(service.subtotal()).toBe(350);
+    expect(service.count()).toBe(5);
+  });
+
+  it('should get item quantity for variant', () => {
+    service.add({ productId: 'p1', variant: 'S', quantity: 2, price: 100 });
+    expect(service.getItemQuantity('p1', 'S')).toBe(2);
+    expect(service.getItemQuantity('p1', 'M')).toBe(0);
+    expect(service.getItemQuantity('p1')).toBe(0);
+  });
 });

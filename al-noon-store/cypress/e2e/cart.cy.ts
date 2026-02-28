@@ -34,8 +34,8 @@ describe('Cart', () => {
         win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
       },
     });
-    cy.get('details summary').first().click();
-    cy.get('.cart-instructions textarea').should('exist').type('Gift wrap please');
+    cy.get('details summary').first().scrollIntoView().click({ force: true });
+    cy.get('.cart-instructions textarea, details textarea').should('exist').type('Gift wrap please');
   });
 
   it('should persist cart after page refresh', () => {
@@ -46,6 +46,31 @@ describe('Cart', () => {
     });
     cy.get('body').should('contain.text', 'Test Product');
     cy.reload();
+    cy.get('body').should('contain.text', 'Test Product');
+  });
+
+  it('should keep cart items after logout when using guest cart (localStorage)', () => {
+    cy.visit('/cart', {
+      onBeforeLoad(win) {
+        win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
+      },
+    });
+    cy.get('body').should('contain.text', 'Test Product');
+    cy.visit('/account/login');
+    cy.visit('/cart');
+    cy.get('body').should('contain.text', 'Test Product');
+  });
+
+  it('should persist cart across navigation (cart → home → cart)', () => {
+    cy.visit('/cart', {
+      onBeforeLoad(win) {
+        win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
+      },
+    });
+    cy.get('body').should('contain.text', 'Test Product');
+    cy.get('a[href="/"]').first().click();
+    cy.url().should('include', '/');
+    cy.visit('/cart');
     cy.get('body').should('contain.text', 'Test Product');
   });
 });

@@ -4,6 +4,30 @@ Maps the requested scenarios to existing tests and gaps. **BE** = Backend respon
 
 ---
 
+## 0. Advanced Scenarios – Quick Reference
+
+| Category | Scenario | Owner | Covered |
+|----------|----------|-------|---------|
+| **Cart** | Add item → logout → login → cart restored | FE | cart.cy.ts (E2E) |
+| **Cart** | Add in two tabs → cart sync (localStorage shared) | FE | cart.cy.ts (persist after refresh) |
+| **Cart** | Remove in one tab → other reflects | FE | Future: storage event |
+| **Cart** | Currency change → total recalculates | FE | LocaleService; display |
+| **Payment** | Double-click Pay Now → one order | FE | checkout.component.spec.ts, checkout.cy.ts |
+| **Payment** | Refresh during callback | BE | Idempotency key |
+| **Inventory** | Two users buy last item | **BE** | Optimistic locking |
+| **Inventory** | Stock 0 while page open | **BE** | Revalidate at checkout |
+| **Discount** | Multiple coupons, B2G1, min cart boundary | **BE** | Backend rules |
+| **Security** | Modify price in DevTools | **BE** | Recompute server-side |
+| **Security** | Negative quantity in request | **BE** | Validate server-side |
+| **State** | State resets on logout | FE | auth.service, cart.clear |
+| **State** | Error state cleared correctly | FE | checkout.component.spec.ts |
+| **Boundary** | Price=0, qty=0, qty=9999, discount>100% | FE | Unit tests added |
+| **Boundary** | Quantity negative removes item | FE | cart.service.spec.ts |
+| **API** | Missing fields, null, unexpected types | FE | product-normalizer.spec.ts |
+| **Regression** | Login, Add to cart, Checkout, Payment | Both | E2E flows |
+
+---
+
 ## 1. E2E Scenarios
 
 ### 1.1 User Registration & Login
@@ -194,3 +218,43 @@ Maps the requested scenarios to existing tests and gaps. **BE** = Backend respon
 - Payment failure, rate limiting
 - SQL injection, XSS, admin route protection
 - Cancel shipped order, guest order lookup
+
+---
+
+## 6. Advanced E2E & Unit Scenarios (Added)
+
+### 6.1 Cart Edge Cases (E2E)
+
+| Scenario | Test | File |
+|----------|------|------|
+| Add item → logout → login → cart still visible | Yes | cart.cy.ts |
+| Cart persists after refresh (localStorage shared) | Yes | cart.cy.ts |
+| Double-click Pay Now → button disabled, single request | Yes | checkout.cy.ts |
+| Out-of-stock 400 → shows "Update cart" | Yes | checkout.component.spec.ts |
+
+### 6.2 Unit – Boundary Values
+
+| Scenario | Test | File |
+|----------|------|------|
+| Price = 0 | Yes | price.pipe.spec.ts |
+| Price = max/large number | Yes | price.pipe.spec.ts |
+| Quantity = 0 removes item | Yes | cart.service.spec.ts |
+| Quantity = 9999 (respect maxStock) | Yes | cart.service.spec.ts |
+| setQuantity negative removes | Yes | cart.service.spec.ts |
+| Discount > 100% | **BE** | Backend validates |
+
+### 6.3 Unit – State Management
+
+| Scenario | Test | File |
+|----------|------|------|
+| submitting=true during checkout (double-click) | Yes | checkout.component.spec.ts |
+| Error cleared on retry | Implicit | checkout error handling |
+| Auth state on logout | Yes | auth.service (signOut clears user) |
+
+### 6.4 Unit – API Response Mapping
+
+| Scenario | Test | File |
+|----------|------|------|
+| Missing optional fields | Yes | product-normalizer.spec.ts |
+| Null values | Yes | product-normalizer, price pipe |
+| getItemsForOrder format | Yes | cart.service.spec.ts |

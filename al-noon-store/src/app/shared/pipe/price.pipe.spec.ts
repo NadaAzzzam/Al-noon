@@ -59,4 +59,15 @@ describe('PriceFormatPipe', () => {
     const result = pipe.transform(99.999);
     expect(result).toMatch(/\d/);
   });
+
+  it('handles large numbers (boundary: max practical price)', () => {
+    const result = pipe.transform(999999.99);
+    expect(result).toContain('999');
+    expect(result).not.toContain('Infinity');
+  });
+
+  it('handles 0.1 + 0.2 style floating point (display rounding)', () => {
+    const result = pipe.transform(0.1 + 0.2);
+    expect(result).toMatch(/\d/);
+  });
 });

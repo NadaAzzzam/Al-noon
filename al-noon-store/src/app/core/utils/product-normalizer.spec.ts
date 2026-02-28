@@ -40,4 +40,47 @@ describe('product-normalizer', () => {
     const result = normalizeProductFromApi(raw);
     expect(result.discountPrice).toBe(99.5);
   });
+
+  it('handles missing optional fields (category, discountPrice, media)', () => {
+    const raw = { id: '1', name: { en: 'Minimal', ar: '' } } as ProductApiShape & { _id?: string };
+    const result = normalizeProductFromApi(raw);
+    expect(result.id).toBe('1');
+    expect(result.category).toBeUndefined();
+    expect(result.discountPrice).toBeUndefined();
+    expect(result.images).toEqual([]);
+  });
+
+  it('drops null discountPrice (treats as absent)', () => {
+    const raw = {
+      id: '1',
+      name: { en: 'Test', ar: '' },
+      discountPrice: null,
+    } as ProductApiShape & { _id?: string };
+    const result = normalizeProductFromApi(raw);
+    expect(result.discountPrice).toBeUndefined();
+  });
+
+  it('drops non-number discountPrice (unexpected type)', () => {
+    const raw = {
+      id: '1',
+      name: { en: 'Test', ar: '' },
+      discountPrice: '99' as unknown as number,
+    } as ProductApiShape & { _id?: string };
+    const result = normalizeProductFromApi(raw);
+    expect(result.discountPrice).toBeUndefined();
+  });
+
+  it('passes through extra unknown fields (API version change)', () => {
+    const raw = {
+      id: '1',
+      name: { en: 'Test', ar: '' },
+      extraField: 'ignored',
+      newApiField: 123,
+    } as ProductApiShape & { _id?: string };
+    const result = normalizeProductFromApi(raw);
+    expect(result.id).toBe('1');
+    const r = result as Record<string, unknown>;
+    expect(r['extraField']).toBe('ignored');
+    expect(r['newApiField']).toBe(123);
+  });
 });

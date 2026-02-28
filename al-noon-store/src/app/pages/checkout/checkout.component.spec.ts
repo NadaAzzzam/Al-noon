@@ -132,4 +132,35 @@ describe('CheckoutComponent', () => {
     component.submit();
     expect(component.submitting()).toBe(true);
   });
+
+  it('should set showUpdateCart when checkout returns 400 with out-of-stock message', () => {
+    checkoutSpy.mockReturnValue(
+      throwError(() => ({ status: 400, error: { message: 'Product X is out of stock' } }))
+    );
+    fixture.detectChanges();
+    component.submit();
+    expect(component.showUpdateCart()).toBe(true);
+  });
+
+  it('should NOT set showUpdateCart when 400 has non-stock message', () => {
+    checkoutSpy.mockReturnValue(
+      throwError(() => ({ status: 400, error: { message: 'Invalid shipping method' } }))
+    );
+    fixture.detectChanges();
+    component.submit();
+    expect(component.showUpdateCart()).toBe(false);
+  });
+
+  it('should clear error and showUpdateCart when submitting again', () => {
+    checkoutSpy.mockReturnValue(
+      throwError(() => ({ status: 400, error: { message: 'Product X is out of stock' } }))
+    );
+    fixture.detectChanges();
+    component.submit();
+    expect(component.showUpdateCart()).toBe(true);
+    checkoutSpy.mockReturnValue(of({ id: 'ord1', items: [], total: 100, status: 'PENDING' }));
+    component.submit();
+    expect(component.error()).toBeNull();
+    expect(component.showUpdateCart()).toBe(false);
+  });
 });
