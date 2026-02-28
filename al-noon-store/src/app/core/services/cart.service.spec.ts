@@ -102,6 +102,11 @@ describe('CartService', () => {
   });
 
   it('should open and close drawer', () => {
+    // Ensure document.body exists (CI may run without full DOM)
+    if (!document.body) {
+      const body = document.createElement('body');
+      (document as { body: HTMLElement }).body = body;
+    }
     const bodySpy = vi.spyOn(document.body.style, 'overflow', 'set');
     service.openDrawer();
     expect(service.drawerOpen()).toBe(true);
