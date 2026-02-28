@@ -174,6 +174,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/products/filters/sort": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get sort options (Shopify-style)
+         * @description Returns sort options in Shopify ProductCollectionSortKeys style. Use data[].value in GET /api/products?sort=.
+         */
+        get: operations["getSortFilters"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/products": {
         parameters: {
             query?: never;
@@ -348,6 +368,26 @@ export interface paths {
          * @description Accepts both old flat fields (guestName, guestEmail, shippingAddress as string) and new Shopify-style structured fields. When new structured fields are present they take priority. Backward compatible.
          */
         post: operations["createOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/orders/guest/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get guest order by ID (public)
+         * @description Public endpoint for guests to look up their order after checkout. Use when sessionStorage is cleared (e.g. tab closed). Requires email query param to match the order's email for security.
+         */
+        get: operations["getGuestOrder"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -565,6 +605,60 @@ export interface paths {
         head?: never;
         /** Update user role (Admin) */
         patch: operations["updateUserRole"];
+        trace?: never;
+    };
+    "/api/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all roles (Admin) */
+        get: operations["listRoles"];
+        put?: never;
+        /** Create a new role (Admin) */
+        post: operations["createRole"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/roles/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all permission definitions (Admin) */
+        get: operations["listPermissionDefinitions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/roles/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get role by ID (Admin) */
+        get: operations["getRole"];
+        /** Update role (Admin) */
+        put: operations["updateRole"];
+        post?: never;
+        /** Delete role (Admin) */
+        delete: operations["deleteRole"];
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/cities": {
@@ -1385,44 +1479,44 @@ export interface components {
             data: components["schemas"]["FilterOptionItem"][];
         };
         /**
-         * @description Response of GET /api/products/filters/sort. Use data[].value in GET /api/products?sort=.
+         * @description Response of GET /api/products/filters/sort. Use data[].value in GET /api/products?sort=. Values follow Shopify ProductCollectionSortKeys style.
          * @example {
          *       "success": true,
          *       "data": [
          *         {
-         *           "value": "newest",
-         *           "labelEn": "Newest",
-         *           "labelAr": "الأحدث"
-         *         },
-         *         {
-         *           "value": "priceAsc",
-         *           "labelEn": "Price: Low to High",
-         *           "labelAr": "السعر: منخفض إلى عالي"
-         *         },
-         *         {
-         *           "value": "priceDesc",
-         *           "labelEn": "Price: High to Low",
-         *           "labelAr": "السعر: عالي إلى منخفض"
-         *         },
-         *         {
-         *           "value": "nameAsc",
-         *           "labelEn": "Name A–Z",
-         *           "labelAr": "الاسم أ–ي"
-         *         },
-         *         {
-         *           "value": "nameDesc",
-         *           "labelEn": "Name Z–A",
-         *           "labelAr": "الاسم ي–أ"
-         *         },
-         *         {
-         *           "value": "bestSelling",
+         *           "value": "BEST_SELLING",
          *           "labelEn": "Best selling",
          *           "labelAr": "الأكثر مبيعاً"
          *         },
          *         {
-         *           "value": "leastSelling",
-         *           "labelEn": "Least selling",
-         *           "labelAr": "الأقل مبيعاً"
+         *           "value": "CREATED_DESC",
+         *           "labelEn": "Newest",
+         *           "labelAr": "الأحدث"
+         *         },
+         *         {
+         *           "value": "PRICE_ASC",
+         *           "labelEn": "Price: Low to High",
+         *           "labelAr": "السعر: منخفض إلى عالي"
+         *         },
+         *         {
+         *           "value": "PRICE_DESC",
+         *           "labelEn": "Price: High to Low",
+         *           "labelAr": "السعر: عالي إلى منخفض"
+         *         },
+         *         {
+         *           "value": "TITLE_ASC",
+         *           "labelEn": "Name A–Z",
+         *           "labelAr": "الاسم أ–ي"
+         *         },
+         *         {
+         *           "value": "TITLE_DESC",
+         *           "labelEn": "Name Z–A",
+         *           "labelAr": "الاسم ي–أ"
+         *         },
+         *         {
+         *           "value": "MANUAL",
+         *           "labelEn": "Manual",
+         *           "labelAr": "يدوي"
          *         }
          *       ]
          *     }
@@ -1430,7 +1524,7 @@ export interface components {
         SortFiltersResponse: {
             /** @example true */
             success: boolean;
-            /** @description Sort options. value: newest | priceAsc | priceDesc | nameAsc | nameDesc | bestSelling | leastSelling */
+            /** @description Sort options (Shopify-style): BEST_SELLING | CREATED_DESC | PRICE_ASC | PRICE_DESC | TITLE_ASC | TITLE_DESC | MANUAL */
             data: components["schemas"]["FilterOptionItem"][];
         };
         /** @description Query params actually applied by list products (echo of handled filters) */
@@ -2451,6 +2545,26 @@ export interface operations {
             };
         };
     };
+    getSortFilters: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Sort options */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SortFiltersResponse"];
+                };
+            };
+        };
+    };
     listProducts: {
         parameters: {
             query?: {
@@ -2468,8 +2582,8 @@ export interface operations {
                 newArrival?: "true" | "false";
                 /** @description Stock filter */
                 availability?: "all" | "inStock" | "outOfStock";
-                /** @description Sort order */
-                sort?: "newest" | "priceAsc" | "priceDesc" | "nameAsc" | "nameDesc" | "bestSelling" | "leastSelling";
+                /** @description Sort order (Shopify-style; legacy values also accepted) */
+                sort?: "BEST_SELLING" | "CREATED_DESC" | "PRICE_ASC" | "PRICE_DESC" | "TITLE_ASC" | "TITLE_DESC" | "MANUAL";
                 /** @description Min price (EGP) */
                 minPrice?: number;
                 /** @description Max price (EGP) */
@@ -3270,6 +3384,59 @@ export interface operations {
             };
         };
     };
+    getGuestOrder: {
+        parameters: {
+            query: {
+                /** @description Guest email (must match order email) */
+                email: string;
+            };
+            header?: never;
+            path: {
+                /** @description Order ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success, data.order (same shape as GET /api/orders/{id}) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Missing or invalid email query parameter */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Forbidden (logged-in orders must use authenticated endpoint) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Order not found or email does not match */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
     getOrder: {
         parameters: {
             query?: never;
@@ -3858,6 +4025,410 @@ export interface operations {
                 };
             };
             /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    listRoles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of roles with permission counts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success?: boolean;
+                        data?: {
+                            roles?: {
+                                id?: string;
+                                name?: string;
+                                key?: string;
+                                /** @enum {string} */
+                                status?: "ACTIVE" | "INACTIVE";
+                                description?: string | null;
+                                permissionIds?: string[];
+                                permissionsCount?: number;
+                                /** Format: date-time */
+                                createdAt?: string;
+                                /** Format: date-time */
+                                updatedAt?: string;
+                            }[];
+                        };
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    createRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Role display name */
+                    name: string;
+                    /** @description Stable key (e.g. MANAGER). Uppercase letters, numbers, underscores. */
+                    key: string;
+                    description?: string | null;
+                    /** @description Permission IDs to assign */
+                    permissionIds?: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description Role created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success?: boolean;
+                        message?: string;
+                        data?: {
+                            role?: {
+                                id?: string;
+                                name?: string;
+                                key?: string;
+                                status?: string;
+                                description?: string | null;
+                                permissionIds?: string[];
+                                permissionsCount?: number;
+                                /** Format: date-time */
+                                createdAt?: string;
+                                /** Format: date-time */
+                                updatedAt?: string;
+                            };
+                        };
+                    };
+                };
+            };
+            /** @description Validation error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Role key already exists */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    listPermissionDefinitions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of permission definitions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success?: boolean;
+                        data?: {
+                            permissions?: {
+                                id?: string;
+                                key?: string;
+                                label?: string;
+                                group?: string;
+                                description?: string | null;
+                            }[];
+                        };
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    getRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Role with permission IDs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success?: boolean;
+                        data?: {
+                            role?: {
+                                id?: string;
+                                name?: string;
+                                key?: string;
+                                status?: string;
+                                description?: string | null;
+                                permissionIds?: string[];
+                                permissionsCount?: number;
+                                /** Format: date-time */
+                                createdAt?: string;
+                                /** Format: date-time */
+                                updatedAt?: string;
+                            };
+                        };
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Role not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    updateRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    name?: string;
+                    description?: string | null;
+                    /** @enum {string} */
+                    status?: "ACTIVE" | "INACTIVE";
+                    permissionIds?: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description Role updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success?: boolean;
+                        message?: string;
+                        data?: {
+                            role?: {
+                                id?: string;
+                                name?: string;
+                                key?: string;
+                                status?: string;
+                                description?: string | null;
+                                permissionIds?: string[];
+                                permissionsCount?: number;
+                                /** Format: date-time */
+                                createdAt?: string;
+                                /** Format: date-time */
+                                updatedAt?: string;
+                            };
+                        };
+                    };
+                };
+            };
+            /** @description Validation error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Role not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    deleteRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Role deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Cannot delete ADMIN role */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Role not found */
             404: {
                 headers: {
                     [name: string]: unknown;

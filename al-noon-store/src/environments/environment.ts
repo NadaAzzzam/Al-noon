@@ -4,4 +4,6 @@ export const environment = {
   apiUrl: 'http://localhost:4000/api',
   /** Origin for absolute image paths (e.g. /uploads/products/...) */
   apiOrigin: 'http://localhost:4000',
+  /** Set true when backend accepts discountCode in checkout body */
+  discountCodeSupported: true,
 };

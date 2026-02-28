@@ -102,12 +102,18 @@
     "sameAsShipping": "Same as shipping address",
     "differentBilling": "Use a different billing address",
     "discountCode": "Discount code",
+    "discountCodeRequired": "Please enter a discount code.",
+    "discountComingSoon": "Discount codes are coming soon.",
+    "discountApplied": "Discount code applied.",
     "apply": "Apply",
+    "applying": "Applying…",
     "store": "Store",
     "refundPolicyLink": "Refund policy",
     "shippingLink": "Shipping",
     "privacyPolicyLink": "Privacy policy",
-    "cancellations": "Cancellations"
+    "cancellations": "Cancellations",
+    "updateCart": "Update cart",
+    "remove": "Remove"
   },
   "contact": {
     "title": "Contact us",
@@ -226,6 +232,7 @@
     "needHelp": "Need help?",
     "contactUs": "Contact us",
     "continueShopping": "Continue shopping",
+    "loading": "Loading order details…",
     "notFound": "Order details could not be loaded."
   },
   "page": {
@@ -261,6 +268,7 @@
     "minChars": "Min {{min}} characters",
     "fieldRequired": "{{field}} is required",
     "placeOrderFailed": "Failed to place order",
+    "rateLimited": "Too many requests. Please wait a moment and try again.",
     "loginFailed": "Login failed",
     "registrationFailed": "Registration failed",
     "pleaseFillRequired": "Please fill in all required fields."

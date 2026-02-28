@@ -102,12 +102,18 @@
     "sameAsShipping": "نفس عنوان الشحن",
     "differentBilling": "استخدام عنوان فواتير مختلف",
     "discountCode": "كود الخصم",
+    "discountCodeRequired": "يرجى إدخال كود الخصم.",
+    "discountComingSoon": "أكواد الخصم قادمة قريباً.",
+    "discountApplied": "تم تطبيق كود الخصم.",
     "apply": "تطبيق",
+    "applying": "جاري التطبيق…",
     "store": "المتجر",
     "refundPolicyLink": "سياسة الاسترجاع",
     "shippingLink": "الشحن",
     "privacyPolicyLink": "سياسة الخصوصية",
-    "cancellations": "الإلغاءات"
+    "cancellations": "الإلغاءات",
+    "updateCart": "تحديث السلة",
+    "remove": "إزالة"
   },
   "contact": {
     "title": "اتصل بنا",
@@ -226,6 +232,7 @@
     "needHelp": "تحتاج مساعدة؟",
     "contactUs": "اتصل بنا",
     "continueShopping": "متابعة التسوق",
+    "loading": "جاري تحميل تفاصيل الطلب…",
     "notFound": "تعذر تحميل تفاصيل الطلب."
   },
   "page": {
@@ -261,6 +268,7 @@
     "minChars": "الحد الأدنى {{min}} أحرف",
     "fieldRequired": "{{field}} مطلوب",
     "placeOrderFailed": "تعذر إتمام الطلب",
+    "rateLimited": "طلبات كثيرة. يرجى الانتظار قليلاً والمحاولة مرة أخرى.",
     "loginFailed": "فشل تسجيل الدخول",
     "registrationFailed": "فشل إنشاء الحساب",
     "pleaseFillRequired": "يرجى ملء جميع الحقول المطلوبة."

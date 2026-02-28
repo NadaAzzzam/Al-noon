@@ -135,6 +135,34 @@ export class OrdersService {
       );
   }
 
+  /**
+   * GET /api/orders/guest/:id?email=xxx – Public guest order lookup.
+   * Use when sessionStorage is cleared (e.g. tab closed) to restore order confirmation.
+   */
+  getGuestOrder(id: string, email: string): Observable<Order> {
+    return this.http.get<OrderApiResponse | ApiSuccess<Order>>(`orders/guest/${id}`, {
+      params: { email },
+    }).pipe(
+      (o) =>
+        new Observable<Order>((sub) => {
+          o.subscribe({
+            next: (r) => {
+              if (!r.success) {
+                sub.error('Order not found');
+                return;
+              }
+              const data = r.data as { order?: Order } | Order;
+              const raw = data && 'order' in data ? data.order : (data as Order);
+              if (raw) sub.next(normalizeOrder(raw));
+              else sub.error('Order not found');
+            },
+            error: (e) => sub.error(e),
+            complete: () => sub.complete(),
+          });
+        })
+    );
+  }
+
   getOrder(id: string): Observable<Order> {
     return this.http.get<OrderApiResponse | ApiSuccess<Order>>(`orders/${id}`).pipe(
       (o) =>

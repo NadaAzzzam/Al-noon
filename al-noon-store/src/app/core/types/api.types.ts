@@ -435,6 +435,8 @@ export interface CreateOrderBody {
   shippingMethod?: string;
   emailNews?: boolean;
   textNews?: boolean;
+  /** Discount/promo code; validated and applied server-side when BE supports it */
+  discountCode?: string;
   /** Legacy guest checkout fields (still accepted by BE) */
   guestName?: string;
   guestEmail?: string;

@@ -16,7 +16,7 @@ describe('Authentication', () => {
     });
 
     it('should show validation for empty submit', () => {
-      cy.get('form').find('button[type="submit"]').click();
+      cy.get('form').find('button[type="submit"]').first().click();
       cy.get('form').should('exist');
     });
 
@@ -27,7 +27,7 @@ describe('Authentication', () => {
       }).as('signIn');
       cy.get('input[type="email"], input[name="email"]').first().type('test@example.com');
       cy.get('input[type="password"], input[name="password"]').first().type('password123');
-      cy.get('form').find('button[type="submit"]').click();
+      cy.get('form').find('button[type="submit"]').first().click();
       cy.wait('@signIn');
     });
   });

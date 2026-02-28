@@ -1,8 +1,10 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, inject, signal, computed, ChangeDetectionStrategy, OnInit, DestroyRef } from '@angular/core';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { AuthService } from '../../core/services/auth.service';
+import { OrdersService } from '../../core/services/orders.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PriceFormatPipe } from '../../shared/pipe/price.pipe';
 import type { Order, StructuredAddress } from '../../core/types/api.types';
@@ -15,14 +17,21 @@ import type { Order, StructuredAddress } from '../../core/types/api.types';
   styleUrl: './order-confirmation.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OrderConfirmationComponent {
+export class OrderConfirmationComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly ordersService = inject(OrdersService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
   readonly auth = inject(AuthService);
 
-  /** Order passed via router state after guest checkout */
+  /** Order passed via router state, sessionStorage, or guest lookup API */
   order = signal<Order | null>(null);
+  /** true while fetching order via getGuestOrder */
+  loading = signal(false);
+  /** true when guest lookup failed (e.g. wrong email, order not found) */
+  loadError = signal(false);
   isLoggedIn = computed(() => this.auth.isLoggedIn());
 
   /** Extract first name for "Thank you, Name!" greeting */
@@ -123,18 +132,37 @@ export class OrderConfirmationComponent {
     return o?.deliveryFee ?? 0;
   });
 
-  constructor() {
-    const state = this.router.getCurrentNavigation()?.extras?.state as { order?: Order } | undefined;
+  ngOnInit(): void {
+    const state = (typeof history !== 'undefined' && history.state) as { order?: Order } | undefined;
     if (state?.order) {
       this.order.set(state.order);
-    } else {
-      try {
-        const stored = sessionStorage.getItem('al_noon_last_order');
-        if (stored) {
-          const parsed = JSON.parse(stored) as Order;
-          if (parsed?.id) this.order.set(parsed);
+      return;
+    }
+    try {
+      const stored = sessionStorage.getItem('al_noon_last_order');
+      if (stored) {
+        const parsed = JSON.parse(stored) as Order;
+        if (parsed?.id) {
+          this.order.set(parsed);
+          return;
         }
-      } catch {}
+      }
+    } catch {}
+
+    const id = this.route.snapshot.queryParamMap.get('id');
+    const email = this.route.snapshot.queryParamMap.get('email');
+    if (id && email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this.loading.set(true);
+      this.ordersService.getGuestOrder(id, email).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (o) => {
+          this.order.set(o);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loadError.set(true);
+          this.loading.set(false);
+        },
+      });
     }
   }
 

@@ -270,7 +270,12 @@
 
         <!-- Error + Submit -->
         @if (error()) {
-        <p class="error-msg">{{ error() }}</p>
+        <div id="checkout-error-block" class="error-block">
+          <p class="error-msg">{{ error() }}</p>
+          @if (showUpdateCart()) {
+          <a [routerLink]="['/cart']" class="error-update-cart">{{ 'checkout.updateCart' | translate }}</a>
+          }
+        </div>
         }
 
         <button type="submit" class="checkout-submit-btn" [disabled]="submitting()">
@@ -305,7 +310,26 @@
         }
       </div>
 
-      <!-- Discount code (hidden until BE supports discountCode in checkout API) -->
+      <!-- Discount code: check & apply; wired for BE (environment.discountCodeSupported) -->
+      <div class="summary-discount">
+        <input type="text" class="discount-input" [value]="discountCode()"
+          (input)="discountCode.set($any($event.target).value); discountCodeError.set(null); discountCodeApplied.set(false)"
+          [placeholder]="'checkout.discountCode' | translate" [class.has-error]="discountCodeError()"
+          [class.discount-applied]="discountCodeApplied()"
+          [disabled]="discountCodeChecking()" />
+        @if (discountCodeApplied()) {
+        <button type="button" class="discount-btn discount-btn-remove" (click)="discountCodeApplied.set(false); discountCode.set(''); discountCodeError.set(null)">
+          {{ 'checkout.remove' | translate }}
+        </button>
+        } @else {
+        <button type="button" class="discount-btn" (click)="applyDiscountCode()" [disabled]="discountCodeChecking()">
+          {{ discountCodeChecking() ? ('checkout.applying' | translate) : ('checkout.apply' | translate) }}
+        </button>
+        }
+      </div>
+      @if (discountCodeError()) {
+      <p class="discount-error">{{ discountCodeError() }}</p>
+      }
 
       <!-- Subtotal, Shipping, Total -->
       <div class="summary-totals">

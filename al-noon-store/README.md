@@ -4,8 +4,8 @@ Angular 21 e‑commerce storefront that talks to the **Al-Noon backend** API. St
 
 ## Configuration
 
-- **API base URL**: Edit `src/environments/environment.ts` (dev) and `src/environments/environment.prod.ts` (prod).
-  - Dev default: `http://localhost:3000/api` and origin `http://localhost:3000`.
+- **API base URL**: Edit `src/environments/environment.ts` (dev) and `src/environments/environment.prod.ts` (prod). See [API-CONFIG.md](./API-CONFIG.md) for setup.
+  - Dev default: `http://localhost:4000/api` and origin `http://localhost:4000` (backend `PORT=4000`).
   - Set `apiUrl` and `apiOrigin` (for image paths like `/uploads/products/...`) to your backend.
 - **Auth**: All API requests send cookies (`withCredentials: true`) and `x-language` (en/ar). The backend sets an HTTP‑only cookie `al_noon_token` on login/register.
 - **Locale**: Stored in `localStorage` as `al_noon_locale`; toggle in the header (EN / ع). Document `dir` and `lang` are set automatically for RTL.
@@ -15,7 +15,7 @@ Angular 21 e‑commerce storefront that talks to the **Al-Noon backend** API. St
 - **Home**: Hero (from store), New arrivals (products with `newArrival`), home collections, “Our collection” media, testimonials (approved feedbacks).
 - **Catalog**: Products with filters (category, price, availability, sort), pagination.
 - **Product detail**: Images, sizes, colors, add to cart, related products.
-- **Cart**: Client-side (localStorage); checkout requires login.
+- **Cart**: Client-side (localStorage).
 - **Checkout**: City selector (delivery fee), shipping address, COD or InstaPay, then “My orders”.
 - **Account**: Login, Register, Sign out, My orders, Order detail.
 - **Footer**: Quick links, social links, newsletter (when enabled), content pages (Privacy, Shipping, Return policy, About, Contact).

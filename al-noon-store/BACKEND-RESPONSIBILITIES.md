@@ -28,7 +28,7 @@ The frontend handles validation, UX, and orchestration. The backend must enforce
 ### 2. **Discount codes (future)**
 - **What**: Add `discountCode` (or similar) to the checkout request body and apply it server-side.
 - **Why**: Discount logic (validity, amount, expiry) must be enforced on the backend.
-- **Current**: Frontend discount UI is hidden until backend supports it.
+- **Current**: ✅ Backend accepts `discountCode` in checkout body; frontend sends it when user applies a code.
 
 ### 3. **Guest order lookup (optional)**
 - **What**: Public endpoint to fetch a guest order by ID, e.g. `GET /api/orders/guest/:id?email=xxx`.
@@ -51,10 +51,18 @@ The frontend handles validation, UX, and orchestration. The backend must enforce
 
 ## Summary
 
-| Priority | Backend Task |
-|----------|--------------|
-| **High** | Stock validation at checkout |
-| **High** | Recompute prices server-side |
-| **Medium** | Validate shipping/payment method IDs |
-| **Low** | Discount code API |
-| **Low** | Guest order lookup endpoint |
+| Priority | Backend Task | Status |
+|----------|--------------|--------|
+| **High** | Stock validation at checkout | ✅ Implemented |
+| **High** | Recompute prices server-side | ✅ Implemented |
+| **Medium** | Validate shipping/payment method IDs | ✅ Implemented |
+| **Low** | Discount code API | ✅ Implemented |
+| **Low** | Guest order lookup endpoint | ✅ Implemented |
+
+**Guest order lookup**: `GET /api/orders/guest/:id?email=xxx` – public; requires matching email.
+
+---
+
+## Frontend Integration
+
+See [FRONTEND-RECOMMENDATIONS.md](./FRONTEND-RECOMMENDATIONS.md) for what the landing page should add to work well with these backend behaviors.

@@ -1,4 +1,13 @@
-@if (!order()) {
+@if (loading()) {
+<div class="confirmation-empty">
+  <p>{{ 'orderConfirmation.loading' | translate }}</p>
+</div>
+} @else if (loadError()) {
+<div class="confirmation-empty">
+  <p>{{ 'orderConfirmation.notFound' | translate }}</p>
+  <a [routerLink]="['/catalog']" class="btn">{{ 'orderConfirmation.continueShopping' | translate }}</a>
+</div>
+} @else if (!order()) {
 <div class="confirmation-empty">
   <p>{{ 'orderConfirmation.notFound' | translate }}</p>
   <a [routerLink]="['/catalog']" class="btn">{{ 'orderConfirmation.continueShopping' | translate }}</a>

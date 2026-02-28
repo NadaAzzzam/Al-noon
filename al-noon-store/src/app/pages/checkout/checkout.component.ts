@@ -4,11 +4,13 @@ import { DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CartService } from '../../core/services/cart.service';
+import { ToastService } from '../../core/services/toast.service';
 import { OrdersService } from '../../core/services/orders.service';
 import { CitiesService } from '../../core/services/cities.service';
 import { ShippingService } from '../../core/services/shipping.service';
 import { PaymentMethodsService } from '../../core/services/payment-methods.service';
 import { ApiService } from '../../core/services/api.service';
+import { environment } from '../../../environments/environment';
 import { LocaleService } from '../../core/services/locale.service';
 import { AuthService } from '../../core/services/auth.service';
 import { StoreService } from '../../core/services/store.service';
@@ -16,6 +18,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LocalizedPipe } from '../../shared/pipe/localized.pipe';
 import { PriceFormatPipe } from '../../shared/pipe/price.pipe';
 import { requiredError, emailError, emailErrorKey, requiredErrorKey } from '../../shared/utils/form-validators';
+import { extractErrorMessage } from '../../shared/utils/error-utils';
 import type { City, ShippingMethod, CreateOrderBody, StructuredAddress, StoreData, PaymentMethodOption, SettingsContentPage } from '../../core/types/api.types';
 import type { PaymentMethod } from '../../core/types/api.types';
 
@@ -36,6 +39,7 @@ export class CheckoutComponent implements OnInit {
   private readonly paymentMethodsService = inject(PaymentMethodsService);
   private readonly auth = inject(AuthService);
   private readonly storeService = inject(StoreService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly doc = inject(DOCUMENT);
   readonly api = inject(ApiService);
@@ -55,6 +59,15 @@ export class CheckoutComponent implements OnInit {
   newsletterEnabled = signal(true);
 
   constructor() {
+    effect(() => {
+      const err = this.error();
+      if (err && typeof this.doc !== 'undefined') {
+        setTimeout(() =>
+          this.doc.getElementById('checkout-error-block')?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+          50
+        );
+      }
+    });
     effect(() => {
       const s = this.storeService.settings();
       if (!s) return;
@@ -135,7 +148,16 @@ export class CheckoutComponent implements OnInit {
   /** Form state */
   submitting = signal(false);
   error = signal<string | null>(null);
+  /** When true, show "Update cart" link (e.g. after out-of-stock 400) */
+  showUpdateCart = signal(false);
   touched = signal(false);
+
+  /** Discount code: check & apply (placeholder until BE supports discountCode in checkout API) */
+  discountCode = signal('');
+  discountCodeApplied = signal(false);
+  discountCodeError = signal<string | null>(null);
+  discountCodeChecking = signal(false);
+
 
   /** Cart data */
   items = this.cart.items;
@@ -348,6 +370,29 @@ export class CheckoutComponent implements OnInit {
     return (obj[lang] ?? obj.en ?? obj.ar ?? '') as string;
   }
 
+  /**
+   * Check discount code (validate) and apply if valid.
+   * When discountCodeSupported is false, shows "coming soon" toast.
+   */
+  applyDiscountCode(): void {
+    const code = this.discountCode().trim();
+    this.discountCodeError.set(null);
+    if (!code) {
+      this.discountCodeError.set(this.translate.instant('checkout.discountCodeRequired'));
+      return;
+    }
+    if (!environment.discountCodeSupported) {
+      this.discountCodeChecking.set(true);
+      setTimeout(() => {
+        this.discountCodeChecking.set(false);
+        this.toast.show(this.translate.instant('checkout.discountComingSoon'), 'info');
+      }, 200);
+      return;
+    }
+    this.discountCodeApplied.set(true);
+    this.toast.show(this.translate.instant('checkout.discountApplied'), 'success');
+  }
+
   submit(): void {
     this.touched.set(true);
     if (this.items().length === 0) return;
@@ -366,6 +411,7 @@ export class CheckoutComponent implements OnInit {
       return;
     }
     this.error.set(null);
+    this.showUpdateCart.set(false);
     this.submitting.set(true);
 
     const selectedCity = this.selectedCity();
@@ -412,6 +458,9 @@ export class CheckoutComponent implements OnInit {
       shippingMethod: this.selectedShippingMethod(),
       emailNews: this.emailNews(),
       textNews: this.textNews(),
+      ...(environment.discountCodeSupported && this.discountCodeApplied() && this.discountCode().trim()
+        ? { discountCode: this.discountCode().trim() }
+        : {}),
     };
 
     this.ordersService.checkout(body).pipe(
@@ -426,11 +475,23 @@ export class CheckoutComponent implements OnInit {
           try {
             sessionStorage.setItem('al_noon_last_order', JSON.stringify(order));
           } catch {}
-          this.router.navigate(['/order-confirmation'], { state: { order } });
+          const email = this.email().trim();
+          this.router.navigate(
+            ['/order-confirmation'],
+            { state: { order }, queryParams: { id: order.id, email } }
+          );
         }
       },
-      error: (err) => {
-        this.error.set(err?.message ?? this.translate.instant('errors.placeOrderFailed'));
+      error: (err: unknown) => {
+        const fallback = this.translate.instant('errors.placeOrderFailed');
+        const msg = extractErrorMessage(err, fallback);
+        const status = typeof err === 'object' && err !== null && 'status' in err ? (err as { status: number }).status : undefined;
+        this.error.set(status === 429 ? this.translate.instant('errors.rateLimited') : msg);
+        this.showUpdateCart.set(status === 400 && /out of stock|out-of-stock|stock/i.test(msg));
+        if (status === 400 && /discount|coupon|promo|code invalid/i.test(msg)) {
+          this.discountCodeApplied.set(false);
+          this.discountCodeError.set(msg);
+        }
         this.submitting.set(false);
       },
     });

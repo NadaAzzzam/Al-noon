@@ -471,14 +471,27 @@
 /* ══════════════════════════════════════════════════════
    Error message
    ══════════════════════════════════════════════════════ */
+.error-block {
+  margin-bottom: 16px;
+}
 .error-msg {
   color: #c53030;
   font-size: 14px;
-  margin: 0 0 16px;
+  margin: 0 0 8px;
   padding: 12px 16px;
   background: #fff5f5;
   border: 1px solid #feb2b2;
   border-radius: 6px;
+}
+.error-update-cart {
+  display: inline-block;
+  margin-top: 8px;
+  color: #1773b0;
+  font-size: 14px;
+  text-decoration: underline;
+  &:hover {
+    color: #125f94;
+  }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -637,6 +650,32 @@
     border-color: #338dea;
     box-shadow: 0 0 0 2px rgba(51, 141, 234, 0.15);
   }
+
+  &.has-error {
+    border-color: #c00;
+  }
+
+  &.discount-applied {
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.06);
+  }
+}
+
+.discount-btn-remove {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+
+  &:hover {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+}
+
+.discount-error {
+  margin: -12px 0 12px 0;
+  font-size: 13px;
+  color: #c00;
 }
 
 .discount-btn {

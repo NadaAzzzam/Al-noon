@@ -15,12 +15,12 @@ describe('Catalog Page', () => {
   };
 
   beforeEach(() => {
-    cy.intercept('GET', '**/api/store/home', { body: { success: true, data: {} } }).as('getHome');
-    cy.intercept('GET', '**/api/products*', mockProducts).as('getProducts');
-    cy.intercept('GET', '**/api/categories*', { success: true, data: [] }).as('getCategories');
+    cy.intercept('GET', '**/products*', mockProducts).as('getProducts');
+    cy.intercept('GET', '**/categories*', { success: true, data: [] }).as('getCategories');
+    cy.intercept('GET', '**/store/**', { body: { success: true, data: {} } }).as('getStore');
     cy.intercept('GET', '**/i18n/*.json', { body: {} }).as('getI18n');
     cy.visit('/catalog');
-    cy.wait('@getProducts');
+    cy.wait('@getProducts', { timeout: 15000 });
   });
 
   it('should load catalog page', () => {

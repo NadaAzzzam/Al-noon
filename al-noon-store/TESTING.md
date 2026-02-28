@@ -19,8 +19,9 @@ ng test --coverage
 
 ### Test Structure
 
-- **Utils**: `form-validators.spec.ts`, `product-availability.spec.ts`, `localized.spec.ts`, `product-normalizer.spec.ts`
+- **Utils**: `form-validators.spec.ts`, `product-availability.spec.ts`, `localized.spec.ts`, `product-normalizer.spec.ts`, `error-utils.spec.ts`
 - **Services**: `cart.service.spec.ts`, `toast.service.spec.ts`
+- **Pages**: `checkout.component.spec.ts`
 - **Guards**: `auth.guard.spec.ts`
 - **Interceptors**: `auth-profile.interceptor.spec.ts`
 - **Pipes**: `price.pipe.spec.ts`, `localized.pipe.spec.ts`
@@ -62,6 +63,7 @@ npm run e2e:open
 - **navigation.cy.ts**: Route navigation
 - **auth.cy.ts**: Login and register forms
 - **cart.cy.ts**: Cart page
+- **checkout.cy.ts**: Checkout page, discount code input and apply
 - **contact.cy.ts**: Contact form submission
 
 ### API Mocking
