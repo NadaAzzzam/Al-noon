@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal, computed, effect, ChangeDetectionStrategy, DestroyRef, ViewChild, ElementRef, input } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, distinctUntilChanged, switchMap, take } from 'rxjs/operators';
@@ -34,6 +35,7 @@ export class ProductDetailComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly seo = inject(SeoService);
   private readonly toast = inject(ToastService);
+  private readonly doc = inject(DOCUMENT);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
   readonly Math = Math;
@@ -293,7 +295,19 @@ export class ProductDetailComponent implements OnInit {
     if (!p) return;
     const name = this.getLocalized(p.name);
     const desc = this.getLocalized(p.description);
-    this.seo.setPage({ title: name, description: desc?.slice(0, 160), type: 'product' });
+    const seoTitle = p.seoTitle ? this.getLocalized(p.seoTitle) : name;
+    const seoDesc = p.seoDescription ? this.getLocalized(p.seoDescription) : desc;
+    const canonicalUrl =
+      p.canonicalUrl ||
+      (p.slug && typeof this.doc?.defaultView?.location?.origin === 'string'
+        ? `${this.doc.defaultView.location.origin}/product/${p.slug}`
+        : undefined);
+    this.seo.setPage({
+      title: seoTitle,
+      description: seoDesc?.slice(0, 160),
+      type: 'product',
+      canonicalUrl,
+    });
     this.seo.setProductJsonLd({
       name,
       description: desc,

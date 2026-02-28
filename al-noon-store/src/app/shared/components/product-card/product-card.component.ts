@@ -15,7 +15,7 @@ import type { Product } from '../../../core/types/api.types';
   template: `
     @let p = product();
     @if (p) {
-      <a [routerLink]="['/product', p.id]" class="product-card">
+      <a [routerLink]="['/product', p.slug || p.id]" class="product-card">
         <div class="product-image-wrap"
              [class.has-hover-image]="hasSecondMedia()">
           @if (mainMedia()) {

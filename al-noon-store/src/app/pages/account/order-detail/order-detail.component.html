@@ -31,7 +31,7 @@
       }
       <div class="item-details">
         @if (item.product.id) {
-        <a [routerLink]="['/product', item.product.id]">{{ getLocalized(item.product.name) }}</a>
+        <a [routerLink]="['/product', item.product.slug || item.product.id]">{{ getLocalized(item.product.name) }}</a>
         } @else {
         <span>{{ getLocalized(item.product.name) || ('orderDetail.product' | translate) }}</span>
         }

@@ -269,6 +269,13 @@ export interface Product {
   defaultMediaType?: string;
   /** API: preferred type for hover media (e.g. "image", "video"). */
   hoverMediaType?: string;
+  /** URL-friendly identifier for product (e.g. melton-abaya). Use for links and canonical when present. */
+  slug?: string;
+  /** Product-level SEO meta when API provides. Overrides name/description for meta tags. */
+  seoTitle?: LocalizedText;
+  seoDescription?: LocalizedText;
+  /** Canonical URL for product page (full URL). When set, used for canonical link. */
+  canonicalUrl?: string;
   /** Present on list when ratings exist (OpenAPI) */
   averageRating?: number | null;
   ratingCount?: number | null;

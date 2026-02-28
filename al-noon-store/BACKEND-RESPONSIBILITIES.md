@@ -71,6 +71,14 @@ The frontend handles validation, UX, and orchestration. The backend must enforce
 - **Access admin route as normal user**: Role-based auth; reject unauthorized.
 - **Modify price in request**: Ignore client prices; recompute server-side.
 
+### 11. **Product API – slug & SEO (optional)**
+- **What**: When supported, include in product responses:
+  - `slug` – URL-friendly identifier (e.g. `melton-abaya`). Use for `/product/:id` – BE should accept slug in GET `products/:idOrSlug`.
+  - `seoTitle`, `seoDescription` – localized meta overrides.
+  - `canonicalUrl` – full canonical URL for the product page.
+- **Where**: `product` object (list/single) or as siblings in `data` for single-product response.
+- **FE**: Uses slug for links when present; SEO meta and canonical when provided.
+
 ---
 
 ## 📋 ADVANCED SCENARIOS – Ownership Matrix

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { DOCUMENT } from '@angular/common';
 import { provideRouter, ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -48,6 +49,7 @@ describe('ProductDetailComponent', () => {
         { provide: LocaleService, useValue: { getLocale: () => 'en' } },
         { provide: ToastService, useValue: { show: () => {} } },
         { provide: SeoService, useValue: { setPage: () => {}, setProductJsonLd: () => {} } },
+        { provide: DOCUMENT, useValue: document },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(ProductDetailComponent);

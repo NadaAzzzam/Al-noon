@@ -42,12 +42,15 @@ export class ShippingService {
   getShippingMethods(): Observable<ShippingMethod[]> {
     return this.http.get<ShippingMethodsApiPayload>('shipping-methods').pipe(
       map((r) => {
-        const list =
-          Array.isArray((r as { data?: ShippingMethodRaw[] }).data)
-            ? (r as { data: ShippingMethodRaw[] }).data
-            : Array.isArray((r as { shippingMethods?: ShippingMethodRaw[] }).shippingMethods)
-              ? (r as { shippingMethods: ShippingMethodRaw[] }).shippingMethods
-              : [];
+        const r2 = r as {
+          data?: ShippingMethodRaw[] | { shippingMethods?: ShippingMethodRaw[] };
+          shippingMethods?: ShippingMethodRaw[];
+        };
+        let list: ShippingMethodRaw[] = [];
+        if (Array.isArray(r2.data)) list = r2.data;
+        else if (Array.isArray((r2.data as { shippingMethods?: ShippingMethodRaw[] })?.shippingMethods))
+          list = (r2.data as { shippingMethods: ShippingMethodRaw[] }).shippingMethods;
+        else if (Array.isArray(r2.shippingMethods)) list = r2.shippingMethods;
         return list
           .filter((m) => m.enabled !== false)
           .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))

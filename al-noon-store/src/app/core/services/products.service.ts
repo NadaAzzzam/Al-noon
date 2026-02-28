@@ -89,11 +89,58 @@ export class ProductsService {
                 sub.error('Product not found');
                 return;
               }
-              const data = r.data as { product?: ProductApiShape & { _id?: string } } | (ProductApiShape & { _id?: string });
-              const raw =
-                data && typeof data === 'object' && 'product' in data
-                  ? (data as { product?: ProductApiShape & { _id?: string } }).product
-                  : (data as ProductApiShape & { _id?: string });
+              const data = r.data as
+                | {
+                    product?: ProductApiShape & { _id?: string };
+                    availability?: unknown;
+                    effectivePrice?: number;
+                    inStock?: boolean;
+                    formattedDetails?: unknown;
+                    slug?: string;
+                    seoTitle?: { en?: string; ar?: string };
+                    seoDescription?: { en?: string; ar?: string };
+                    canonicalUrl?: string;
+                  }
+                | (ProductApiShape & { _id?: string });
+              let raw: (ProductApiShape & { _id?: string }) | undefined;
+              if (data && typeof data === 'object' && 'product' in data) {
+                const wrapped = data as {
+                  product?: ProductApiShape & { _id?: string };
+                  availability?: unknown;
+                  effectivePrice?: number;
+                  inStock?: boolean;
+                  formattedDetails?: unknown;
+                  slug?: string;
+                  seoTitle?: { en?: string; ar?: string };
+                  seoDescription?: { en?: string; ar?: string };
+                  canonicalUrl?: string;
+                };
+                raw = wrapped.product;
+                const hasSiblings =
+                  wrapped.availability != null ||
+                  wrapped.effectivePrice != null ||
+                  wrapped.inStock != null ||
+                  wrapped.formattedDetails != null ||
+                  wrapped.slug != null ||
+                  wrapped.seoTitle != null ||
+                  wrapped.seoDescription != null ||
+                  wrapped.canonicalUrl != null;
+                if (raw && hasSiblings) {
+                  raw = {
+                    ...raw,
+                    ...(wrapped.availability != null ? { availability: wrapped.availability } : {}),
+                    ...(wrapped.effectivePrice != null ? { effectivePrice: wrapped.effectivePrice } : {}),
+                    ...(wrapped.inStock != null ? { inStock: wrapped.inStock } : {}),
+                    ...(wrapped.formattedDetails != null ? { formattedDetails: wrapped.formattedDetails } : {}),
+                    ...(wrapped.slug != null ? { slug: wrapped.slug } : {}),
+                    ...(wrapped.seoTitle != null ? { seoTitle: wrapped.seoTitle } : {}),
+                    ...(wrapped.seoDescription != null ? { seoDescription: wrapped.seoDescription } : {}),
+                    ...(wrapped.canonicalUrl != null ? { canonicalUrl: wrapped.canonicalUrl } : {}),
+                  };
+                }
+              } else {
+                raw = data as ProductApiShape & { _id?: string };
+              }
               if (raw) sub.next(normalizeProductFromApi(raw));
               else sub.error('Product not found');
             },

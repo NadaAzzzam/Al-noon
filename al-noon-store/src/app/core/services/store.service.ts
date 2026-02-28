@@ -150,17 +150,20 @@ function normalizeHomeCollections(raw: unknown): HomeCollection[] {
   });
 }
 
-function normalizeStore(store: Record<string, unknown>): StoreData {
-  const rawNewArrivals = store['newArrivals'];
+/** API returns data.home with optional nested store: { store: { storeName, logo, quickLinks, ... } }. Flatten when present. */
+function normalizeStore(home: Record<string, unknown>): StoreData {
+  const nested = home['store'] as Record<string, unknown> | undefined;
+  const flat = nested && typeof nested === 'object' ? { ...home, ...nested } : home;
+  const rawNewArrivals = flat['newArrivals'];
   const newArrivals = Array.isArray(rawNewArrivals)
     ? rawNewArrivals.map((p: unknown) => normalizeProductFromApi(p as Parameters<typeof normalizeProductFromApi>[0]))
     : undefined;
   return {
-    ...store,
-    quickLinks: normalizeQuickLinks(store['quickLinks']),
-    socialLinks: normalizeSocialLinks(store['socialLinks']),
-    feedbacks: normalizeFeedbacks(store['feedbacks']),
-    homeCollections: normalizeHomeCollections(store['homeCollections']),
+    ...flat,
+    quickLinks: normalizeQuickLinks(flat['quickLinks'] ?? nested?.['quickLinks']),
+    socialLinks: normalizeSocialLinks(flat['socialLinks'] ?? nested?.['socialLinks']),
+    feedbacks: normalizeFeedbacks(flat['feedbacks']),
+    homeCollections: normalizeHomeCollections(flat['homeCollections']),
     ...(newArrivals != null ? { newArrivals } : {}),
   } as StoreData;
 }
