@@ -61,6 +61,7 @@ export class ProductDetailComponent implements OnInit {
   quantity = signal(1);
   added = signal(false);
   loadingColor = signal(false);
+  loadingSize = signal(false);
 
   /** Effective stock: selected variant stock (from product service helper) or global product.stock. */
   effectiveStock = computed(() => {
@@ -387,7 +388,8 @@ export class ProductDetailComponent implements OnInit {
     if (!apiId) return;
     this.selectedColor.set(color);
     this.loadingColor.set(true);
-    this.productsService.getProduct(apiId, { color: color }).pipe(
+    const size = this.selectedSize();
+    this.productsService.getProduct(apiId, { color, size: size ?? undefined }).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (p) => {
@@ -399,6 +401,29 @@ export class ProductDetailComponent implements OnInit {
         this.loadingColor.set(false);
       },
       error: () => this.loadingColor.set(false),
+    });
+  }
+
+  /** Select size and fetch product with size-specific details (GET ?color=...&size=...). */
+  selectSize(size: string): void {
+    if (this.isSizeOutOfStockForSelectedColor(size)) return;
+    const prev = this.product();
+    const param = this.route.snapshot.paramMap.get('id');
+    const apiId = prev?.id ?? this.resolveApiId(param, prev);
+    if (!apiId) return;
+    this.selectedSize.set(size);
+    this.loadingSize.set(true);
+    const color = this.selectedColor();
+    this.productsService.getProduct(apiId, { color: color ?? undefined, size }).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (p) => {
+        const merged = prev ? this.mergeProductOptions(prev, p) : p;
+        this.product.set(merged);
+        this.selectedImageIndex.set(0);
+        this.loadingSize.set(false);
+      },
+      error: () => this.loadingSize.set(false),
     });
   }
 

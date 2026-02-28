@@ -130,17 +130,20 @@
       </div>
       }
 
-      <!-- Sizes (all in API order; out-of-stock for selected color shown disabled) -->
+      <!-- Sizes (all in API order; out-of-stock for selected color shown disabled; click fetches size-specific details) -->
       @if (allSizesOrdered().length) {
       <div class="form-group">
-        <label>{{ 'product.size' | translate }}</label>
+        <label>{{ 'product.size' | translate }}@if (selectedSize()) {: <strong>{{ selectedSize() }}</strong>}</label>
+        @if (loadingSize()) {
+        <span class="size-loading" aria-busy="true">Loading…</span>
+        }
         <div class="size-options">
           @for (sz of allSizesOrdered(); track sz) {
           @let sizeOutOfStock = isSizeOutOfStockForSelectedColor(sz);
           <div class="size-btn-wrap">
             <button type="button" class="size-btn" [class.selected]="selectedSize() === sz"
-              [class.out-of-stock]="sizeOutOfStock" [disabled]="sizeOutOfStock"
-              (click)="!sizeOutOfStock && selectedSize.set(sz)">
+              [class.out-of-stock]="sizeOutOfStock" [disabled]="sizeOutOfStock || loadingSize()"
+              (click)="!sizeOutOfStock && selectSize(sz)">
               {{ sz }}
             </button>
             @if (sizeOutOfStock) {

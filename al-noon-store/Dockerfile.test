@@ -1,0 +1,10 @@
+# Test runner image: install deps, run unit tests
+FROM node:22-alpine AS test
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm ci --legacy-peer-deps
+
+COPY . .
+RUN npm run test:ci

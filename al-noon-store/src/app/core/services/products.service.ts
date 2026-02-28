@@ -78,10 +78,11 @@ export class ProductsService {
       );
   }
 
-  /** GET /api/products/:id – optional color query for color-specific images. */
-  getProduct(id: string, options?: { color?: string }): Observable<Product> {
+  /** GET /api/products/:id – optional color/size query for variant-specific images. */
+  getProduct(id: string, options?: { color?: string; size?: string }): Observable<Product> {
     let params = new HttpParams();
     if (options?.color?.trim()) params = params.set('color', options.color.trim());
+    if (options?.size?.trim()) params = params.set('size', options.size.trim());
     return this.http.get<SchemaProductResponse | ProductApiResponse | ApiSuccess<ProductApiShape & { _id?: string }>>(`products/${id}`, { params }).pipe(
       (o) =>
         new Observable<Product>((sub) => {
