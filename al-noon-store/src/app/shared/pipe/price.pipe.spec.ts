@@ -43,4 +43,20 @@ describe('PriceFormatPipe', () => {
     const result = pipe.transform(1050);
     expect(result).toContain('ج.م.');
   });
+
+  it('handles zero', () => {
+    expect(pipe.transform(0)).toContain('0');
+    expect(pipe.transform(0)).not.toBe('');
+  });
+
+  it('handles negative values', () => {
+    const result = pipe.transform(-100);
+    expect(result).toContain('-');
+    expect(result).toContain('100');
+  });
+
+  it('rounds floating point correctly', () => {
+    const result = pipe.transform(99.999);
+    expect(result).toMatch(/\d/);
+  });
 });

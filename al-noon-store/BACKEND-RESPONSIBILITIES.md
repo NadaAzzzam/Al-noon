@@ -15,6 +15,9 @@ The frontend handles validation, UX, and orchestration. The backend must enforce
 | Billing address validation | Validates when "different billing" selected |
 | Search trim | Trims search before API call |
 | Product search | Sends `search` param to products API |
+| Duplicate order on double click | Submit button disabled while `submitting` |
+| Add more than stock (cart) | CartService validates with `maxStock`; checkout re-validates via BE |
+| Invalid email / weak password format | Form validators before submit |
 
 ---
 
@@ -46,6 +49,27 @@ The frontend handles validation, UX, and orchestration. The backend must enforce
 ### 6. **Rate limiting**
 - **What**: Rate limit checkout and other sensitive endpoints.
 - **Why**: Reduces abuse and spam orders.
+
+### 7. **Auth & session**
+- **Register with existing email**: Return clear error (e.g. 409) so frontend can show message.
+- **Login with wrong password**: Return 401 with message.
+- **Session timeout**: Token expiry; return 401 when expired.
+- **Refresh while logged in**: Validate token from storage; refresh profile if valid.
+
+### 8. **Discount / coupon validation**
+- **Invalid coupon**: Return 400 with message (frontend already handles).
+- **Expired coupon**: Validate expiry server-side; return 400.
+- **Coupon cannot exceed cart total**: Cap discount server-side.
+
+### 9. **Order rules**
+- **User cannot cancel shipped order**: Reject cancel if status = shipped.
+- **Payment failure**: Handle gateway errors; return appropriate status/message.
+
+### 10. **Security**
+- **SQL injection in search**: Sanitize/parameterize all queries.
+- **XSS in review/input**: Sanitize stored content; CSP headers.
+- **Access admin route as normal user**: Role-based auth; reject unauthorized.
+- **Modify price in request**: Ignore client prices; recompute server-side.
 
 ---
 

@@ -116,4 +116,13 @@ describe('CartService', () => {
     const items = service.getItemsForOrder();
     expect(items).toEqual([{ product: 'p1', quantity: 2, price: 100 }]);
   });
+
+  it('should remove item when setQuantity is 0 or negative', () => {
+    service.add({ productId: 'p1', quantity: 2, price: 100 });
+    service.setQuantity('p1', 0);
+    expect(service.items()).toHaveLength(0);
+    service.add({ productId: 'p2', quantity: 1, price: 50 });
+    service.setQuantity('p2', -1);
+    expect(service.items()).toHaveLength(0);
+  });
 });

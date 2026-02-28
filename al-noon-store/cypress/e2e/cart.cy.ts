@@ -18,6 +18,16 @@ describe('Cart', () => {
     cy.get('.empty-state').should('exist');
   });
 
+  it('should display cart items when cart has items', () => {
+    cy.visit('/cart', {
+      onBeforeLoad(win) {
+        win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
+      },
+    });
+    cy.get('app-root').should('exist');
+    cy.get('body').should('contain.text', 'Test Product');
+  });
+
   it('should allow adding special instructions when cart has items', () => {
     cy.visit('/cart', {
       onBeforeLoad(win) {
@@ -26,5 +36,16 @@ describe('Cart', () => {
     });
     cy.get('details summary').first().click();
     cy.get('.cart-instructions textarea').should('exist').type('Gift wrap please');
+  });
+
+  it('should persist cart after page refresh', () => {
+    cy.visit('/cart', {
+      onBeforeLoad(win) {
+        win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
+      },
+    });
+    cy.get('body').should('contain.text', 'Test Product');
+    cy.reload();
+    cy.get('body').should('contain.text', 'Test Product');
   });
 });

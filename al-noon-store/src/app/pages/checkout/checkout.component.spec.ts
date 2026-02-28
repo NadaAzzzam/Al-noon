@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Observable } from 'rxjs';
 import { signal, computed } from '@angular/core';
 import { CheckoutComponent } from './checkout.component';
 import { CartService } from '../../core/services/cart.service';
@@ -124,5 +124,12 @@ describe('CheckoutComponent', () => {
       expect(component.discountCodeApplied()).toBe(false);
       expect(component.discountCodeError()).toBe('Invalid discount code');
     });
+  });
+
+  it('should set submitting=true during checkout (double-click prevention)', () => {
+    checkoutSpy.mockReturnValue(new Observable(() => {}));
+    fixture.detectChanges();
+    component.submit();
+    expect(component.submitting()).toBe(true);
   });
 });
