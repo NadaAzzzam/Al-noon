@@ -9,8 +9,8 @@ export const localeGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const localeService = inject(LocaleService);
   const lang = route.paramMap.get('lang');
 
-  if (lang && (lang === 'en' || lang === 'ar')) {
-    localeService.setLocaleFromRoute(lang);
+  if (lang && (SUPPORTED_LOCALES as readonly string[]).includes(lang)) {
+    localeService.setLocaleFromRoute(lang as 'en' | 'ar');
     return true;
   }
 

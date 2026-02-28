@@ -58,6 +58,8 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
       throw error;
     }
 
+    // Server startup log – intentional console usage
+    // eslint-disable-next-line no-console
     console.log(`Node Express server listening on http://localhost:${port}`);
   });
 }

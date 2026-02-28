@@ -37,7 +37,7 @@ export class LocalizedPathService {
   /** Returns current path segments without the lang prefix (for rebuilding links) */
   getCurrentPathSegments(): string[] {
     const url = this.router.url;
-    const [_, lang, ...rest] = url.split('?')[0].split('/').filter(Boolean);
+    const [, lang, ...rest] = url.split('?')[0].split('/').filter(Boolean);
     return lang === 'en' || lang === 'ar' ? rest : [lang, ...rest].filter(Boolean);
   }
 

@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, tap, shareReplay } from 'rxjs';
+import { Observable, tap, shareReplay } from 'rxjs';
 import type {
   ApiSuccess,
   StoreData,

@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import { LocaleService } from '../../core/services/locale.service';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -9,10 +9,8 @@ import { TranslateService } from '@ngx-translate/core';
  */
 @Pipe({ name: 'priceFormat', standalone: true, pure: false })
 export class PriceFormatPipe implements PipeTransform {
-  constructor(
-    private readonly locale: LocaleService,
-    private readonly translate: TranslateService
-  ) { }
+  private readonly locale = inject(LocaleService);
+  private readonly translate = inject(TranslateService);
 
   transform(value: number | null | undefined, format?: string): string {
     if (value == null || Number.isNaN(value)) return '';

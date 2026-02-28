@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "Running pre-commit (lint)..."
+cd al-noon-store && npm run lint

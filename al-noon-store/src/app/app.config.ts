@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, isDevMode } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, ErrorHandler, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
@@ -8,6 +8,8 @@ import { HttpClient } from '@angular/common/http';
 import { routes } from './app.routes';
 import { apiInterceptor } from './core/interceptors/api.interceptor';
 import { authProfileInterceptor } from './core/interceptors/auth-profile.interceptor';
+import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { GlobalErrorHandler } from './core/handlers/global-error.handler';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideServiceWorker } from '@angular/service-worker';
 
@@ -18,8 +20,9 @@ export function createTranslateLoader(http: HttpClient): TranslateHttpLoader {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
     provideRouter(routes),
-    provideHttpClient(withInterceptors([apiInterceptor, authProfileInterceptor])),
+    provideHttpClient(withInterceptors([apiInterceptor, authProfileInterceptor, errorInterceptor])),
     provideTranslateService({
       defaultLanguage: 'en',
       loader: {

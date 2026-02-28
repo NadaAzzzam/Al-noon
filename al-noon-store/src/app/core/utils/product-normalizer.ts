@@ -80,9 +80,9 @@ export function normalizeProductFromApi(raw: ProductApiShape & { _id?: string })
     media,
     images: _img,
     videos: _vid,
-    viewImage,
-    hoverImage,
-    video,
+    viewImage: _viewImage,
+    hoverImage: _hoverImage,
+    video: _video,
     discountPrice: rawDiscountPrice,
     tags: _rawTags,
     ...rest

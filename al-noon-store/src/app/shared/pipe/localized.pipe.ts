@@ -1,11 +1,10 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import type { LocalizedText } from '../../core/types/api.types';
-import type { Locale } from '../../core/services/locale.service';
 import { LocaleService } from '../../core/services/locale.service';
 
 @Pipe({ name: 'localized', standalone: true, pure: false })
 export class LocalizedPipe implements PipeTransform {
-  constructor(private readonly locale: LocaleService) {}
+  private readonly locale = inject(LocaleService);
 
   transform(value: LocalizedText | string | undefined | null, lang?: 'en' | 'ar'): string {
     if (value == null) return '';
