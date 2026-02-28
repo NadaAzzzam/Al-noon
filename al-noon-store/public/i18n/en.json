@@ -191,7 +191,9 @@
     "inCart": "{{count}} in your cart",
     "save": "Save",
     "stylingTip": "Styling tip",
+    "description": "Description",
     "details": "Details",
+    "tags": "Tags",
     "related": "You may also like",
     "quickView": "Quick view"
   },

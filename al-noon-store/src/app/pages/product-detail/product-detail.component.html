@@ -115,6 +115,21 @@
         }
       </div>
 
+      <!-- Tags -->
+      @if (p.tags?.length) {
+      <div class="product-tags">
+        @for (tag of p.tags; track tag; let i = $index) {
+        <a [routerLink]="['/catalog']" [queryParams]="{ tags: tag }" queryParamsHandling="" class="product-tag" [style.animation-delay]="i * 60 + 'ms'">
+          <svg class="product-tag-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+            <line x1="7" y1="7" x2="7.01" y2="7"/>
+          </svg>
+          {{ tag }}
+        </a>
+        }
+      </div>
+      }
+
       <!-- Sizes (all in API order; out-of-stock for selected color shown disabled) -->
       @if (allSizesOrdered().length) {
       <div class="form-group">
@@ -205,20 +220,18 @@
         </button>
         }
 
-        @if (getLocalized(p.stylingTip)) {
-        <details class="info-accordion">
-          <summary>{{ 'product.stylingTip' | translate }}</summary>
-          <p>{{ getLocalized(p.stylingTip) }}</p>
+        <!-- Shopify-style collapsible sections -->
+        @if (getLocalized(p.description)) {
+        <details class="info-accordion" open>
+          <summary>{{ 'product.description' | translate }}</summary>
+          <div class="product-description-body" [innerHTML]="getLocalized(p.description) | sanitizeHtml"></div>
         </details>
         }
+
         @if (detailBlocks(); as blocks) {
-        <details class="info-accordion" open>
+        <details class="info-accordion">
           <summary>{{ 'product.details' | translate }}</summary>
           <div class="formatted-details">
-            @if (getLocalized(p.description)) {
-            <p class="detail-paragraph description-in-details" [innerHTML]="getLocalized(p.description) | sanitizeHtml">
-            </p>
-            }
             @for (block of blocks; track $index) {
             @switch (block.type) {
             @case ('title') {
@@ -238,15 +251,17 @@
             }
           </div>
         </details>
-        } @else if (getLocalized(p.details) || getLocalized(p.description)) {
-        <details class="info-accordion" open>
+        } @else if (getLocalized(p.details)) {
+        <details class="info-accordion">
           <summary>{{ 'product.details' | translate }}</summary>
-          @if (getLocalized(p.description)) {
-          <p class="description-in-details" [innerHTML]="getLocalized(p.description) | sanitizeHtml"></p>
-          }
-          @if (getLocalized(p.details)) {
-          <p>{{ getLocalized(p.details) }}</p>
-          }
+          <div class="product-description-body">{{ getLocalized(p.details) }}</div>
+        </details>
+        }
+
+        @if (getLocalized(p.stylingTip)) {
+        <details class="info-accordion">
+          <summary>{{ 'product.stylingTip' | translate }}</summary>
+          <p>{{ getLocalized(p.stylingTip) }}</p>
         </details>
         }
     </div>

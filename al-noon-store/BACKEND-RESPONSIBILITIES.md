@@ -73,11 +73,12 @@ The frontend handles validation, UX, and orchestration. The backend must enforce
 
 ### 11. **Product API – slug & SEO (optional)**
 - **What**: When supported, include in product responses:
-  - `slug` – URL-friendly identifier (e.g. `melton-abaya`). Use for `/product/:id` – BE should accept slug in GET `products/:idOrSlug`.
+  - `slug` – URL-friendly identifier (e.g. `melton-abaya`). Route stays `/product/:slug`; FE resolves slug→id via `GET /api/products?slug=` before calling `GET /api/products/:id`.
+  - BE must accept `slug` query param in `GET /api/products` to support slug lookup. Detail endpoint expects ObjectId only.
   - `seoTitle`, `seoDescription` – localized meta overrides.
   - `canonicalUrl` – full canonical URL for the product page.
 - **Where**: `product` object (list/single) or as siblings in `data` for single-product response.
-- **FE**: Uses slug for links when present; SEO meta and canonical when provided.
+- **FE**: Uses slug in route for SEO; always passes id to BE for detail/related.
 
 ---
 

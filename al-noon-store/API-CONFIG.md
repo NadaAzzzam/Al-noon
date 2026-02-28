@@ -64,13 +64,15 @@ The landing page expects the backend to expose:
 
 - `GET /api/store/home` – Home data (store, hero, collections, etc.)
 - `GET /api/products` – Product list with filters
-- `GET /api/products/:id` – Product detail
+- `GET /api/products/:id` – Product detail (ObjectId only; FE resolves slug→id via `?slug=` before calling)
 - `POST /api/checkout` – Create order (guest or authenticated)
 - `GET /api/shipping-methods` – Shipping options
 - `GET /api/payment-methods` – Payment options
 - `GET /api/cities` – Cities (for delivery fee)
 - `GET /api/settings` – Store settings, content pages
 - And others – see OpenAPI spec at `http://localhost:4000/api-docs`
+
+**cURL examples:** `docs/PRODUCTS-CURL-EXAMPLES.md`, `docs/CHECKOUT-CURL-EXAMPLES.md`
 
 ---
 

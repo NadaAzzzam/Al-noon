@@ -191,7 +191,9 @@
     "inCart": "{{count}} في سلتك",
     "save": "وفر",
     "stylingTip": "نصيحة تنسيق",
+    "description": "الوصف",
     "details": "التفاصيل",
+    "tags": "العلامات",
     "related": "قد يعجبك أيضاً",
     "quickView": "عرض سريع"
   },

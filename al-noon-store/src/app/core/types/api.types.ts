@@ -280,6 +280,8 @@ export interface Product {
   averageRating?: number | null;
   ratingCount?: number | null;
   soldQty?: number | null;
+  /** Product tags (e.g. "Elegant", "Summer") for display and filtering. */
+  tags?: string[];
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string | null;
@@ -310,12 +312,16 @@ export interface ProductsQuery {
   page?: number;
   limit?: number;
   search?: string;
+  /** Lookup by slug (e.g. for resolving slug→id before GET /products/:id) */
+  slug?: string;
   /** Use ACTIVE for storefront. API convention: low stock = ACTIVE, out of stock = INACTIVE. */
   status?: 'ACTIVE' | 'INACTIVE';
   category?: string;
   newArrival?: boolean;
   availability?: ProductAvailability;
   color?: string;
+  /** Filter by tags (comma-separated); passed to API as-is. */
+  tags?: string;
   minPrice?: number;
   maxPrice?: number;
   sort?: ProductSort;
@@ -326,6 +332,7 @@ export interface ProductsQuery {
 export interface ProductsListAppliedFilters {
   sort?: ProductSort;
   availability?: ProductAvailability;
+  tags?: string | null;
   status?: 'ACTIVE' | 'INACTIVE' | null;
   category?: string | null;
   search?: string | null;

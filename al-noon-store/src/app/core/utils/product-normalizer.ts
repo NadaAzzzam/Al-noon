@@ -84,6 +84,7 @@ export function normalizeProductFromApi(raw: ProductApiShape & { _id?: string })
     hoverImage,
     video,
     discountPrice: rawDiscountPrice,
+    tags: _rawTags,
     ...rest
   } = raw;
   void _img;
@@ -106,6 +107,11 @@ export function normalizeProductFromApi(raw: ProductApiShape & { _id?: string })
   const seoDescription =
     raw['seoDescription'] ?? (raw as { metaDescription?: { en?: string; ar?: string } }).metaDescription;
 
+  const tags =
+    Array.isArray(_rawTags) ? _rawTags.filter((t): t is string => typeof t === 'string')
+      : typeof _rawTags === 'string' ? _rawTags.split(',').map((s) => s.trim()).filter(Boolean)
+      : undefined;
+
   return {
     ...rest,
     id,
@@ -118,5 +124,6 @@ export function normalizeProductFromApi(raw: ProductApiShape & { _id?: string })
     ...(raw['formattedDetails'] ? { formattedDetails: raw['formattedDetails'] } : {}),
     ...(seoTitle != null ? { seoTitle } : {}),
     ...(seoDescription != null ? { seoDescription } : {}),
+    ...(tags?.length ? { tags } : {}),
   } as Product;
 }

@@ -77,6 +77,7 @@ export class CatalogComponent implements OnInit {
   minPrice = signal<number | undefined>(undefined);
   maxPrice = signal<number | undefined>(undefined);
   color = signal<string | undefined>(undefined);
+  tags = signal<string | undefined>(undefined);
   newArrival = signal<boolean | undefined>(undefined);
   minRating = signal<number | undefined>(undefined);
 
@@ -120,6 +121,13 @@ export class CatalogComponent implements OnInit {
 
   private readonly queryParams = toSignal(this.route.queryParams, { initialValue: {} as Record<string, string> });
 
+  /** Parsed tags from URL (?tags=summer,bestseller) as array for display. */
+  activeTagsArray = computed(() => {
+    const t = this.tags()?.trim();
+    if (!t) return [];
+    return t.split(',').map((s) => s.trim()).filter(Boolean);
+  });
+
   activeFilterCount = computed(() => {
     let count = 0;
     if (this.search()) count++;
@@ -128,6 +136,7 @@ export class CatalogComponent implements OnInit {
     if (this.minPrice() != null) count++;
     if (this.maxPrice() != null) count++;
     if (this.color()) count++;
+    if (this.activeTagsArray().length) count += this.activeTagsArray().length;
     if (this.minRating() != null) count++;
     return count;
   });
@@ -175,6 +184,7 @@ export class CatalogComponent implements OnInit {
         const maxNum = qp['maxPrice'] != null && qp['maxPrice'] !== '' ? Number(qp['maxPrice']) : NaN;
         this.maxPrice.set(Number.isFinite(maxNum) && maxNum >= 0 ? maxNum : undefined);
         this.color.set(qp['color']?.trim() || undefined);
+        this.tags.set(qp['tags']?.trim() || undefined);
         const newArrivalStr = qp['newArrival']?.trim()?.toLowerCase();
         this.newArrival.set(newArrivalStr === 'true' ? true : newArrivalStr === 'false' ? false : undefined);
         const minRatingNum = qp['minRating'] != null && qp['minRating'] !== '' ? Number(qp['minRating']) : NaN;
@@ -208,6 +218,8 @@ export class CatalogComponent implements OnInit {
     if (Number.isFinite(maxNum) && maxNum >= 0) query.maxPrice = maxNum;
     const col = qp['color']?.trim();
     if (col) query.color = col;
+    const tagsVal = qp['tags']?.trim();
+    if (tagsVal) query.tags = tagsVal;
     const minRatingNum = qp['minRating'] != null && qp['minRating'] !== '' ? Number(qp['minRating']) : NaN;
     if (Number.isFinite(minRatingNum) && minRatingNum >= 1 && minRatingNum <= 5) query.minRating = minRatingNum;
     return query;
@@ -254,6 +266,8 @@ export class CatalogComponent implements OnInit {
     if (max != null && Number.isFinite(max) && max >= 0) query.maxPrice = max;
     const col = this.color()?.trim();
     if (col) query.color = col;
+    const tagsVal = this.tags()?.trim();
+    if (tagsVal) query.tags = tagsVal;
     const rating = this.minRating();
     if (rating != null && Number.isFinite(rating) && rating >= 1 && rating <= 5) query.minRating = rating;
     this.loadWithQuery(query);
@@ -270,6 +284,8 @@ export class CatalogComponent implements OnInit {
     if (this.maxPrice() != null && Number.isFinite(this.maxPrice()!)) qp['maxPrice'] = this.maxPrice()!;
     const col = this.color()?.trim();
     if (col) qp['color'] = col;
+    const tagsVal = this.tags()?.trim();
+    if (tagsVal) qp['tags'] = tagsVal;
     const newArr = this.newArrival();
     if (newArr === true) qp['newArrival'] = 'true';
     else if (newArr === false) qp['newArrival'] = 'false';
@@ -295,6 +311,13 @@ export class CatalogComponent implements OnInit {
     this.applyFilters();
   }
 
+  /** Remove a single tag from the active tags filter. */
+  removeTag(tagToRemove: string): void {
+    const arr = this.activeTagsArray().filter((t) => t !== tagToRemove);
+    this.tags.set(arr.length ? arr.join(',') : undefined);
+    this.applyFilters();
+  }
+
   clearFilters(): void {
     this.search.set('');
     this.categoryId.set(undefined);
@@ -303,6 +326,7 @@ export class CatalogComponent implements OnInit {
     this.minPrice.set(undefined);
     this.maxPrice.set(undefined);
     this.color.set(undefined);
+    this.tags.set(undefined);
     this.minRating.set(undefined);
     this.newArrival.set(undefined);
     this.router.navigate(['/catalog'], { queryParams: { page: 1 } });

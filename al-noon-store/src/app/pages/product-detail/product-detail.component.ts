@@ -1,8 +1,9 @@
 import { Component, OnInit, inject, signal, computed, effect, ChangeDetectionStrategy, DestroyRef, ViewChild, ElementRef, input } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, distinctUntilChanged, switchMap, take } from 'rxjs/operators';
+import { EMPTY } from 'rxjs';
 import { timer, of } from 'rxjs';
 import { ProductsService } from '../../core/services/products.service';
 import { CartService } from '../../core/services/cart.service';
@@ -23,7 +24,7 @@ import type { Product, FormattedDetails, FormattedDetailBlock } from '../../core
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [TranslatePipe, PriceFormatPipe, SanitizeHtmlPipe, ProductCardComponent, BreadcrumbComponent, StarRatingComponent, LoadingSkeletonComponent],
+  imports: [RouterLink, TranslatePipe, PriceFormatPipe, SanitizeHtmlPipe, ProductCardComponent, BreadcrumbComponent, StarRatingComponent, LoadingSkeletonComponent],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -285,8 +286,19 @@ export class ProductDetailComponent implements OnInit {
           this.related.set(existingRelated);
           return of(existingProduct);
         }
-        const apiId = this.resolveApiId(id, existingProduct);
-        if (!apiId) return [];
+        let apiId = this.resolveApiId(id, existingProduct);
+        if (!apiId) {
+          return this.productsService.getProducts({ slug: id, limit: 1 }).pipe(
+            switchMap((res) => {
+              const first = res.data?.[0];
+              if (!first?.id) return EMPTY;
+              this.cacheSlugId(id, first.id);
+              apiId = first.id;
+              this.productsService.getRelated(apiId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((list) => this.related.set(list));
+              return this.productsService.getProduct(apiId);
+            })
+          );
+        }
         this.productsService.getRelated(apiId).pipe(
           takeUntilDestroyed(this.destroyRef)
         ).subscribe((list) => this.related.set(list));
@@ -548,7 +560,7 @@ export class ProductDetailComponent implements OnInit {
   private static readonly OBJECT_ID_REGEX = /^[a-f0-9]{24}$/i;
   private static readonly SLUG_ID_CACHE_KEY = 'al_noon_slug_id';
 
-  /** Resolve route param to API id. BE expects _id; on refresh with slug we use sessionStorage cache. */
+  /** Resolve route param to API id. BE expects _id only; route stays with slug for SEO. */
   private resolveApiId(param: string | null, product?: Product | null): string | null {
     if (!param) return null;
     if (ProductDetailComponent.OBJECT_ID_REGEX.test(param)) return param;
@@ -556,9 +568,9 @@ export class ProductDetailComponent implements OnInit {
     try {
       const raw = typeof sessionStorage !== 'undefined' && sessionStorage.getItem(ProductDetailComponent.SLUG_ID_CACHE_KEY);
       const map = raw ? (JSON.parse(raw) as Record<string, string>) : {};
-      return map[param] ?? param;
+      return map[param] ?? null;
     } catch {
-      return param;
+      return null;
     }
   }
 

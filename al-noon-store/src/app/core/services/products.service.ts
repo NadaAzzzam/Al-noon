@@ -23,7 +23,7 @@ export class ProductsService {
 
   /**
    * GET /api/products – build query params to match API exactly.
-   * Params: page, limit, category, search, status, newArrival, availability, sort, minPrice, maxPrice, color, minRating.
+   * Params: page, limit, category, slug, search, status, newArrival, availability, sort, minPrice, maxPrice, color, minRating.
    */
   getProducts(query: ProductsQuery = {}): Observable<ProductsListResponse> {
     let params = new HttpParams();
@@ -36,6 +36,7 @@ export class ProductsService {
     set('page', query.page);
     set('limit', query.limit);
     set('category', query.category);
+    set('slug', typeof query.slug === 'string' ? query.slug.trim() : query.slug);
     set('search', typeof query.search === 'string' ? query.search.trim() : query.search);
     set('status', query.status);
     if (query.newArrival === true) params = params.set('newArrival', 'true');
@@ -45,6 +46,7 @@ export class ProductsService {
     set('minPrice', query.minPrice);
     set('maxPrice', query.maxPrice);
     set('color', query.color);
+    set('tags', typeof query.tags === 'string' ? query.tags.trim() : undefined);
     set('minRating', query.minRating);
 
     return this.http

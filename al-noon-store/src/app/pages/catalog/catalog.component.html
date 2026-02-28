@@ -77,6 +77,11 @@
       {{ color() }} <span class="chip-close">&times;</span>
     </button>
     }
+    @for (tag of activeTagsArray(); track tag) {
+    <button type="button" class="filter-chip filter-chip-tag" (click)="removeTag(tag)">
+      {{ tag }} <span class="chip-close">&times;</span>
+    </button>
+    }
     @if (minRating() != null) {
     <button type="button" class="filter-chip" (click)="removeFilter('minRating')">
       {{ 'catalog.minRating' | translate }}: {{ minRating() }}★ <span class="chip-close">&times;</span>
@@ -161,8 +166,8 @@
     <!-- Search -->
     <div class="sidebar-search">
       <input type="search" [value]="search()" (input)="search.set($any($event.target).value)"
-        (keydown.enter)="$event.preventDefault(); applyFilters()"
-        [placeholder]="'catalog.search' | translate" [attr.aria-label]="'catalog.search' | translate" />
+        (keydown.enter)="$event.preventDefault(); applyFilters()" [placeholder]="'catalog.search' | translate"
+        [attr.aria-label]="'catalog.search' | translate" />
     </div>
 
 
