@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { signal } from '@angular/core';
 import { of } from 'rxjs';
 import { PageComponent } from './page.component';
 import { StoreService } from '../../core/services/store.service';
@@ -18,7 +19,7 @@ describe('PageComponent', () => {
         provideRouter([]),
         { provide: ActivatedRoute, useValue: { paramMap: of(new Map([['slug', 'privacy']])) } },
         { provide: StoreService, useValue: { getPage: () => of({ slug: 'privacy', title: { en: 'Privacy' }, content: { en: 'Content' } }) } },
-        { provide: LocaleService, useValue: { getLocale: () => 'en' } },
+        { provide: LocaleService, useValue: { getLocale: () => 'en', lang: signal('en') } },
         { provide: SeoService, useValue: { setPage: () => {} } },
       ],
     }).compileComponents();

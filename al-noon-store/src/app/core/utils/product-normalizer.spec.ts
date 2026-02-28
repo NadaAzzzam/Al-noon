@@ -211,8 +211,8 @@ describe('product-normalizer', () => {
     expect(result.availability?.variantsSource).toBe('estimated');
     expect(result.availability?.colors).toHaveLength(2);
     expect(result.availability?.variants).toHaveLength(3);
-    expect(result.formattedDetails?.en).toHaveLength(1);
-    expect(result.formattedDetails?.en?.[0]).toEqual({ type: 'paragraph', text: 'Quality fabric. Care as per label.' });
+    expect(result.formattedDetails?.['en']).toHaveLength(1);
+    expect(result.formattedDetails?.['en']?.[0]).toEqual({ type: 'paragraph', text: 'Quality fabric. Care as per label.' });
     expect(result.seoTitle).toEqual({ en: 'Melton Abaya | Al-noon', ar: 'عباية ميلتون | النون' });
     expect(result.seoDescription?.en).toBe('Elegant melton fabric abaya for winter.');
   });

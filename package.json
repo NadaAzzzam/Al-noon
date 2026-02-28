@@ -1,0 +1,11 @@
+{
+  "name": "al-noon",
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "prepush": "cd al-noon-store && npm run test:ci && npm run build"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
