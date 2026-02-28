@@ -153,12 +153,9 @@
               [attr.aria-label]="colorOutOfStock ? (c + ' - ' + ('product.outOfStock' | translate)) : c"
               [attr.title]="colorOutOfStock ? (c + ' – ' + ('product.outOfStock' | translate)) : c"
               [disabled]="colorOutOfStock || loadingColor()" (click)="selectColor(c)">
-              @if (colorOutOfStock) {
-              <span class="color-swatch-x" aria-hidden="true">✕</span>
-              }
             </button>
             @if (colorOutOfStock) {
-            <span class="color-swatch-out-label">{{ c }} ({{ 'product.outOfStock' | translate }})</span>
+            <span class="color-swatch-out-label">{{ 'product.outOfStock' | translate }}</span>
             }
           </div>
           }
@@ -179,14 +176,14 @@
             aria-label="Increase quantity">+</button>
         </div>
         @if (cartQuantityForCurrent() > 0) {
-          <p class="in-cart-hint">{{ 'product.inCart' | translate: { count: cartQuantityForCurrent() } }}</p>
+        <p class="in-cart-hint">{{ 'product.inCart' | translate: { count: cartQuantityForCurrent() } }}</p>
         }
-        @if (remainingCanAdd() > 0 && remainingCanAdd() <= lowStockThreshold()) {
-          <p class="low-stock">{{ 'product.lowStock' | translate: { count: remainingCanAdd() } }}</p>
-        }
-        @if (remainingCanAdd() > lowStockThreshold() && remainingCanAdd() <= stockInfoThreshold()) {
-          <p class="stock-info">{{ 'product.stockAvailable' | translate: { count: remainingCanAdd() } }}</p>
-        }
+        @if (remainingCanAdd() > 0 && remainingCanAdd() <= lowStockThreshold()) { <p class="low-stock">{{
+          'product.lowStock' | translate: { count: remainingCanAdd() } }}</p>
+          }
+          @if (remainingCanAdd() > lowStockThreshold() && remainingCanAdd() <= stockInfoThreshold()) { <p
+            class="stock-info">{{ 'product.stockAvailable' | translate: { count: remainingCanAdd() } }}</p>
+            }
       </div>
 
       @if (effectiveStock() <= 0) { <p class="out-of-stock">{{ 'product.outOfStock' | translate }}</p>
@@ -219,7 +216,8 @@
           <summary>{{ 'product.details' | translate }}</summary>
           <div class="formatted-details">
             @if (getLocalized(p.description)) {
-            <p class="detail-paragraph description-in-details" [innerHTML]="getLocalized(p.description)"></p>
+            <p class="detail-paragraph description-in-details" [innerHTML]="getLocalized(p.description) | sanitizeHtml">
+            </p>
             }
             @for (block of blocks; track $index) {
             @switch (block.type) {
@@ -244,7 +242,7 @@
         <details class="info-accordion" open>
           <summary>{{ 'product.details' | translate }}</summary>
           @if (getLocalized(p.description)) {
-          <p class="description-in-details" [innerHTML]="getLocalized(p.description)"></p>
+          <p class="description-in-details" [innerHTML]="getLocalized(p.description) | sanitizeHtml"></p>
           }
           @if (getLocalized(p.details)) {
           <p>{{ getLocalized(p.details) }}</p>

@@ -102,6 +102,10 @@ export function normalizeProductFromApi(raw: ProductApiShape & { _id?: string })
       }
       : undefined);
 
+  const seoTitle = raw['seoTitle'] ?? (raw as { metaTitle?: { en?: string; ar?: string } }).metaTitle;
+  const seoDescription =
+    raw['seoDescription'] ?? (raw as { metaDescription?: { en?: string; ar?: string } }).metaDescription;
+
   return {
     ...rest,
     id,
@@ -112,5 +116,7 @@ export function normalizeProductFromApi(raw: ProductApiShape & { _id?: string })
     ...(category ? { category } : {}),
     ...(raw['availability'] ? { availability: raw['availability'] } : {}),
     ...(raw['formattedDetails'] ? { formattedDetails: raw['formattedDetails'] } : {}),
+    ...(seoTitle != null ? { seoTitle } : {}),
+    ...(seoDescription != null ? { seoDescription } : {}),
   } as Product;
 }

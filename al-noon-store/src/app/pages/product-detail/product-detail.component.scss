@@ -352,15 +352,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .color-swatch-out-label {
-  font-size: 10px;
+  font-size: 9px;
   line-height: 1.2;
   color: var(--color-text-muted);
   text-align: center;
   max-width: 72px;
+  letter-spacing: 0.02em;
 }
 
 .color-swatch {
@@ -371,7 +372,8 @@
   cursor: pointer;
   transition:
     transform 0.2s,
-    box-shadow 0.2s;
+    box-shadow 0.2s,
+    opacity 0.2s;
   position: relative;
   flex-shrink: 0;
 
@@ -389,23 +391,25 @@
 
   &.out-of-stock,
   &:disabled {
-    opacity: 0.9;
+    opacity: 0.55;
     cursor: not-allowed;
-  }
 
-  /* X overlay so user clearly sees product has this color but it's out of stock */
-  .color-swatch-x {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: 700;
-    color: rgba(0, 0, 0, 0.75);
-    text-shadow: 0 0 2px rgba(255, 255, 255, 0.9), 0 1px 2px rgba(255, 255, 255, 0.8);
-    pointer-events: none;
-    z-index: 1;
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background:
+        linear-gradient(
+          to top right,
+          transparent calc(50% - 1px),
+          rgba(255, 255, 255, 0.85) calc(50% - 1px),
+          rgba(255, 255, 255, 0.85) calc(50% + 1px),
+          transparent calc(50% + 1px)
+        );
+      pointer-events: none;
+      z-index: 1;
+    }
   }
 }
 

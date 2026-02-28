@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal, computed, effect, ChangeDetectionStrategy, DestroyRef, ViewChild, ElementRef, input } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, distinctUntilChanged, switchMap, take } from 'rxjs/operators';
-import { timer } from 'rxjs';
+import { timer, of } from 'rxjs';
 import { ProductsService } from '../../core/services/products.service';
 import { CartService } from '../../core/services/cart.service';
 import { StoreService } from '../../core/services/store.service';
@@ -11,6 +11,7 @@ import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PriceFormatPipe } from '../../shared/pipe/price.pipe';
+import { SanitizeHtmlPipe } from '../../shared/pipe/sanitize-html.pipe';
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { StarRatingComponent } from '../../shared/components/star-rating/star-rating.component';
@@ -22,13 +23,14 @@ import type { Product, FormattedDetails, FormattedDetailBlock } from '../../core
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [TranslatePipe, PriceFormatPipe, ProductCardComponent, BreadcrumbComponent, StarRatingComponent, LoadingSkeletonComponent],
+  imports: [TranslatePipe, PriceFormatPipe, SanitizeHtmlPipe, ProductCardComponent, BreadcrumbComponent, StarRatingComponent, LoadingSkeletonComponent],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly productsService = inject(ProductsService);
   private readonly cart = inject(CartService);
   private readonly storeService = inject(StoreService);
@@ -268,6 +270,8 @@ export class ProductDetailComponent implements OnInit {
       map(p => p.get('id')),
       distinctUntilChanged(),
       switchMap(id => {
+        const existingProduct = this.product();
+        const existingRelated = this.related();
         this.product.set(null);
         this.related.set([]);
         this.selectedImageIndex.set(0);
@@ -275,10 +279,18 @@ export class ProductDetailComponent implements OnInit {
         this.selectedColor.set(null);
         this.quantity.set(1);
         if (!id || id === 'undefined' || id === '') return [];
-        this.productsService.getRelated(id).pipe(
+        // After redirect ID→slug, param becomes slug but BE expects _id. Skip refetch when param matches our product's slug.
+        if (existingProduct?.slug === id) {
+          this.product.set(existingProduct);
+          this.related.set(existingRelated);
+          return of(existingProduct);
+        }
+        const apiId = this.resolveApiId(id, existingProduct);
+        if (!apiId) return [];
+        this.productsService.getRelated(apiId).pipe(
           takeUntilDestroyed(this.destroyRef)
         ).subscribe((list) => this.related.set(list));
-        return this.productsService.getProduct(id);
+        return this.productsService.getProduct(apiId);
       }),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
@@ -286,6 +298,12 @@ export class ProductDetailComponent implements OnInit {
         this.product.set(p);
         this.setDefaultSelections(p);
         this.updateProductMeta(p);
+        if (p.slug && p.id) this.cacheSlugId(p.slug, p.id);
+        // Replace URL with slug when loaded by ID so route reflects BE SEO (canonical slug)
+        const currentParam = this.route.snapshot.paramMap.get('id');
+        if (p.slug && currentParam && currentParam !== p.slug) {
+          this.router.navigate(['/product', p.slug], { replaceUrl: true });
+        }
       },
       error: () => this.product.set(null),
     });
@@ -351,12 +369,13 @@ export class ProductDetailComponent implements OnInit {
   /** Select color and fetch product with color-specific images (GET ?color=...). Preserves full colors/availability from previous product so out-of-stock options (e.g. Burgundy) stay visible. */
   selectColor(color: string): void {
     if (this.isColorOutOfStockForSelectedSize(color)) return;
-    const id = this.route.snapshot.paramMap.get('id');
-    if (!id) return;
+    const prev = this.product();
+    const param = this.route.snapshot.paramMap.get('id');
+    const apiId = prev?.id ?? this.resolveApiId(param, prev);
+    if (!apiId) return;
     this.selectedColor.set(color);
     this.loadingColor.set(true);
-    const prev = this.product();
-    this.productsService.getProduct(id, { color: color }).pipe(
+    this.productsService.getProduct(apiId, { color: color }).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (p) => {
@@ -523,6 +542,40 @@ export class ProductDetailComponent implements OnInit {
   /** Safe list items for formattedDetails list block (for template). */
   getDetailBlockItems(block: FormattedDetailBlock): string[] {
     return block.type === 'list' ? (block.items ?? []) : [];
+  }
+
+  /** MongoDB ObjectId: 24 hex chars. Slugs contain hyphens/letters. */
+  private static readonly OBJECT_ID_REGEX = /^[a-f0-9]{24}$/i;
+  private static readonly SLUG_ID_CACHE_KEY = 'al_noon_slug_id';
+
+  /** Resolve route param to API id. BE expects _id; on refresh with slug we use sessionStorage cache. */
+  private resolveApiId(param: string | null, product?: Product | null): string | null {
+    if (!param) return null;
+    if (ProductDetailComponent.OBJECT_ID_REGEX.test(param)) return param;
+    if (product?.slug === param) return product.id;
+    try {
+      const raw = typeof sessionStorage !== 'undefined' && sessionStorage.getItem(ProductDetailComponent.SLUG_ID_CACHE_KEY);
+      const map = raw ? (JSON.parse(raw) as Record<string, string>) : {};
+      return map[param] ?? param;
+    } catch {
+      return param;
+    }
+  }
+
+  private cacheSlugId(slug: string, id: string): void {
+    try {
+      if (typeof sessionStorage === 'undefined') return;
+      const raw = sessionStorage.getItem(ProductDetailComponent.SLUG_ID_CACHE_KEY);
+      const map = raw ? (JSON.parse(raw) as Record<string, string>) : {};
+      map[slug] = id;
+      const keys = Object.keys(map);
+      if (keys.length > 50) {
+        keys.slice(0, keys.length - 50).forEach((k) => delete map[k]);
+      }
+      sessionStorage.setItem(ProductDetailComponent.SLUG_ID_CACHE_KEY, JSON.stringify(map));
+    } catch {
+      /* ignore */
+    }
   }
 
   /** Map color names to valid CSS color values (for names not recognized by CSS). */
