@@ -6,6 +6,7 @@ import { of } from 'rxjs';
 import { OrdersComponent } from './orders.component';
 import { OrdersService } from '../../../core/services/orders.service';
 import { LocaleService } from '../../../core/services/locale.service';
+import { LocalizedPathService } from '../../../core/services/localized-path.service';
 
 describe('OrdersComponent', () => {
   let fixture: ComponentFixture<OrdersComponent>;
@@ -15,10 +16,14 @@ describe('OrdersComponent', () => {
       imports: [OrdersComponent, TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
+        LocalizedPathService,
         { provide: OrdersService, useValue: { getOrders: () => of({ data: [], pagination: { total: 0, page: 1, limit: 50, totalPages: 0 } }) } },
         { provide: LocaleService, useValue: { getLocale: () => 'en' } },
       ],
     }).compileComponents();
+  });
+
+  beforeEach(() => {
     fixture = TestBed.createComponent(OrdersComponent);
   });
 

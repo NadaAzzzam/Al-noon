@@ -6,6 +6,7 @@ import { StoreService } from '../../core/services/store.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
 import { LocaleService } from '../../core/services/locale.service';
+import { LocalizedPathService } from '../../core/services/localized-path.service';
 import { ApiService } from '../../core/services/api.service';
 import { CategoriesService } from '../../core/services/categories.service';
 import type { Category } from '../../core/types/api.types';
@@ -27,6 +28,7 @@ export class HeaderComponent implements OnInit {
   private readonly auth = inject(AuthService);
   readonly cart = inject(CartService);
   readonly locale = inject(LocaleService);
+  readonly pathService = inject(LocalizedPathService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -110,7 +112,8 @@ export class HeaderComponent implements OnInit {
   }
 
   toggleLocale(): void {
-    this.locale.setLocale(this.currentLocale() === 'ar' ? 'en' : 'ar');
+    const newLang = this.currentLocale() === 'ar' ? 'en' : 'ar';
+    this.pathService.navigateWithLocale(newLang);
   }
 
   toggleSidebar(): void {
@@ -147,7 +150,7 @@ export class HeaderComponent implements OnInit {
     } else {
       delete currentParams['search'];
     }
-    this.router.navigate(['/catalog'], { queryParams: currentParams, queryParamsHandling: '' });
+    this.router.navigate(this.pathService.path('catalog'), { queryParams: currentParams, queryParamsHandling: '' });
   }
 
   /** Cart drawer methods */
@@ -169,6 +172,6 @@ export class HeaderComponent implements OnInit {
 
   goToCheckout(): void {
     this.cart.closeDrawer();
-    this.router.navigate(['/checkout']);
+    this.router.navigate(this.pathService.path('checkout'));
   }
 }

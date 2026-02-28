@@ -6,11 +6,7 @@
 } @else {
 <div class="container product-detail">
   <!-- Breadcrumb -->
-  <app-breadcrumb [items]="[
-      { label: ('nav.home' | translate), url: '/' },
-      { label: ('nav.shop' | translate), url: '/catalog' },
-      { label: getLocalized(p.name) }
-    ]" />
+  <app-breadcrumb [items]="breadcrumbItems()" />
 
   <div class="product-main fade-in-up">
     <!-- Gallery (images + videos) -->
@@ -119,7 +115,7 @@
       @if (p.tags?.length) {
       <div class="product-tags">
         @for (tag of p.tags; track tag; let i = $index) {
-        <a [routerLink]="['/catalog']" [queryParams]="{ tags: tag }" queryParamsHandling="" class="product-tag" [style.animation-delay]="i * 60 + 'ms'">
+        <a [routerLink]="pathService.path('catalog')" [queryParams]="{ tags: tag }" queryParamsHandling="" class="product-tag" [style.animation-delay]="i * 60 + 'ms'">
           <svg class="product-tag-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
             <line x1="7" y1="7" x2="7.01" y2="7"/>

@@ -9,7 +9,7 @@ describe('Cart', () => {
   });
 
   it('should display empty cart when no items', () => {
-    cy.visit('/cart', {
+    cy.visit('/en/cart', {
       onBeforeLoad(win) {
         win.localStorage.removeItem('al_noon_cart');
       },
@@ -19,7 +19,7 @@ describe('Cart', () => {
   });
 
   it('should display cart items when cart has items', () => {
-    cy.visit('/cart', {
+    cy.visit('/en/cart', {
       onBeforeLoad(win) {
         win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
       },
@@ -29,7 +29,7 @@ describe('Cart', () => {
   });
 
   it('should allow adding special instructions when cart has items', () => {
-    cy.visit('/cart', {
+    cy.visit('/en/cart', {
       onBeforeLoad(win) {
         win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
       },
@@ -39,7 +39,7 @@ describe('Cart', () => {
   });
 
   it('should persist cart after page refresh', () => {
-    cy.visit('/cart', {
+    cy.visit('/en/cart', {
       onBeforeLoad(win) {
         win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
       },
@@ -50,27 +50,27 @@ describe('Cart', () => {
   });
 
   it('should keep cart items after logout when using guest cart (localStorage)', () => {
-    cy.visit('/cart', {
+    cy.visit('/en/cart', {
       onBeforeLoad(win) {
         win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
       },
     });
     cy.get('body').should('contain.text', 'Test Product');
-    cy.visit('/account/login');
-    cy.visit('/cart');
+    cy.visit('/en/account/login');
+    cy.visit('/en/cart');
     cy.get('body').should('contain.text', 'Test Product');
   });
 
   it('should persist cart across navigation (cart → home → cart)', () => {
-    cy.visit('/cart', {
+    cy.visit('/en/cart', {
       onBeforeLoad(win) {
         win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
       },
     });
     cy.get('body').should('contain.text', 'Test Product');
-    cy.get('a[href="/"]').first().click();
-    cy.url().should('include', '/');
-    cy.visit('/cart');
+    cy.get('a[href*="/en"], a[href="/en"]').first().click();
+    cy.url().should('match', /\/(en|ar)(\/|$)/);
+    cy.visit('/en/cart');
     cy.get('body').should('contain.text', 'Test Product');
   });
 });

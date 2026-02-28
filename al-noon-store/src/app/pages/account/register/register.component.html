@@ -31,6 +31,6 @@
   </form>
   <p class="auth-footer">
     {{ 'auth.haveAccount' | translate }}
-    <a [routerLink]="['/account', 'login']">{{ 'auth.logIn' | translate }}</a>
+    <a [routerLink]="pathService.path('account', 'login')">{{ 'auth.logIn' | translate }}</a>
   </p>
 </div>

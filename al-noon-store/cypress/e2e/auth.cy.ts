@@ -6,7 +6,7 @@ describe('Authentication', () => {
 
   describe('Login', () => {
     beforeEach(() => {
-      cy.visit('/account/login');
+      cy.visit('/en/account/login');
     });
 
     it('should display login form', () => {
@@ -43,7 +43,7 @@ describe('Authentication', () => {
 
   describe('Register', () => {
     beforeEach(() => {
-      cy.visit('/account/register');
+      cy.visit('/en/account/register');
     });
 
     it('should display register form', () => {

@@ -20,7 +20,7 @@ describe('Orders Page (requires auth)', () => {
     cy.intercept('GET', '**/i18n/*.json', { body: {} }).as('getI18n');
     cy.intercept('GET', '**/store/**', { body: { success: true, data: {} } }).as('getStore');
 
-    cy.visit('/account/orders', {
+    cy.visit('/en/account/orders', {
       onBeforeLoad(win) {
         win.sessionStorage.setItem('al_noon_auth_session', '1');
       },
@@ -34,11 +34,11 @@ describe('Orders Page (requires auth)', () => {
   });
 
   it('should redirect to login when not authenticated', () => {
-    cy.visit('/account/orders', {
+    cy.visit('/en/account/orders', {
       onBeforeLoad(win) {
         win.sessionStorage.removeItem('al_noon_auth_session');
       },
     });
-    cy.url().should('include', '/account/login');
+    cy.url().should('include', 'account/login');
   });
 });

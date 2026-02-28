@@ -91,7 +91,7 @@
           @if (msg.productCards?.length) {
           <div class=" product-cards">
             @for (card of msg.productCards; track card.id) {
-            <a [routerLink]="['/product', card.id]" class="product-card-link">
+            <a [routerLink]="pathService.path('product', card.id)" class="product-card-link">
               @if (card.image) {
               <img [src]="api.imageUrl(card.image)" [alt]="getCardName(card)" />
               }

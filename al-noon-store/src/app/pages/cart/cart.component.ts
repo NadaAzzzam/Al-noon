@@ -5,6 +5,7 @@ import { PriceFormatPipe } from '../../shared/pipe/price.pipe';
 import { LocalizedPipe } from '../../shared/pipe/localized.pipe';
 import { CartService } from '../../core/services/cart.service';
 import { ApiService } from '../../core/services/api.service';
+import { LocalizedPathService } from '../../core/services/localized-path.service';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 
 @Component({
@@ -18,6 +19,7 @@ import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcru
 export class CartComponent {
   readonly cart = inject(CartService);
   readonly api = inject(ApiService);
+  readonly pathService = inject(LocalizedPathService);
   items = this.cart.items;
   subtotal = this.cart.subtotal;
 

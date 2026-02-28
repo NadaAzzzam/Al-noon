@@ -39,7 +39,7 @@ describe('Checkout', () => {
     }).as('payment');
     cy.intercept('GET', '**/store/**', { body: { success: true, data: null } }).as('store');
 
-    cy.visit('/', {
+    cy.visit('/en', {
       onBeforeLoad(win) {
         win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
       },
@@ -47,7 +47,7 @@ describe('Checkout', () => {
   });
 
   it('should display checkout when cart has items', () => {
-    cy.visit('/checkout', {
+    cy.visit('/en/checkout', {
       onBeforeLoad(win) {
         win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
       },
@@ -57,7 +57,7 @@ describe('Checkout', () => {
   });
 
   it('should display discount code input and Apply button', () => {
-    cy.visit('/checkout', {
+    cy.visit('/en/checkout', {
       onBeforeLoad(win) {
         win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
       },
@@ -68,7 +68,7 @@ describe('Checkout', () => {
   });
 
   it('should apply discount code when user enters code and clicks Apply', () => {
-    cy.visit('/checkout', {
+    cy.visit('/en/checkout', {
       onBeforeLoad(win) {
         win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
       },
@@ -79,7 +79,7 @@ describe('Checkout', () => {
   });
 
   it('should show empty state when cart is empty', () => {
-    cy.visit('/checkout', {
+    cy.visit('/en/checkout', {
       onBeforeLoad(win) {
         win.localStorage.removeItem('al_noon_cart');
       },
@@ -103,7 +103,7 @@ describe('Checkout', () => {
         req.reply({ statusCode: 400, body: { success: false, message: 'Missing discount' } });
       }
     }).as('checkout');
-    cy.visit('/checkout', { onBeforeLoad: (w) => w.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)) });
+    cy.visit('/en/checkout', { onBeforeLoad: (w) => w.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)) });
     cy.get('.discount-input').type('SAVE10');
     cy.get('.discount-btn').first().click();
     cy.get('.discount-applied, .discount-btn-remove').should('exist');
@@ -117,7 +117,7 @@ describe('Checkout', () => {
       statusCode: 400,
       body: { success: false, message: 'Invalid discount code' },
     }).as('checkout');
-    cy.visit('/checkout', { onBeforeLoad: (w) => w.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)) });
+    cy.visit('/en/checkout', { onBeforeLoad: (w) => w.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)) });
     cy.get('.discount-input').type('BADCODE');
     cy.get('.discount-btn').first().click();
     cy.get('.discount-applied, .discount-btn-remove').should('exist');
@@ -136,7 +136,7 @@ describe('Checkout', () => {
         data: { order: { id: 'ord-1', items: [], total: 100, status: 'PENDING' } },
       },
     }).as('checkout');
-    cy.visit('/checkout', { onBeforeLoad: (w) => w.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)) });
+    cy.visit('/en/checkout', { onBeforeLoad: (w) => w.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)) });
     cy.get('button[type="submit"]').first().click();
     cy.get('button[type="submit"]').first().should('be.disabled');
     cy.wait('@checkout');
@@ -147,7 +147,7 @@ describe('Checkout', () => {
       statusCode: 400,
       body: { success: false, message: 'Product X is out of stock' },
     }).as('checkout');
-    cy.visit('/checkout', { onBeforeLoad: (w) => w.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)) });
+    cy.visit('/en/checkout', { onBeforeLoad: (w) => w.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)) });
     cy.get('button[type="submit"]').first().click();
     cy.wait('@checkout');
     cy.get('.error-block').should('exist');

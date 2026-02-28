@@ -24,6 +24,6 @@
   </form>
   <p class="auth-footer">
     {{ 'auth.dontHaveAccount' | translate }}
-    <a [routerLink]="['/account', 'register']">{{ 'auth.createAccount' | translate }}</a>
+    <a [routerLink]="pathService.path('account', 'register')">{{ 'auth.createAccount' | translate }}</a>
   </p>
 </div>

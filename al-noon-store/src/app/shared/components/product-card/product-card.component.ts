@@ -4,6 +4,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { PriceFormatPipe } from '../../pipe/price.pipe';
 import { ApiService } from '../../../core/services/api.service';
 import { LocaleService } from '../../../core/services/locale.service';
+import { LocalizedPathService } from '../../../core/services/localized-path.service';
 import { getLocalizedSlug } from '../../../core/utils/localized';
 import { StarRatingComponent } from '../star-rating/star-rating.component';
 import type { Product } from '../../../core/types/api.types';
@@ -16,7 +17,7 @@ import type { Product } from '../../../core/types/api.types';
   template: `
     @let p = product();
     @if (p) {
-      <a [routerLink]="['/product', slugForLink() || p.id]" class="product-card">
+      <a [routerLink]="pathService.path('product', slugForLink() || p.id)" class="product-card">
         <div class="product-image-wrap"
              [class.has-hover-image]="hasSecondMedia()">
           @if (mainMedia()) {
@@ -229,6 +230,7 @@ import type { Product } from '../../../core/types/api.types';
 })
 export class ProductCardComponent {
   readonly api = inject(ApiService);
+  readonly pathService = inject(LocalizedPathService);
   private readonly locale = inject(LocaleService);
 
   product = input.required<Product>();

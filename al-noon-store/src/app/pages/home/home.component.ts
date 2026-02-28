@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { StoreService } from '../../core/services/store.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
+import { LocalizedPathService } from '../../core/services/localized-path.service';
 import { SeoService } from '../../core/services/seo.service';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { getLocalized } from '../../core/utils/localized';
@@ -27,6 +28,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly translate = inject(TranslateService);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
+  readonly pathService = inject(LocalizedPathService);
 
   store = signal<StoreData | null>(null);
   newArrivals = signal<Product[]>([]);

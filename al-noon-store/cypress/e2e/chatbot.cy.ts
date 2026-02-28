@@ -13,14 +13,14 @@ describe('AI Chatbot', () => {
   });
 
   it('should show chatbot widget when AI is enabled', () => {
-    cy.visit('/');
+    cy.visit('/en');
     // Wait for widget (implies ai/settings loaded); home may load in parallel
     cy.get('.chatbot-widget', { timeout: 15000 }).should('exist');
     cy.get('.chatbot-toggle').should('be.visible');
   });
 
   it('should open chat panel on toggle click', () => {
-    cy.visit('/');
+    cy.visit('/en');
     cy.get('.chatbot-widget', { timeout: 15000 }).should('exist');
     cy.get('.chatbot-toggle').click();
     cy.get('.chatbot-panel').should('be.visible');
@@ -40,7 +40,7 @@ describe('AI Chatbot', () => {
       },
     }).as('postChat');
 
-    cy.visit('/');
+    cy.visit('/en');
     cy.get('.chatbot-widget', { timeout: 15000 }).should('exist');
     cy.get('.chatbot-toggle').click();
     cy.get('.chatbot-input input').type('Show me products');
@@ -70,7 +70,7 @@ describe('AI Chatbot', () => {
         },
       }).as('postChatXss');
 
-      cy.visit('/');
+      cy.visit('/en');
       cy.window().then((win) => {
         (win as unknown as { __XSS_EXECUTED__?: boolean }).__XSS_EXECUTED__ = false;
       });
@@ -98,7 +98,7 @@ describe('AI Chatbot', () => {
     it('should show friendly message on 429 (rate limit)', () => {
       cy.intercept('POST', aiChatUrl, { statusCode: 429 }).as('postChat429');
 
-      cy.visit('/');
+      cy.visit('/en');
       cy.get('.chatbot-widget', { timeout: 15000 }).should('exist');
       cy.get('.chatbot-toggle').click();
       cy.get('.chatbot-input input').type('test');
@@ -114,7 +114,7 @@ describe('AI Chatbot', () => {
     it('should show friendly message on 502 (service unavailable)', () => {
       cy.intercept('POST', aiChatUrl, { statusCode: 502 }).as('postChat502');
 
-      cy.visit('/');
+      cy.visit('/en');
       cy.get('.chatbot-widget', { timeout: 15000 }).should('exist');
       cy.get('.chatbot-toggle').click();
       cy.get('.chatbot-input input').type('test');
@@ -127,7 +127,7 @@ describe('AI Chatbot', () => {
     it('should show friendly message on 400 (chat disabled)', () => {
       cy.intercept('POST', aiChatUrl, { statusCode: 400 }).as('postChat400');
 
-      cy.visit('/');
+      cy.visit('/en');
       cy.get('.chatbot-widget', { timeout: 15000 }).should('exist');
       cy.get('.chatbot-toggle').click();
       cy.get('.chatbot-input input').type('test');

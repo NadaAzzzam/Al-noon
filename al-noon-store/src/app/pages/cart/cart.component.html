@@ -1,6 +1,6 @@
 <div class="container cart-page">
   <app-breadcrumb [items]="[
-    { label: ('nav.home' | translate), url: '/' },
+    { label: ('nav.home' | translate), url: pathService.toUrl('/') },
     { label: ('cart.title' | translate) }
   ]" />
   <h1 class="page-title">{{ 'cart.title' | translate }}</h1>
@@ -13,7 +13,7 @@
       <path d="M16 10a4 4 0 0 1-8 0" />
     </svg>
     <p>{{ 'cart.empty' | translate }}</p>
-    <a [routerLink]="['/catalog']" class="btn">{{ 'cart.continueShopping' | translate }}</a>
+    <a [routerLink]="pathService.path('catalog')" class="btn">{{ 'cart.continueShopping' | translate }}</a>
   </div>
   } @else {
   <div class="cart-layout">
@@ -34,7 +34,7 @@
           }
         </div>
         <div class="cart-item-details">
-          <a [routerLink]="['/product', item.productId]" class="cart-item-name">{{ (item.name | localized) || ('cart.product' |
+          <a [routerLink]="pathService.path('product', item.productId)" class="cart-item-name">{{ (item.name | localized) || ('cart.product' |
             translate) }}</a>
           <p class="cart-item-price">{{ item.price | priceFormat:'1.2-2' }}</p>
           @if (item.variant) {
@@ -79,8 +79,8 @@
           <span class="summary-value">{{ subtotal() | priceFormat:'1.2-2' }}</span>
         </div>
         <p class="note">{{ 'cart.taxesNote' | translate }}</p>
-        <a [routerLink]="['/checkout']" class="btn btn-block">{{ 'cart.checkOut' | translate }}</a>
-        <a [routerLink]="['/catalog']" class="btn btn-block btn-outline">{{ 'cart.continueShopping' | translate }}</a>
+        <a [routerLink]="pathService.path('checkout')" class="btn btn-block">{{ 'cart.checkOut' | translate }}</a>
+        <a [routerLink]="pathService.path('catalog')" class="btn btn-block btn-outline">{{ 'cart.continueShopping' | translate }}</a>
       </div>
     </div>
   </div>

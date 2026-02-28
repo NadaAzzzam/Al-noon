@@ -7,6 +7,7 @@ import { CategoriesService } from '../../core/services/categories.service';
 import { StoreService } from '../../core/services/store.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
+import { LocalizedPathService } from '../../core/services/localized-path.service';
 import { SeoService } from '../../core/services/seo.service';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { getLocalized } from '../../core/utils/localized';
@@ -61,6 +62,7 @@ export class CatalogComponent implements OnInit {
   private readonly translate = inject(TranslateService);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
+  private readonly pathService = inject(LocalizedPathService);
 
   categories = signal<Category[]>([]);
   products = signal<Product[]>([]);
@@ -291,11 +293,11 @@ export class CatalogComponent implements OnInit {
     else if (newArr === false) qp['newArrival'] = 'false';
     const rating = this.minRating();
     if (rating != null && Number.isFinite(rating) && rating >= 1 && rating <= 5) qp['minRating'] = rating;
-    this.router.navigate(['/catalog'], { queryParams: qp, queryParamsHandling: '' });
+    this.router.navigate(this.pathService.path('catalog'), { queryParams: qp, queryParamsHandling: '' });
   }
 
   goToPage(p: number): void {
-    this.router.navigate(['/catalog'], { queryParams: { ...this.route.snapshot.queryParams, page: p } });
+    this.router.navigate(this.pathService.path('catalog'), { queryParams: { ...this.route.snapshot.queryParams, page: p } });
   }
 
   removeFilter(key: string): void {
@@ -329,7 +331,7 @@ export class CatalogComponent implements OnInit {
     this.tags.set(undefined);
     this.minRating.set(undefined);
     this.newArrival.set(undefined);
-    this.router.navigate(['/catalog'], { queryParams: { page: 1 } });
+    this.router.navigate(this.pathService.path('catalog'), { queryParams: { page: 1 } });
   }
 
   toggleFilters(): void {

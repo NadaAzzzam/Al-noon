@@ -12,6 +12,7 @@ import { PaymentMethodsService } from '../../core/services/payment-methods.servi
 import { ApiService } from '../../core/services/api.service';
 import { environment } from '../../../environments/environment';
 import { LocaleService } from '../../core/services/locale.service';
+import { LocalizedPathService } from '../../core/services/localized-path.service';
 import { AuthService } from '../../core/services/auth.service';
 import { StoreService } from '../../core/services/store.service';
 import { getLocalizedSlug } from '../../core/utils/localized';
@@ -45,6 +46,7 @@ export class CheckoutComponent implements OnInit {
   private readonly doc = inject(DOCUMENT);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
+  readonly pathService = inject(LocalizedPathService);
   private readonly translate = inject(TranslateService);
 
   /** Store data for checkout header (from getStore) */
@@ -485,14 +487,14 @@ export class CheckoutComponent implements OnInit {
         this.cart.clear();
         this.submitting.set(false);
         if (this.isLoggedIn()) {
-          this.router.navigate(['/account', 'orders', order.id]);
+          this.router.navigate(this.pathService.path('account', 'orders', order.id));
         } else {
           try {
             sessionStorage.setItem('al_noon_last_order', JSON.stringify(order));
           } catch {}
           const email = this.email().trim();
           this.router.navigate(
-            ['/order-confirmation'],
+            this.pathService.path('order-confirmation'),
             { state: { order }, queryParams: { id: order.id, email } }
           );
         }

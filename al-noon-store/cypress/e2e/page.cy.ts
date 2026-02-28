@@ -16,20 +16,20 @@ describe('Dynamic Page (Content Pages)', () => {
   });
 
   it('should load page by slug', () => {
-    cy.visit('/page/privacy');
+    cy.visit('/en/page/privacy');
     cy.wait('@getPage', { timeout: 10000 });
     cy.get('body').should('contain.text', 'Privacy');
   });
 
   it('should display page content', () => {
-    cy.visit('/page/privacy');
+    cy.visit('/en/page/privacy');
     cy.wait('@getPage');
     cy.get('body').should('contain.text', 'policy');
   });
 
   it('should handle non-existent page', () => {
     cy.intercept('GET', '**/store/page/non-existent*', { statusCode: 404 }).as('getPage404');
-    cy.visit('/page/non-existent');
+    cy.visit('/en/page/non-existent');
     cy.wait('@getPage404');
     cy.get('app-root').should('exist');
   });

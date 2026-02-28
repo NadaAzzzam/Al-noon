@@ -56,7 +56,7 @@
     <p class="hero-subtitle">{{ getLocalized(hero.subtitle) }}</p>
     }
     @if (hero.ctaUrl && getLocalized(hero.ctaLabel)) {
-    <a [routerLink]="hero.ctaUrl" class="btn hero-btn">
+    <a [routerLink]="pathService.toUrl(hero.ctaUrl)" class="btn hero-btn">
       {{ getLocalized(hero.ctaLabel) }}
     </a>
     }
@@ -70,7 +70,7 @@
   <div class="container">
     <div class="section-header">
       <h2 class="section-title">{{ 'home.newArrivals' | translate }}</h2>
-      <a routerLink="/catalog" class="section-link">
+      <a [routerLink]="pathService.path('catalog')" class="section-link">
         {{ 'nav.shop' | translate }}
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M5 12h14M12 5l7 7-7 7" />
@@ -115,7 +115,7 @@
     <div class="collections-bento" [class.collections-single]="collections.length === 1"
       [class.collections-two]="collections.length === 2">
       @for (col of collections; track col.url || col.categoryId || getLocalized(col.title); let i = $index) {
-      <a [routerLink]="['/catalog']" [queryParams]="getCollectionQueryParams(col)" class="collection-card"
+      <a [routerLink]="pathService.path('catalog')" [queryParams]="getCollectionQueryParams(col)" class="collection-card"
         [class.collection-featured]="i === 0 && collections.length >= 3">
         @if (col.image) {
         <div class="collection-media-wrap" [class.has-hover-image]="!!col.hoverImage">

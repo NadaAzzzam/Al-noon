@@ -5,18 +5,18 @@ describe('Contact Page', () => {
   });
 
   it('should load contact page', () => {
-    cy.visit('/contact');
+    cy.visit('/en/contact');
     cy.get('app-root').should('exist');
   });
 
   it('should display contact form', () => {
-    cy.visit('/contact');
+    cy.visit('/en/contact');
     cy.get('form').should('exist');
   });
 
   it('should submit contact form', () => {
     cy.intercept('POST', '**/store/contact', { success: true }).as('submitContact');
-    cy.visit('/contact');
+    cy.visit('/en/contact');
     cy.get('.contact-form input[type="text"]').first().type('Test User');
     cy.get('.contact-form input[type="email"]').first().type('test@example.com');
     cy.get('.contact-form textarea').type('Test message');

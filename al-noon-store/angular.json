@@ -88,6 +88,20 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "e2e": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "outputMode": "static",
+              "ssr": false,
+              "serviceWorker": false,
+              "fileReplacements": [
+                {
+                  "replace": "src/app/app.routes.server.ts",
+                  "with": "src/app/app.routes.server.e2e.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -100,6 +114,9 @@
             },
             "development": {
               "buildTarget": "al-noon-store:build:development"
+            },
+            "e2e": {
+              "buildTarget": "al-noon-store:build:e2e"
             }
           },
           "defaultConfiguration": "development"

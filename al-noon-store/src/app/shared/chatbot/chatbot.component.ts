@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AiChatService } from '../../core/services/ai-chat.service';
 import { LocaleService } from '../../core/services/locale.service';
+import { LocalizedPathService } from '../../core/services/localized-path.service';
 import { ApiService } from '../../core/services/api.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { SanitizeHtmlPipe } from '../pipe/sanitize-html.pipe';
@@ -27,6 +28,7 @@ export class ChatbotComponent implements OnInit {
   private readonly aiService = inject(AiChatService);
   private readonly destroyRef = inject(DestroyRef);
   readonly locale = inject(LocaleService);
+  readonly pathService = inject(LocalizedPathService);
   readonly api = inject(ApiService);
 
   settings = signal<AiSettings | null>(null);

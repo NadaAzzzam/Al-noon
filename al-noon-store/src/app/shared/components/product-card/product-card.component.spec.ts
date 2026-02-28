@@ -43,9 +43,9 @@ describe('ProductCardComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Test Product');
   });
 
-  it('should have link to product detail', () => {
+  it('should have link to product detail with lang prefix', () => {
     fixture.detectChanges();
-    const link = fixture.nativeElement.querySelector('a[href="/product/1"]');
+    const link = fixture.nativeElement.querySelector('a[href="/en/product/1"]');
     expect(link).toBeTruthy();
   });
 });

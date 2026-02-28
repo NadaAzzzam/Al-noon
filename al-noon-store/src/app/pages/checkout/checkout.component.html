@@ -1,10 +1,10 @@
 <!-- ═══ Shopify-style Checkout Header ═══ -->
 <header class="checkout-header">
   <div class="checkout-header-inner">
-    <a [routerLink]="['/']" class="checkout-logo">
+    <a [routerLink]="pathService.path()" class="checkout-logo">
       <img [src]="api.imageUrl(checkoutHeaderInfo()?.logo ?? 'uploads/logos/default-logo.png')" [alt]="getLocalized(checkoutHeaderInfo()?.storeName) || ('storeName' | translate)" class="checkout-logo-img" />
     </a>
-    <a [routerLink]="['/cart']" class="checkout-header-cart" [attr.aria-label]="'nav.cart' | translate">
+    <a [routerLink]="pathService.path('cart')" class="checkout-header-cart" [attr.aria-label]="'nav.cart' | translate">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
         stroke-linecap="round">
         <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
@@ -18,7 +18,7 @@
 @if (items().length === 0) {
 <div class="checkout-empty">
   <p>{{ 'checkout.cartEmpty' | translate }}</p>
-  <a [routerLink]="['/cart']" class="btn">{{ 'checkout.viewCart' | translate }}</a>
+  <a [routerLink]="pathService.path('cart')" class="btn">{{ 'checkout.viewCart' | translate }}</a>
 </div>
 } @else {
 <div class="checkout-wrapper">
@@ -37,7 +37,7 @@
           <div class="section-header">
             <h2 class="section-title">{{ 'checkout.contactSection' | translate }}</h2>
             @if (!isLoggedIn()) {
-            <a [routerLink]="['/account', 'login']" class="section-action-link">{{ 'checkout.signIn' | translate }}</a>
+            <a [routerLink]="pathService.path('account', 'login')" class="section-action-link">{{ 'checkout.signIn' | translate }}</a>
             }
           </div>
           <div class="form-group">
@@ -273,7 +273,7 @@
         <div id="checkout-error-block" class="error-block">
           <p class="error-msg">{{ error() }}</p>
           @if (showUpdateCart()) {
-          <a [routerLink]="['/cart']" class="error-update-cart">{{ 'checkout.updateCart' | translate }}</a>
+          <a [routerLink]="pathService.path('cart')" class="error-update-cart">{{ 'checkout.updateCart' | translate }}</a>
           }
         </div>
         }
@@ -365,16 +365,16 @@
     @if (contentPages().length) {
       @for (page of contentPages(); track getPageSlug(page) || $index) {
         @if (isContactPage(page)) {
-          <a routerLink="/contact" class="footer-link">{{ getLocalized(page.title) || 'Contact' }}</a>
+          <a [routerLink]="pathService.path('contact')" class="footer-link">{{ getLocalized(page.title) || 'Contact' }}</a>
         } @else {
-          <a [routerLink]="['/page', getPageSlug(page)]" class="footer-link">{{ getLocalized(page.title) || getPageSlug(page) }}</a>
+          <a [routerLink]="pathService.path('page', getPageSlug(page))" class="footer-link">{{ getLocalized(page.title) || getPageSlug(page) }}</a>
         }
       }
     } @else {
-      <a [routerLink]="['/page', 'return-policy']" class="footer-link">{{ 'checkout.refundPolicyLink' | translate }}</a>
-      <a [routerLink]="['/page', 'shipping-policy']" class="footer-link">{{ 'checkout.shippingLink' | translate }}</a>
-      <a [routerLink]="['/page', 'privacy']" class="footer-link">{{ 'checkout.privacyPolicyLink' | translate }}</a>
-      <a routerLink="/contact" class="footer-link">{{ 'checkout.cancellations' | translate }}</a>
+      <a [routerLink]="pathService.path('page', 'return-policy')" class="footer-link">{{ 'checkout.refundPolicyLink' | translate }}</a>
+      <a [routerLink]="pathService.path('page', 'shipping-policy')" class="footer-link">{{ 'checkout.shippingLink' | translate }}</a>
+      <a [routerLink]="pathService.path('page', 'privacy')" class="footer-link">{{ 'checkout.privacyPolicyLink' | translate }}</a>
+      <a [routerLink]="pathService.path('contact')" class="footer-link">{{ 'checkout.cancellations' | translate }}</a>
     }
   </div>
 </footer>

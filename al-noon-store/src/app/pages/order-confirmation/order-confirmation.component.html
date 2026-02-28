@@ -5,12 +5,12 @@
 } @else if (loadError()) {
 <div class="confirmation-empty">
   <p>{{ 'orderConfirmation.notFound' | translate }}</p>
-  <a [routerLink]="['/catalog']" class="btn">{{ 'orderConfirmation.continueShopping' | translate }}</a>
+  <a [routerLink]="pathService.path('catalog')" class="btn">{{ 'orderConfirmation.continueShopping' | translate }}</a>
 </div>
 } @else if (!order()) {
 <div class="confirmation-empty">
   <p>{{ 'orderConfirmation.notFound' | translate }}</p>
-  <a [routerLink]="['/catalog']" class="btn">{{ 'orderConfirmation.continueShopping' | translate }}</a>
+  <a [routerLink]="pathService.path('catalog')" class="btn">{{ 'orderConfirmation.continueShopping' | translate }}</a>
 </div>
 } @else {
 @let o = order()!;
@@ -44,7 +44,7 @@
         <div class="order-details-header">
           <h2 class="order-details-title">{{ 'orderConfirmation.orderDetails' | translate }}</h2>
           @if (isLoggedIn()) {
-          <a [routerLink]="['/account', 'orders']" class="view-account-link">{{ 'orderConfirmation.viewAccount' | translate }}</a>
+          <a [routerLink]="pathService.path('account', 'orders')" class="view-account-link">{{ 'orderConfirmation.viewAccount' | translate }}</a>
           }
         </div>
 
@@ -109,9 +109,9 @@
       <div class="confirmation-footer">
         <p class="help-text">
           {{ 'orderConfirmation.needHelp' | translate }}
-          <a [routerLink]="['/contact']" class="help-link">{{ 'orderConfirmation.contactUs' | translate }}</a>
+          <a [routerLink]="pathService.path('contact')" class="help-link">{{ 'orderConfirmation.contactUs' | translate }}</a>
         </p>
-        <a [routerLink]="['/catalog']" class="continue-btn">{{ 'orderConfirmation.continueShopping' | translate }}</a>
+        <a [routerLink]="pathService.path('catalog')" class="continue-btn">{{ 'orderConfirmation.continueShopping' | translate }}</a>
       </div>
 
     </div>

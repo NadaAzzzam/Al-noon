@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { LocaleService } from '../../../core/services/locale.service';
+import { LocalizedPathService } from '../../../core/services/localized-path.service';
 import { emailErrorKey, passwordErrorKey } from '../../../shared/utils/form-validators';
 
 @Component({
@@ -21,6 +22,7 @@ export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   readonly locale = inject(LocaleService);
+  readonly pathService = inject(LocalizedPathService);
   private readonly translate = inject(TranslateService);
 
   email = signal('');
@@ -42,7 +44,7 @@ export class LoginComponent {
   });
   valid = computed(() => !emailErrorKey(this.email()) && !passwordErrorKey(this.password()));
 
-  returnUrl = computed(() => this.route.snapshot.queryParams['returnUrl'] ?? '/account/orders');
+  returnUrl = computed(() => this.pathService.toUrl(this.route.snapshot.queryParams['returnUrl'] ?? '/account/orders'));
 
   submit(): void {
     this.error.set(null);

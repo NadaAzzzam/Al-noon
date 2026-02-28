@@ -21,7 +21,7 @@ describe('Order Confirmation Page', () => {
   });
 
   it('should show confirmation when order in sessionStorage', () => {
-    cy.visit('/order-confirmation', {
+    cy.visit('/en/order-confirmation', {
       onBeforeLoad(win) {
         win.sessionStorage.setItem('al_noon_last_order', JSON.stringify(mockOrder));
       },
@@ -30,14 +30,14 @@ describe('Order Confirmation Page', () => {
   });
 
   it('should show confirmation when order passed via state', () => {
-    cy.visit('/order-confirmation', {
+    cy.visit('/en/order-confirmation', {
       state: { order: mockOrder },
     });
     cy.get('.confirmation-wrapper').should('exist');
   });
 
   it('should show not found when no order data', () => {
-    cy.visit('/order-confirmation', {
+    cy.visit('/en/order-confirmation', {
       onBeforeLoad(win) {
         win.sessionStorage.removeItem('al_noon_last_order');
       },

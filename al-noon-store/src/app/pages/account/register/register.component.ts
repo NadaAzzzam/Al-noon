@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { LocaleService } from '../../../core/services/locale.service';
+import { LocalizedPathService } from '../../../core/services/localized-path.service';
 import { emailErrorKey, minLengthErrorKey, passwordErrorKey } from '../../../shared/utils/form-validators';
 
 @Component({
@@ -20,6 +21,7 @@ export class RegisterComponent {
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   readonly locale = inject(LocaleService);
+  readonly pathService = inject(LocalizedPathService);
   private readonly translate = inject(TranslateService);
 
   name = signal('');
@@ -61,7 +63,7 @@ export class RegisterComponent {
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.router.navigate(['/account', 'orders']),
+        next: () => this.router.navigate(this.pathService.path('account', 'orders')),
         error: (err) => this.error.set(err?.message ?? this.translate.instant('errors.registrationFailed')),
       });
   }

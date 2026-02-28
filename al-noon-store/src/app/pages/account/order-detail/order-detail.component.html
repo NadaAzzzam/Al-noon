@@ -31,7 +31,7 @@
       }
       <div class="item-details">
         @if (item.product.id) {
-        <a [routerLink]="['/product', getProductSlug(item.product)]">{{ getLocalized(item.product.name) }}</a>
+        <a [routerLink]="pathService.path('product', getProductSlug(item.product))">{{ getLocalized(item.product.name) }}</a>
         } @else {
         <span>{{ getLocalized(item.product.name) || ('orderDetail.product' | translate) }}</span>
         }
@@ -47,6 +47,6 @@
     }
     <p class="total"><span>{{ 'orderDetail.total' | translate }}</span><span>{{ o.total | priceFormat }}</span></p>
   </div>
-  <a [routerLink]="['/account', 'orders']" class="btn btn-outline">{{ 'orderDetail.backToOrders' | translate }}</a>
+  <a [routerLink]="pathService.path('account', 'orders')" class="btn btn-outline">{{ 'orderDetail.backToOrders' | translate }}</a>
   }
 </div>

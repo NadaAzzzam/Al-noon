@@ -19,7 +19,7 @@ describe('Order Detail Page (requires auth)', () => {
     cy.intercept('GET', '**/i18n/*.json', { body: {} }).as('getI18n');
     cy.intercept('GET', '**/store/**', { body: { success: true, data: {} } }).as('getStore');
 
-    cy.visit('/account/orders/ord-1', {
+    cy.visit('/en/account/orders/ord-1', {
       onBeforeLoad(win) {
         win.sessionStorage.setItem('al_noon_auth_session', '1');
       },

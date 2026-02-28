@@ -40,6 +40,12 @@ describe('LocaleService', () => {
     expect(service.lang()).toBe('ar');
   });
 
+  it('should set locale from route without navigation', () => {
+    service.setLocaleFromRoute('ar');
+    expect(service.getLocale()).toBe('ar');
+    expect(service.isRtl()).toBe(true);
+  });
+
   it('should set en and have isRtl false', () => {
     service.setLocale('en');
     expect(service.isRtl()).toBe(false);

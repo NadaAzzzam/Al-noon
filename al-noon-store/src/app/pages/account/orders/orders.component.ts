@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LocalizedPathService } from '../../../core/services/localized-path.service';
 import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OrdersService } from '../../../core/services/orders.service';
@@ -20,6 +21,7 @@ export class OrdersComponent implements OnInit {
   private readonly ordersService = inject(OrdersService);
   private readonly destroyRef = inject(DestroyRef);
   readonly locale = inject(LocaleService);
+  readonly pathService = inject(LocalizedPathService);
 
   orders = signal<Order[]>([]);
   loading = signal(true);

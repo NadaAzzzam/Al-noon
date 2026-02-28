@@ -7,7 +7,7 @@
   } @else {
   <div class="orders-list">
     @for (order of orders(); track $index) {
-    <a [routerLink]="['/account', 'orders', order.id]" class="order-card">
+    <a [routerLink]="pathService.path('account', 'orders', order.id)" class="order-card">
       <div class="order-header">
         <span class="order-id">#{{ order.id.slice(0, 8) }}</span>
         <span class="order-status">{{ order.status }}</span>

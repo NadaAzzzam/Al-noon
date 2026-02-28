@@ -52,7 +52,7 @@
         @if (link.external) {
         <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.title }}</a>
         } @else {
-        <a [routerLink]="link.url">{{ link.title }}</a>
+        <a [routerLink]="pathService.toUrl(link.url)">{{ link.title }}</a>
         }
         }
       </nav>

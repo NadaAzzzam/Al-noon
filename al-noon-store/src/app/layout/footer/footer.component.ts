@@ -7,6 +7,7 @@ import { StoreService } from '../../core/services/store.service';
 import { getLocalizedSlug } from '../../core/utils/localized';
 import { NewsletterService } from '../../core/services/newsletter.service';
 import { LocaleService } from '../../core/services/locale.service';
+import { LocalizedPathService } from '../../core/services/localized-path.service';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { emailErrorKey } from '../../shared/utils/form-validators';
 import type { StoreData, SettingsContentPage, StoreQuickLink } from '../../core/types/api.types';
@@ -33,6 +34,7 @@ export class FooterComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly translate = inject(TranslateService);
   readonly locale = inject(LocaleService);
+  readonly pathService = inject(LocalizedPathService);
 
   store = signal<StoreData | null>(null);
   /** Content pages from settings() signal */

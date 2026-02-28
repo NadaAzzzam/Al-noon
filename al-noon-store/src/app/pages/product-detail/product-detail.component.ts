@@ -10,8 +10,9 @@ import { CartService } from '../../core/services/cart.service';
 import { StoreService } from '../../core/services/store.service';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
+import { LocalizedPathService } from '../../core/services/localized-path.service';
 import { getLocalizedSlug } from '../../core/utils/localized';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PriceFormatPipe } from '../../shared/pipe/price.pipe';
 import { SanitizeHtmlPipe } from '../../shared/pipe/sanitize-html.pipe';
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
@@ -42,6 +43,8 @@ export class ProductDetailComponent implements OnInit {
   private readonly doc = inject(DOCUMENT);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
+  readonly pathService = inject(LocalizedPathService);
+  private readonly translate = inject(TranslateService);
   readonly Math = Math;
 
   @ViewChild('thumbsTrack') thumbsTrackRef?: ElementRef<HTMLElement>;
@@ -90,6 +93,17 @@ export class ProductDetailComponent implements OnInit {
   remainingCanAdd = computed(() =>
     Math.max(0, this.effectiveStock() - this.cartQuantityForCurrent())
   );
+
+  /** Breadcrumb items with localized URLs. */
+  breadcrumbItems = computed(() => {
+    const p = this.product();
+    if (!p) return [];
+    return [
+      { label: this.translate.instant('nav.home'), url: this.pathService.toUrl('/') },
+      { label: this.translate.instant('nav.shop'), url: this.pathService.toUrl('/catalog') },
+      { label: this.getLocalized(p.name) },
+    ];
+  });
 
   /** True when add-to-cart should be disabled (missing selection, quantity exceeded, or none left to add). */
   addToCartDisabled = computed(() => {
@@ -317,7 +331,7 @@ export class ProductDetailComponent implements OnInit {
         // Replace URL with slug when loaded by ID so route reflects BE SEO (canonical slug)
         const currentParam = this.route.snapshot.paramMap.get('id');
         if (slug && currentParam && currentParam !== slug) {
-          this.router.navigate(['/product', slug], { replaceUrl: true });
+          this.router.navigate(this.pathService.path('product', slug), { replaceUrl: true });
         }
       },
       error: () => this.product.set(null),
@@ -334,7 +348,7 @@ export class ProductDetailComponent implements OnInit {
     const canonicalUrl =
       p.canonicalUrl ||
       (slug && typeof this.doc?.defaultView?.location?.origin === 'string'
-        ? `${this.doc.defaultView.location.origin}/product/${slug}`
+        ? `${this.doc.defaultView.location.origin}/${this.locale.getLocale()}/product/${slug}`
         : undefined);
     this.seo.setPage({
       title: seoTitle,

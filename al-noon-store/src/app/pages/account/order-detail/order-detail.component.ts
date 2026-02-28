@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OrdersService } from '../../../core/services/orders.service';
 import { ApiService } from '../../../core/services/api.service';
 import { LocaleService } from '../../../core/services/locale.service';
+import { LocalizedPathService } from '../../../core/services/localized-path.service';
 import { getLocalizedSlug } from '../../../core/utils/localized';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PriceFormatPipe } from '../../../shared/pipe/price.pipe';
@@ -23,6 +24,7 @@ export class OrderDetailComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
+  readonly pathService = inject(LocalizedPathService);
 
   order = signal<Order | null>(null);
   loading = signal(true);

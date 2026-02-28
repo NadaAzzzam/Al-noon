@@ -3,6 +3,7 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ApiService } from '../../core/services/api.service';
 import { LocaleService } from '../../core/services/locale.service';
+import { LocalizedPathService } from '../../core/services/localized-path.service';
 import { AuthService } from '../../core/services/auth.service';
 import { OrdersService } from '../../core/services/orders.service';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -24,6 +25,7 @@ export class OrderConfirmationComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   readonly api = inject(ApiService);
   readonly locale = inject(LocaleService);
+  readonly pathService = inject(LocalizedPathService);
   readonly auth = inject(AuthService);
 
   /** Order passed via router state, sessionStorage, or guest lookup API */

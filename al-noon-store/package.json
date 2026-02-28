@@ -13,7 +13,9 @@
         "generate:api-types:local": "node scripts/generate-api-types.mjs",
         "test:ci": "ng test --no-watch --configuration=ci",
         "e2e": "cypress run",
-        "e2e:open": "cypress open"
+        "e2e:open": "cypress open",
+        "e2e:serve": "npx serve -s dist/al-noon-store/browser -l 4202",
+        "e2e:ci": "ng build --configuration=e2e && npx start-server-and-test e2e:serve http://localhost:4202 \"cypress run --config baseUrl=http://localhost:4202\""
     },
     "prettier": {
         "printWidth": 100,

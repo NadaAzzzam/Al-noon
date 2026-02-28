@@ -26,6 +26,19 @@ export class LocaleService {
     return stored === 'ar' || stored === 'en' ? stored : 'en';
   }
 
+  /** Called by LocaleGuard when navigating to a :lang route. Updates state without navigation. */
+  setLocaleFromRoute(loc: Locale): void {
+    this.localeSignal.set(loc);
+    this.translate.use(loc);
+    try {
+      localStorage.setItem('al_noon_locale', loc);
+    } catch {}
+    if (typeof document !== 'undefined' && document.documentElement) {
+      document.documentElement.dir = loc === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.lang = loc;
+    }
+  }
+
   setLocale(loc: Locale): void {
     this.localeSignal.set(loc);
     this.translate.use(loc);

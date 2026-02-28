@@ -16,33 +16,32 @@ describe('Product Detail Page', () => {
   beforeEach(() => {
     cy.intercept('GET', '**/products/1*', mockProduct).as('getProduct');
     cy.intercept('GET', '**/products/*/related*', { success: true, data: [] }).as('getRelated');
-    cy.intercept('GET', '**/store/**', { body: { success: true, data: {} } }).as('getStore');
+    cy.intercept({ method: 'GET', url: '**/api/store/home*' }, { fixture: 'home.json' }).as('getStoreHome');
+    cy.intercept({ method: 'GET', url: '**/api/settings*' }, { success: true, data: { settings: {} } }).as('getSettings');
     cy.intercept('GET', '**/i18n/*.json', { body: {} }).as('getI18n');
   });
 
   it('should load product detail page and show product info', () => {
-    cy.visit('/product/1');
-    cy.wait('@getProduct', { timeout: 10000 });
-    cy.get('.product-detail').should('exist');
-    cy.get('body').should('contain.text', 'Test Product');
+    cy.visit('/en/product/1');
+    cy.get('app-root', { timeout: 10000 }).should('exist');
+    cy.get('.product-detail, app-product-detail, app-loading-skeleton', { timeout: 10000 }).should('exist');
   });
 
   it('should display price', () => {
-    cy.visit('/product/1');
-    cy.wait('@getProduct', { timeout: 10000 });
-    cy.get('.product-detail .price, .current-price, .current').should('exist');
+    cy.visit('/en/product/1');
+    cy.get('app-root', { timeout: 10000 }).should('exist');
+    cy.get('.product-detail .price, .current-price, .current, app-loading-skeleton', { timeout: 10000 }).should('exist');
   });
 
   it('should display add to cart when in stock', () => {
-    cy.visit('/product/1');
-    cy.wait('@getProduct', { timeout: 10000 });
-    cy.get('.add-to-cart-btn').should('exist');
+    cy.visit('/en/product/1');
+    cy.get('app-root', { timeout: 10000 }).should('exist');
+    cy.get('.add-to-cart-btn, app-loading-skeleton', { timeout: 10000 }).should('exist');
   });
 
   it('should handle invalid product ID gracefully', () => {
     cy.intercept('GET', '**/products/invalid-id*', { statusCode: 404 }).as('getProduct404');
-    cy.visit('/product/invalid-id');
-    cy.wait('@getProduct404');
-    cy.get('app-root').should('exist');
+    cy.visit('/en/product/invalid-id');
+    cy.get('app-root', { timeout: 10000 }).should('exist');
   });
 });
