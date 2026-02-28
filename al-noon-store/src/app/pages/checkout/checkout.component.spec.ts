@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
-import { signal } from '@angular/core';
+import { of, throwError } from 'rxjs';
+import { signal, computed } from '@angular/core';
 import { CheckoutComponent } from './checkout.component';
 import { CartService } from '../../core/services/cart.service';
 import { OrdersService } from '../../core/services/orders.service';
@@ -21,23 +21,30 @@ vi.mock('../../../environments/environment', () => ({
   environment: { discountCodeSupported: true },
 }));
 
+const mockCity = { id: '1', name: { en: 'Cairo', ar: 'القاهرة' }, deliveryFee: 35 };
+const mockShipping = { id: '698bd736064e85b854c54416', name: { en: 'Standard', ar: 'عادي' }, description: { en: '', ar: '' }, estimatedDays: '3-5', price: 0 };
+const mockPayment = { id: 'COD' as const, name: { en: 'Cash on Delivery', ar: 'الدفع' } };
+const mockCartItems = [{ productId: 'p1', quantity: 1, price: 100, name: 'Test' }];
+
 describe('CheckoutComponent', () => {
   let component: CheckoutComponent;
   let fixture: ComponentFixture<CheckoutComponent>;
-let toastSpy: { show: ReturnType<typeof vi.fn> };
+  let toastSpy: { show: ReturnType<typeof vi.fn> };
+  let checkoutSpy: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     toastSpy = { show: vi.fn() };
+    checkoutSpy = vi.fn().mockReturnValue(of({ id: 'ord1', items: [], total: 100, status: 'PENDING' }));
 
     await TestBed.configureTestingModule({
       imports: [CheckoutComponent, TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
-        { provide: CartService, useValue: { items: signal([]), getItemsForOrder: () => [], specialInstructions: signal(''), clear: vi.fn() } },
-        { provide: OrdersService, useValue: { checkout: () => of({ id: '1', items: [], total: 0, status: 'PENDING' }) } },
-        { provide: CitiesService, useValue: { getCities: () => of([]) } },
-        { provide: ShippingService, useValue: { getShippingMethods: () => of([]) } },
-        { provide: PaymentMethodsService, useValue: { getPaymentMethods: () => of([]) } },
+        { provide: CartService, useValue: { items: signal(mockCartItems), subtotal: computed(() => 100), getItemsForOrder: () => [{ product: 'p1', quantity: 1, price: 100 }], specialInstructions: signal(''), clear: vi.fn() } },
+        { provide: OrdersService, useValue: { checkout: checkoutSpy } },
+        { provide: CitiesService, useValue: { getCities: () => of([mockCity]) } },
+        { provide: ShippingService, useValue: { getShippingMethods: () => of([mockShipping]) } },
+        { provide: PaymentMethodsService, useValue: { getPaymentMethods: () => of([mockPayment]) } },
         { provide: ApiService, useValue: { imageUrl: (p: string) => p } },
         { provide: LocaleService, useValue: { getLocale: () => 'en' } },
         { provide: AuthService, useValue: { user: signal(null), isLoggedIn: () => false } },
@@ -84,6 +91,38 @@ let toastSpy: { show: ReturnType<typeof vi.fn> };
       component.discountCode.set('SAVE10');
       component.applyDiscountCode();
       expect(component.discountCodeError()).toBeNull();
+    });
+  });
+
+  describe('submit with discount', () => {
+    it('should include discountCode in checkout body when applied', () => {
+      fixture.detectChanges();
+      component.discountCode.set('SAVE10');
+      component.applyDiscountCode();
+      component.submit();
+      expect(checkoutSpy).toHaveBeenCalled();
+      const body = checkoutSpy.mock.calls[0][0];
+      expect(body.discountCode).toBe('SAVE10');
+    });
+
+    it('should NOT include discountCode when not applied', () => {
+      fixture.detectChanges();
+      component.submit();
+      expect(checkoutSpy).toHaveBeenCalled();
+      const body = checkoutSpy.mock.calls[0][0];
+      expect(body.discountCode).toBeUndefined();
+    });
+
+    it('should clear discountCodeApplied and set discountCodeError on 400 discount error', () => {
+      checkoutSpy.mockReturnValue(
+        throwError(() => ({ status: 400, error: { message: 'Invalid discount code' } }))
+      );
+      fixture.detectChanges();
+      component.discountCode.set('BADCODE');
+      component.applyDiscountCode();
+      component.submit();
+      expect(component.discountCodeApplied()).toBe(false);
+      expect(component.discountCodeError()).toBe('Invalid discount code');
     });
   });
 });

@@ -85,4 +85,44 @@ describe('Checkout', () => {
     });
     cy.get('.checkout-empty').should('exist');
   });
+
+  it('should submit checkout with discount code when applied', () => {
+    cy.intercept('POST', '**/checkout', (req) => {
+      const body = req.body;
+      if (body?.discountCode === 'SAVE10') {
+        req.reply({
+          statusCode: 201,
+          body: {
+            success: true,
+            message: 'Order placed successfully',
+            data: { order: { id: 'ord-1', items: [], total: 90, status: 'PENDING' } },
+          },
+        });
+      } else {
+        req.reply({ statusCode: 400, body: { success: false, message: 'Missing discount' } });
+      }
+    }).as('checkout');
+    cy.visit('/checkout', { onBeforeLoad: (w) => w.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)) });
+    cy.get('.discount-input').type('SAVE10');
+    cy.get('.discount-btn').first().click();
+    cy.get('.discount-applied, .discount-btn-remove').should('exist');
+    cy.get('button[type="submit"]').first().click();
+    cy.wait('@checkout');
+    cy.url().should('include', 'order-confirmation');
+  });
+
+  it('should show error and clear applied when checkout returns invalid discount', () => {
+    cy.intercept('POST', '**/checkout', {
+      statusCode: 400,
+      body: { success: false, message: 'Invalid discount code' },
+    }).as('checkout');
+    cy.visit('/checkout', { onBeforeLoad: (w) => w.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)) });
+    cy.get('.discount-input').type('BADCODE');
+    cy.get('.discount-btn').first().click();
+    cy.get('.discount-applied, .discount-btn-remove').should('exist');
+    cy.get('button[type="submit"]').first().click();
+    cy.wait('@checkout');
+    cy.get('.error-block, .error-msg, .discount-error').should('exist').and('contain.text', 'Invalid');
+    cy.get('.discount-applied').should('not.exist');
+  });
 });
