@@ -6,6 +6,7 @@ import { AiChatService } from '../../core/services/ai-chat.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { ApiService } from '../../core/services/api.service';
 import { TranslatePipe } from '@ngx-translate/core';
+import { SanitizeHtmlPipe } from '../pipe/sanitize-html.pipe';
 import type { AiSettings, AiChatResponse } from '../../core/types/api.types';
 
 interface ChatMessage {
@@ -17,7 +18,7 @@ interface ChatMessage {
 @Component({
   selector: 'app-chatbot',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslatePipe],
+  imports: [FormsModule, RouterLink, TranslatePipe, SanitizeHtmlPipe],
   templateUrl: './chatbot.component.html',
   styleUrl: './chatbot.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

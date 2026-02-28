@@ -13,10 +13,10 @@ describe('Catalog Page', () => {
   };
 
   beforeEach(() => {
-    cy.intercept('GET', '**/products*', mockProducts).as('getProducts');
-    cy.intercept('GET', '**/categories*', { success: true, data: [] }).as('getCategories');
-    cy.intercept('GET', '**/products/filters/sort*', { success: true, data: [] }).as('getSortFilters');
-    cy.intercept('GET', '**/store/**', { body: { success: true, data: {} } }).as('getStore');
+    cy.intercept({ method: 'GET', url: '**/api/products*' }, mockProducts).as('getProducts');
+    cy.intercept({ method: 'GET', url: '**/api/categories*' }, { success: true, data: [] }).as('getCategories');
+    cy.intercept({ method: 'GET', url: '**/api/products/filters/sort*' }, { success: true, data: [] }).as('getSortFilters');
+    cy.intercept({ method: 'GET', url: '**/api/store/**' }, { body: { success: true, data: { home: {} } } }).as('getStore');
     cy.intercept('GET', '**/i18n/*.json', { body: {} }).as('getI18n');
   });
 
@@ -39,7 +39,7 @@ describe('Catalog Page', () => {
   });
 
   it('should show empty state when search returns no results', () => {
-    cy.intercept('GET', '**/products*', {
+    cy.intercept({ method: 'GET', url: '**/api/products*' }, {
       success: true,
       data: [],
       pagination: { total: 0, page: 1, limit: 12, totalPages: 0 },
@@ -50,7 +50,7 @@ describe('Catalog Page', () => {
   });
 
   it('should handle API error gracefully', () => {
-    cy.intercept('GET', '**/products*', { statusCode: 500 }).as('getProductsError');
+    cy.intercept({ method: 'GET', url: '**/api/products*' }, { statusCode: 500 }).as('getProductsError');
     cy.visit('/catalog');
     cy.wait('@getProductsError');
     cy.get('app-root').should('exist');

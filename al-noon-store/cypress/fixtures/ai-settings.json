@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "data": {
+    "enabled": true,
+    "greeting": { "en": "Hi! How can I help?", "ar": "مرحبا! كيف يمكنني المساعدة؟" },
+    "suggestedQuestions": [
+      { "en": "Show me products", "ar": "اعرض المنتجات" }
+    ]
+  }
+}

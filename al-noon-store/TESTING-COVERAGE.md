@@ -258,3 +258,18 @@ Maps the requested scenarios to existing tests and gaps. **BE** = Backend respon
 | Missing optional fields | Yes | product-normalizer.spec.ts |
 | Null values | Yes | product-normalizer, price pipe |
 | getItemsForOrder format | Yes | cart.service.spec.ts |
+
+### 6.5 Unit – Service Coverage (Added)
+
+| Service | Tests | File |
+|---------|-------|------|
+| ApiService | imageUrl, apiUrl, imageBaseUrl | api.service.spec.ts |
+| ShippingService | getShippingMethods (formats, filter disabled, error) | shipping.service.spec.ts |
+| ContactService | send success/fail/error | contact.service.spec.ts |
+| CitiesService | getCities, getCity (formats, error) | cities.service.spec.ts |
+| CategoriesService | getCategories (formats, error) | categories.service.spec.ts |
+| ProductsService | getProducts, getProduct, getRelated, getSortFilters | products.service.spec.ts |
+| OrdersService | checkout, getOrders, getGuestOrder | orders.service.spec.ts |
+| LocaleService | setLocale, getLocale, isRtl | locale.service.spec.ts |
+| SeoService | setPage title/description/canonical | seo.service.spec.ts |
+| LoadingSkeletonComponent | card/text types, count | loading-skeleton.component.spec.ts |

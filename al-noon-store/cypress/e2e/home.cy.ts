@@ -1,6 +1,6 @@
 describe('Home Page', () => {
   beforeEach(() => {
-    cy.intercept('GET', '**/store/home', { fixture: 'home.json' }).as('getHome');
+    cy.intercept({ method: 'GET', url: '**/api/store/home*' }, { fixture: 'home.json' }).as('getHome');
     cy.intercept('GET', '**/i18n/**', { body: {} }).as('getI18n');
     cy.visit('/');
     cy.wait('@getHome', { timeout: 10000 });

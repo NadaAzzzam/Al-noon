@@ -17,10 +17,10 @@ describe('Contact Page', () => {
   it('should submit contact form', () => {
     cy.intercept('POST', '**/store/contact', { success: true }).as('submitContact');
     cy.visit('/contact');
-    cy.get('input[name="name"], input[placeholder*="name" i]').first().type('Test User');
-    cy.get('input[name="email"], input[type="email"]').first().type('test@example.com');
-    cy.get('textarea, input[name="message"]').first().type('Test message');
-    cy.get('form').find('button[type="submit"]').click();
+    cy.get('.contact-form input[type="text"]').first().type('Test User');
+    cy.get('.contact-form input[type="email"]').first().type('test@example.com');
+    cy.get('.contact-form textarea').type('Test message');
+    cy.get('.contact-form button[type="submit"]').click();
     cy.wait('@submitContact');
   });
 });

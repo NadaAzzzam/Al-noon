@@ -517,6 +517,21 @@
 .message-text {
   margin: 0;
   word-break: break-word;
+
+  // Styles for HTML content from AI response (p, ul, li)
+  p {
+    margin: 0 0 0.5em;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  ul {
+    margin: 0.5em 0;
+    padding-left: 1.2em;
+  }
+  li {
+    margin-bottom: 0.25em;
+  }
 }
 
 // ─── Typing Indicator ───────────────────────────

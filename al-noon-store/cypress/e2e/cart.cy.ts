@@ -35,7 +35,7 @@ describe('Cart', () => {
       },
     });
     cy.get('details summary').first().scrollIntoView().click({ force: true });
-    cy.get('.cart-instructions textarea, details textarea').should('exist').type('Gift wrap please');
+    cy.get('.cart-instructions textarea').should('exist').first().type('Gift wrap please', { force: true });
   });
 
   it('should persist cart after page refresh', () => {
