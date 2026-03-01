@@ -7,21 +7,22 @@ describe('AI Chatbot', () => {
   const aiChatUrl = '**/api/ai/chat';
 
   beforeEach(() => {
-    cy.intercept('GET', '**/api/store/home', { fixture: 'home.json' }).as('getHome');
-    cy.intercept('GET', aiSettingsUrl, { fixture: 'ai-settings.json' }).as('getAiSettings');
+    cy.intercept({ method: 'GET', url: '**/api/store/home*' }, { fixture: 'home.json' }).as('getHome');
+    cy.intercept({ method: 'GET', url: '**/api/ai/settings*' }, { fixture: 'ai-settings.json' }).as('getAiSettings');
     cy.intercept('GET', '**/i18n/*.json', { body: {} }).as('i18n');
   });
 
   it('should show chatbot widget when AI is enabled', () => {
     cy.visit('/en');
-    // Wait for widget (implies ai/settings loaded); home may load in parallel
-    cy.get('.chatbot-widget', { timeout: 15000 }).should('exist');
+    cy.wait('@getAiSettings', { timeout: 10000 });
+    cy.get('.chatbot-widget', { timeout: 10000 }).should('exist');
     cy.get('.chatbot-toggle').should('be.visible');
   });
 
   it('should open chat panel on toggle click', () => {
     cy.visit('/en');
-    cy.get('.chatbot-widget', { timeout: 15000 }).should('exist');
+    cy.wait('@getAiSettings', { timeout: 10000 });
+    cy.get('.chatbot-widget', { timeout: 10000 }).should('exist');
     cy.get('.chatbot-toggle').click();
     cy.get('.chatbot-panel').should('be.visible');
     cy.get('.chatbot-messages').should('exist');
@@ -41,7 +42,8 @@ describe('AI Chatbot', () => {
     }).as('postChat');
 
     cy.visit('/en');
-    cy.get('.chatbot-widget', { timeout: 15000 }).should('exist');
+    cy.wait('@getAiSettings', { timeout: 10000 });
+    cy.get('.chatbot-widget', { timeout: 10000 }).should('exist');
     cy.get('.chatbot-toggle').click();
     cy.get('.chatbot-input input').type('Show me products');
     cy.get('.chatbot-input button[type="submit"]').click();
@@ -74,8 +76,8 @@ describe('AI Chatbot', () => {
       cy.window().then((win) => {
         (win as unknown as { __XSS_EXECUTED__?: boolean }).__XSS_EXECUTED__ = false;
       });
-
-      cy.get('.chatbot-widget', { timeout: 15000 }).should('exist');
+      cy.wait('@getAiSettings', { timeout: 10000 });
+      cy.get('.chatbot-widget', { timeout: 10000 }).should('exist');
       cy.get('.chatbot-toggle').click();
       cy.get('.chatbot-input input').type('test');
       cy.get('.chatbot-input button[type="submit"]').click();
@@ -99,7 +101,8 @@ describe('AI Chatbot', () => {
       cy.intercept('POST', aiChatUrl, { statusCode: 429 }).as('postChat429');
 
       cy.visit('/en');
-      cy.get('.chatbot-widget', { timeout: 15000 }).should('exist');
+      cy.wait('@getAiSettings', { timeout: 10000 });
+      cy.get('.chatbot-widget', { timeout: 10000 }).should('exist');
       cy.get('.chatbot-toggle').click();
       cy.get('.chatbot-input input').type('test');
       cy.get('.chatbot-input button[type="submit"]').click();
@@ -115,7 +118,8 @@ describe('AI Chatbot', () => {
       cy.intercept('POST', aiChatUrl, { statusCode: 502 }).as('postChat502');
 
       cy.visit('/en');
-      cy.get('.chatbot-widget', { timeout: 15000 }).should('exist');
+      cy.wait('@getAiSettings', { timeout: 10000 });
+      cy.get('.chatbot-widget', { timeout: 10000 }).should('exist');
       cy.get('.chatbot-toggle').click();
       cy.get('.chatbot-input input').type('test');
       cy.get('.chatbot-input button[type="submit"]').click();
@@ -128,7 +132,8 @@ describe('AI Chatbot', () => {
       cy.intercept('POST', aiChatUrl, { statusCode: 400 }).as('postChat400');
 
       cy.visit('/en');
-      cy.get('.chatbot-widget', { timeout: 15000 }).should('exist');
+      cy.wait('@getAiSettings', { timeout: 10000 });
+      cy.get('.chatbot-widget', { timeout: 10000 }).should('exist');
       cy.get('.chatbot-toggle').click();
       cy.get('.chatbot-input input').type('test');
       cy.get('.chatbot-input button[type="submit"]').click();
