@@ -1,44 +1,24 @@
-# Code Coverage Fix
+# Code Coverage
 
-## Current Issue
+## Configuration
 
-Tests pass (317 tests) but coverage reports 0% due to a known Angular + Vitest integration bug: [angular/angular-cli#30557](https://github.com/angular/angular-cli/issues/30557). The `@angular/build:unit-test` builder has a source-map/instrumentation mismatch, so executed code is not attributed to source files.
+Coverage is enabled in `angular.json` under the `ci` test configuration. **Do not add coverage config to `vitest.config.ts`** – custom coverage settings there override Angular's source-map handling and cause 0% coverage ([angular/angular-cli#30557](https://github.com/angular/angular-cli/issues/30557)).
 
-## Fix Steps
-
-### 1. Upgrade Angular to 21.2.0+
-
-Angular 21.2.0 includes "adjust sourcemap sources when Vitest wrapper is bypassed" which may resolve the coverage issue.
-
-**Stop all running processes** (dev server, tests, etc.) so `node_modules` is not locked, then:
-
-```bash
-cd al-noon-store
-rm -rf node_modules package-lock.json   # Windows: rmdir /s /q node_modules && del package-lock.json
-ng update @angular/core @angular/cli @angular/build
-npm install
-```
-
-### 2. Verify Coverage
+## Running with Coverage
 
 ```bash
 npm run test:ci
 ```
 
-If coverage shows non-zero values, the fix worked.
+## Thresholds
 
-### 3. Re-enable Thresholds
+Thresholds are set in `angular.json` under `test.configurations.ci.coverageThresholds`. Current minimums are calibrated to the project's baseline. Increase them as you add tests:
 
-In `vitest.config.ts`, uncomment the thresholds under `coverage`:
+- statements: 50%
+- branches: 45%
+- functions: 50%
+- lines: 55%
 
-```ts
-thresholds: { statements: 80, branches: 70, functions: 80, lines: 80 },
-```
+## Improving Coverage
 
-### 4. Add Tests If Needed
-
-If coverage is under 80%, add unit tests for uncovered files. Focus on services, pipes, and components.
-
-## Current Workaround
-
-Coverage thresholds are **disabled** in `vitest.config.ts` so CI and pre-push pass. Tests still run; only the coverage gate is skipped until the tooling fix is in place.
+To reach 80%+ coverage, add unit tests for uncovered files. Focus on services, pipes, and components. Run `npm run test:ci` and review the coverage report in `coverage/` for details.
