@@ -2,6 +2,7 @@ describe('Home Page', () => {
   beforeEach(() => {
     cy.intercept({ method: 'GET', url: '**/api/store/home*' }, { fixture: 'home.json' }).as('getHome');
     cy.intercept('GET', '**/i18n/**', { body: {} }).as('getI18n');
+    cy.intercept('GET', '**/api/settings*', { success: true, data: { settings: {} } }).as('getSettings');
     cy.visit('/en');
     cy.wait('@getHome', { timeout: 10000 });
   });
@@ -16,5 +17,14 @@ describe('Home Page', () => {
 
   it('should have navigation links', () => {
     cy.get('a[href*="/catalog"], a[routerlink*="catalog"]').should('exist');
+  });
+
+  it('should have footer with quick links', () => {
+    cy.get('footer, .footer, app-footer').should('exist');
+  });
+
+  it('should navigate to catalog when catalog link clicked', () => {
+    cy.get('a[href*="/catalog"], a[routerlink*="catalog"]').first().click();
+    cy.url().should('include', '/catalog');
   });
 });

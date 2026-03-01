@@ -53,6 +53,24 @@ describe('AuthService', () => {
     expect(service.isLoggedIn()).toBe(true);
   });
 
+  it('should not set user when signIn fails (401)', () => {
+    httpMock.post.mockReturnValue(throwError(() => ({ status: 401 })));
+    service.signIn({ email: 'test@test.com', password: 'wrong' }).subscribe({
+      error: () => {
+        expect(service.user()).toBeNull();
+        expect(service.isLoggedIn()).toBe(false);
+      },
+    });
+  });
+
+  it('should set user on successful register', () => {
+    const user = { id: '2', email: 'new@test.com', name: 'New User' };
+    httpMock.post.mockReturnValue(of({ success: true, data: { user, token: 'token' } }));
+    service.signUp({ name: 'New User', email: 'new@test.com', password: 'pass123' }).subscribe();
+    expect(service.user()).toEqual(user);
+    expect(service.isLoggedIn()).toBe(true);
+  });
+
   it('should clear user when loadProfile returns error (401)', () => {
     (sessionStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue('1');
     httpMock.get.mockReturnValue(throwError(() => new Error('Unauthorized')));

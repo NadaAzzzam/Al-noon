@@ -160,6 +160,39 @@ describe('CartService', () => {
     expect(service.getItemQuantity('p1')).toBe(0);
   });
 
+  describe('business scenarios', () => {
+    it('should reject adding more than stock when merging quantities', () => {
+      service.add({ productId: 'p1', quantity: 2, price: 100 });
+      const result = service.add({ productId: 'p1', quantity: 2, price: 100 }, 3);
+      expect(result.success).toBe(false);
+      expect(service.getItemQuantity('p1')).toBe(2);
+    });
+
+    it('should allow updating quantity within stock limit', () => {
+      service.add({ productId: 'p1', quantity: 2, price: 100 });
+      const result = service.setQuantity('p1', 3, undefined, 5);
+      expect(result.success).toBe(true);
+      expect(service.getItemQuantity('p1')).toBe(3);
+    });
+
+    it('should toggle drawer open/close', () => {
+      if (!document.body) {
+        (document as { body: HTMLElement }).body = document.createElement('body');
+      }
+      expect(service.drawerOpen()).toBe(false);
+      service.toggleDrawer();
+      expect(service.drawerOpen()).toBe(true);
+      service.toggleDrawer();
+      expect(service.drawerOpen()).toBe(false);
+    });
+
+    it('should return getItemsForOrder with variant products', () => {
+      service.add({ productId: 'p1', variant: 'M', quantity: 1, price: 150 });
+      const items = service.getItemsForOrder();
+      expect(items).toEqual([{ product: 'p1', quantity: 1, price: 150 }]);
+    });
+  });
+
   describe('localized product name (en/ar)', () => {
     it('should add and persist item with LocalizedText name', () => {
       const result = service.add({

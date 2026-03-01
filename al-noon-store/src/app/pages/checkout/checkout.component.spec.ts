@@ -31,16 +31,18 @@ describe('CheckoutComponent', () => {
   let fixture: ComponentFixture<CheckoutComponent>;
   let toastSpy: { show: ReturnType<typeof vi.fn> };
   let checkoutSpy: ReturnType<typeof vi.fn>;
+  let cartClearSpy: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     toastSpy = { show: vi.fn() };
     checkoutSpy = vi.fn().mockReturnValue(of({ id: 'ord1', items: [], total: 100, status: 'PENDING' }));
+    cartClearSpy = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [CheckoutComponent, TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
-        { provide: CartService, useValue: { items: signal(mockCartItems), subtotal: computed(() => 100), getItemsForOrder: () => [{ product: 'p1', quantity: 1, price: 100 }], specialInstructions: signal(''), clear: vi.fn() } },
+        { provide: CartService, useValue: { items: signal(mockCartItems), subtotal: computed(() => 100), getItemsForOrder: () => [{ product: 'p1', quantity: 1, price: 100 }], specialInstructions: signal(''), clear: cartClearSpy } },
         { provide: OrdersService, useValue: { checkout: checkoutSpy } },
         { provide: CitiesService, useValue: { getCities: () => of([mockCity]) } },
         { provide: ShippingService, useValue: { getShippingMethods: () => of([mockShipping]) } },
@@ -149,6 +151,24 @@ describe('CheckoutComponent', () => {
     fixture.detectChanges();
     component.submit();
     expect(component.showUpdateCart()).toBe(false);
+  });
+
+  describe('business scenarios', () => {
+    it('should redirect to order-confirmation on successful checkout', () => {
+      const router = TestBed.inject(Router);
+      const navSpy = vi.spyOn(router, 'navigate');
+      fixture.detectChanges();
+      component.submit();
+      expect(navSpy).toHaveBeenCalled();
+      const call = navSpy.mock.calls[0][0];
+      expect(JSON.stringify(call)).toContain('order-confirmation');
+    });
+
+    it('should clear cart after successful order', () => {
+      fixture.detectChanges();
+      component.submit();
+      expect(cartClearSpy).toHaveBeenCalled();
+    });
   });
 
   it('should clear error and showUpdateCart when submitting again', () => {

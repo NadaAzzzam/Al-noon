@@ -58,4 +58,16 @@ describe('Catalog Page', () => {
     cy.get('.catalog, app-catalog', { timeout: 10000 }).should('exist');
     cy.get('app-root').should('exist');
   });
+
+  it('should navigate to product when product card clicked', () => {
+    cy.visit('/en/catalog');
+    cy.get('app-root', { timeout: 10000 }).should('exist');
+    cy.get('body').then(($body) => {
+      const card = $body.find('a[href*="/product/"], a[routerlink*="product"]');
+      if (card.length > 0) {
+        cy.wrap(card.first()).click();
+        cy.url().should('include', '/product/');
+      }
+    });
+  });
 });

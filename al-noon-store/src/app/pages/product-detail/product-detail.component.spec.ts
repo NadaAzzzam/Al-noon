@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DOCUMENT } from '@angular/common';
 import { provideRouter, ActivatedRoute } from '@angular/router';
@@ -25,30 +25,53 @@ const mockProduct: Product = {
 
 describe('ProductDetailComponent', () => {
   let fixture: ComponentFixture<ProductDetailComponent>;
+  let productsMock: {
+    getProduct: ReturnType<typeof vi.fn>;
+    getRelated: ReturnType<typeof vi.fn>;
+    getVariantStock: ReturnType<typeof vi.fn>;
+    isVariantAvailable: ReturnType<typeof vi.fn>;
+  };
+  let cartMock: { add: ReturnType<typeof vi.fn>; getItemQuantity: ReturnType<typeof vi.fn> };
+  let toastMock: { show: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
+    productsMock = {
+      getProduct: vi.fn().mockReturnValue(of(mockProduct)),
+      getRelated: vi.fn().mockReturnValue(of([])),
+      getVariantStock: vi.fn().mockReturnValue(5),
+      isVariantAvailable: vi.fn().mockReturnValue(true),
+    };
+    cartMock = {
+      add: vi.fn().mockReturnValue({ success: true }),
+      getItemQuantity: vi.fn().mockReturnValue(0),
+    };
+    toastMock = { show: vi.fn() };
+
     await TestBed.configureTestingModule({
       imports: [ProductDetailComponent, TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
-        { provide: ActivatedRoute, useValue: { paramMap: of(new Map([['id', '1']])), snapshot: { paramMap: new Map([['id', '1']]) } } },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            paramMap: of(new Map([['id', '1']])),
+            snapshot: { paramMap: new Map([['id', '1']]) },
+          },
+        },
         {
           provide: ProductsService,
           useValue: {
-            getProduct: () => of(mockProduct),
-            getRelated: () => of([]),
-            getVariantStock: () => 5,
+            ...productsMock,
             getAvailableSizesForColor: () => [],
             getAvailableColorsForSize: () => [],
-            isVariantAvailable: () => true,
           },
         },
-        { provide: CartService, useValue: { items: signal([]), add: () => ({ success: true }), getItemQuantity: () => 0 } },
+        { provide: CartService, useValue: { items: signal([]), add: cartMock.add, getItemQuantity: cartMock.getItemQuantity } },
         { provide: StoreService, useValue: { settings: signal(null) } },
         ApiService,
         { provide: LocaleService, useValue: { getLocale: () => 'en' } },
-        { provide: ToastService, useValue: { show: () => {} } },
-        { provide: SeoService, useValue: { setPage: () => {}, setProductJsonLd: () => {} } },
+        { provide: ToastService, useValue: toastMock },
+        { provide: SeoService, useValue: { setPage: vi.fn(), setProductJsonLd: vi.fn() } },
         { provide: DOCUMENT, useValue: document },
       ],
     }).compileComponents();
@@ -59,4 +82,5 @@ describe('ProductDetailComponent', () => {
     fixture.detectChanges();
     expect(fixture.componentInstance).toBeTruthy();
   });
+
 });
