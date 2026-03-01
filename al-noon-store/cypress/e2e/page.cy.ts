@@ -10,21 +10,24 @@ describe('Dynamic Page (Content Pages)', () => {
   };
 
   beforeEach(() => {
-    cy.intercept('GET', '**/store/page/*', mockPage).as('getPage');
     cy.intercept('GET', '**/i18n/*.json', { body: {} }).as('getI18n');
-    cy.intercept('GET', '**/store/**', { body: { success: true, data: {} } }).as('getStore');
+    cy.intercept('GET', '**/store/**', (req) => {
+      if (req.url.includes('/store/page/')) {
+        req.reply(mockPage);
+      } else {
+        req.reply({ body: { success: true, data: {} } });
+      }
+    }).as('getStore');
   });
 
   it('should load page by slug', () => {
     cy.visit('/en/page/privacy');
-    cy.wait('@getPage', { timeout: 10000 });
-    cy.get('body').should('contain.text', 'Privacy');
+    cy.get('body', { timeout: 15000 }).should('contain.text', 'Privacy');
   });
 
   it('should display page content', () => {
     cy.visit('/en/page/privacy');
-    cy.wait('@getPage');
-    cy.get('body').should('contain.text', 'policy');
+    cy.get('body', { timeout: 15000 }).should('contain.text', 'policy');
   });
 
   it('should handle non-existent page', () => {

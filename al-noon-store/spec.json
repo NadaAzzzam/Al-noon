@@ -1621,27 +1621,34 @@
         "properties": {
           "address": {
             "type": "string",
-            "description": "Street address",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Required. Street address",
             "example": "735 Clarendon Street"
           },
           "apartment": {
             "type": "string",
-            "description": "Apartment, suite, etc.",
+            "maxLength": 100,
+            "description": "Optional",
             "example": "Apt 4B"
           },
           "city": {
             "type": "string",
-            "description": "City (Egyptian governorate)",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Required. City or governorate",
             "example": "Cairo"
           },
           "postalCode": {
             "type": "string",
-            "description": "Postal code",
+            "maxLength": 20,
+            "description": "Optional",
             "example": "11511"
           },
           "country": {
             "type": "string",
-            "description": "Always Egypt",
+            "maxLength": 50,
+            "description": "Optional, default Egypt",
             "default": "Egypt",
             "example": "Egypt"
           }
@@ -2618,21 +2625,32 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "email"
+                  "name",
+                  "email",
+                  "comment"
                 ],
                 "properties": {
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Required"
                   },
                   "email": {
                     "type": "string",
-                    "format": "email"
+                    "format": "email",
+                    "description": "Required"
                   },
                   "phone": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 50,
+                    "description": "Optional"
                   },
                   "comment": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 5000,
+                    "description": "Required"
                   }
                 }
               }
@@ -2682,7 +2700,8 @@
                 "properties": {
                   "email": {
                     "type": "string",
-                    "format": "email"
+                    "format": "email",
+                    "maxLength": 254
                   }
                 }
               }
@@ -2746,7 +2765,9 @@
                     "format": "email"
                   },
                   "password": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 6,
+                    "description": "Required, min 6 characters"
                   }
                 }
               }
@@ -2801,10 +2822,14 @@
                     "format": "email"
                   },
                   "password": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 6,
+                    "maxLength": 128
                   },
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 100
                   }
                 }
               }
@@ -3219,7 +3244,130 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "required": [
+                  "nameEn",
+                  "nameAr",
+                  "price",
+                  "stock",
+                  "category"
+                ],
+                "properties": {
+                  "nameEn": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "nameAr": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "descriptionEn": {
+                    "type": "string",
+                    "maxLength": 10000
+                  },
+                  "descriptionAr": {
+                    "type": "string",
+                    "maxLength": 10000
+                  },
+                  "price": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "discountPrice": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "costPerItem": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "stock": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "category": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "ACTIVE",
+                      "INACTIVE",
+                      "DRAFT"
+                    ]
+                  },
+                  "isNewArrival": {
+                    "type": "boolean"
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 20
+                  },
+                  "viewImage": {
+                    "type": "string"
+                  },
+                  "hoverImage": {
+                    "type": "string"
+                  },
+                  "detailsEn": {
+                    "type": "string"
+                  },
+                  "detailsAr": {
+                    "type": "string"
+                  },
+                  "sizes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "colors": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "vendor": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "slugEn": {
+                    "type": "string"
+                  },
+                  "slugAr": {
+                    "type": "string"
+                  },
+                  "metaTitleEn": {
+                    "type": "string",
+                    "maxLength": 70
+                  },
+                  "metaDescriptionEn": {
+                    "type": "string",
+                    "maxLength": 160
+                  },
+                  "weight": {
+                    "type": "number"
+                  },
+                  "weightUnit": {
+                    "type": "string",
+                    "enum": [
+                      "g",
+                      "kg"
+                    ]
+                  }
+                }
               }
             }
           }
@@ -4212,7 +4360,7 @@
           "Orders"
         ],
         "summary": "Create order (authenticated or guest checkout)",
-        "description": "Accepts both old flat fields (guestName, guestEmail, shippingAddress as string) and new Shopify-style structured fields. When new structured fields are present they take priority. Backward compatible.",
+        "description": "Required: items and shippingAddress. Guest checkout: also require guestName/guestEmail (or firstName/lastName/email). Logged-in: contact fields can be omitted (filled from account).",
         "security": [],
         "requestBody": {
           "content": {
@@ -4220,22 +4368,31 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "items"
+                  "items",
+                  "shippingAddress"
                 ],
                 "properties": {
                   "items": {
                     "type": "array",
+                    "minItems": 1,
                     "items": {
                       "type": "object",
+                      "required": [
+                        "product",
+                        "quantity",
+                        "price"
+                      ],
                       "properties": {
                         "product": {
                           "type": "string"
                         },
                         "quantity": {
-                          "type": "integer"
+                          "type": "integer",
+                          "minimum": 1
                         },
                         "price": {
-                          "type": "number"
+                          "type": "number",
+                          "exclusiveMinimum": 0
                         }
                       }
                     }
@@ -4248,10 +4405,12 @@
                     ]
                   },
                   "shippingAddress": {
-                    "description": "Flat string (legacy) OR structured address object",
+                    "description": "Required. Flat string (max 1000 chars) OR structured address object { address, city required }",
                     "oneOf": [
                       {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000
                       },
                       {
                         "$ref": "#/components/schemas/StructuredAddress"
@@ -4340,7 +4499,7 @@
             }
           },
           "400": {
-            "description": "Validation error (e.g. guest checkout requires guestName/guestEmail or firstName/lastName/email), or invalid discount code",
+            "description": "Validation error: items and shippingAddress required; guest checkout requires guestName/guestEmail or firstName/lastName/email; invalid discount code",
             "content": {
               "application/json": {
                 "schema": {
@@ -4749,11 +4908,12 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "confirmed"
+                  "approved"
                 ],
                 "properties": {
-                  "confirmed": {
-                    "type": "boolean"
+                  "approved": {
+                    "type": "boolean",
+                    "description": "true = confirm payment, false = revoke"
                   }
                 }
               }
@@ -4811,7 +4971,7 @@
           "Checkout"
         ],
         "summary": "Complete checkout (create order)",
-        "description": "Used by the ecommerce storefront when the user submits the order on the checkout page (e.g. \"Pay now\" button). Same request body as POST /api/orders. Guest checkout: no auth, require firstName/lastName/email (or legacy guestName/guestEmail). Logged-in: send optional Bearer token; contact fields (firstName, lastName, email) can be omitted and are filled from the account. shippingAddress.city can be city name or city _id (from cities select); backend resolves _id to name for display and confirmation emails.",
+        "description": "Same request body as POST /api/orders. Required: items and shippingAddress. Guest: also require guestName/guestEmail (or firstName/lastName/email). Logged-in: contact fields optional (filled from account). shippingAddress.city can be city name or city _id; backend resolves _id to name.",
         "security": [],
         "requestBody": {
           "content": {
@@ -4819,7 +4979,8 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "items"
+                  "items",
+                  "shippingAddress"
                 ],
                 "properties": {
                   "items": {
@@ -4856,10 +5017,12 @@
                     ]
                   },
                   "shippingAddress": {
-                    "description": "Flat string (legacy) OR structured { address, apartment?, city, postalCode?, country? }. city can be city name or city _id (e.g. from cities dropdown); backend resolves _id to name.",
+                    "description": "Required. Flat string (max 1000) OR structured { address, city required }. city can be name or city _id.",
                     "oneOf": [
                       {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000
                       },
                       {
                         "$ref": "#/components/schemas/StructuredAddress"
@@ -4942,7 +5105,7 @@
             }
           },
           "400": {
-            "description": "Validation error, guest checkout missing name/email, or invalid/expired discount code",
+            "description": "Validation error: items and shippingAddress required; guest checkout missing name/email; invalid/expired discount code",
             "content": {
               "application/json": {
                 "schema": {
@@ -6052,7 +6215,27 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "required": [
+                  "nameEn",
+                  "nameAr"
+                ],
+                "properties": {
+                  "nameEn": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "nameAr": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "deliveryFee": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
               }
             }
           }
@@ -6407,7 +6590,53 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "required": [
+                  "product",
+                  "customerName",
+                  "message",
+                  "rating"
+                ],
+                "properties": {
+                  "product": {
+                    "type": "string",
+                    "description": "Product ID (required)"
+                  },
+                  "customerName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Required"
+                  },
+                  "message": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "description": "Required"
+                  },
+                  "rating": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "Required, 1-5"
+                  },
+                  "image": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "description": "Optional"
+                  },
+                  "approved": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Optional"
+                  },
+                  "order": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0,
+                    "description": "Display order"
+                  }
+                }
               }
             }
           }
@@ -7661,11 +7890,22 @@
                 ],
                 "properties": {
                   "message": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000,
+                    "description": "Required"
                   },
                   "sessionId": {
                     "type": "string",
                     "description": "Optional; omit to start new session"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "ar"
+                    ],
+                    "description": "Optional response language"
                   }
                 }
               }

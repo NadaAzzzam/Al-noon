@@ -365,7 +365,7 @@ export interface paths {
         put?: never;
         /**
          * Create order (authenticated or guest checkout)
-         * @description Accepts both old flat fields (guestName, guestEmail, shippingAddress as string) and new Shopify-style structured fields. When new structured fields are present they take priority. Backward compatible.
+         * @description Required: items and shippingAddress. Guest checkout: also require guestName/guestEmail (or firstName/lastName/email). Logged-in: contact fields can be omitted (filled from account).
          */
         post: operations["createOrder"];
         delete?: never;
@@ -490,7 +490,7 @@ export interface paths {
         put?: never;
         /**
          * Complete checkout (create order)
-         * @description Used by the ecommerce storefront when the user submits the order on the checkout page (e.g. "Pay now" button). Same request body as POST /api/orders. Guest checkout: no auth, require firstName/lastName/email (or legacy guestName/guestEmail). Logged-in: send optional Bearer token; contact fields (firstName, lastName, email) can be omitted and are filled from the account. shippingAddress.city can be city name or city _id (from cities select); backend resolves _id to name for display and confirmation emails.
+         * @description Same request body as POST /api/orders. Required: items and shippingAddress. Guest: also require guestName/guestEmail (or firstName/lastName/email). Logged-in: contact fields optional (filled from account). shippingAddress.city can be city name or city _id; backend resolves _id to name.
          */
         post: operations["checkout"];
         delete?: never;
@@ -1849,27 +1849,27 @@ export interface components {
         /** @description Shopify-style structured address (Egypt only) */
         StructuredAddress: {
             /**
-             * @description Street address
+             * @description Required. Street address
              * @example 735 Clarendon Street
              */
             address: string;
             /**
-             * @description Apartment, suite, etc.
+             * @description Optional
              * @example Apt 4B
              */
             apartment?: string;
             /**
-             * @description City (Egyptian governorate)
+             * @description Required. City or governorate
              * @example Cairo
              */
             city: string;
             /**
-             * @description Postal code
+             * @description Optional
              * @example 11511
              */
             postalCode?: string;
             /**
-             * @description Always Egypt
+             * @description Optional, default Egypt
              * @default Egypt
              * @example Egypt
              */
@@ -2285,11 +2285,17 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    name?: string;
-                    /** Format: email */
+                    /** @description Required */
+                    name: string;
+                    /**
+                     * Format: email
+                     * @description Required
+                     */
                     email: string;
+                    /** @description Optional */
                     phone?: string;
-                    comment?: string;
+                    /** @description Required */
+                    comment: string;
                 };
             };
         };
@@ -2371,6 +2377,7 @@ export interface operations {
                 "application/json": {
                     /** Format: email */
                     email: string;
+                    /** @description Required, min 6 characters */
                     password: string;
                 };
             };
@@ -2635,7 +2642,36 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": {
+                    nameEn: string;
+                    nameAr: string;
+                    descriptionEn?: string;
+                    descriptionAr?: string;
+                    price: number;
+                    discountPrice?: number;
+                    costPerItem?: number;
+                    stock: number;
+                    category: string;
+                    /** @enum {string} */
+                    status?: "ACTIVE" | "INACTIVE" | "DRAFT";
+                    isNewArrival?: boolean;
+                    images?: string[];
+                    viewImage?: string;
+                    hoverImage?: string;
+                    detailsEn?: string;
+                    detailsAr?: string;
+                    sizes?: string[];
+                    colors?: string[];
+                    tags?: string[];
+                    vendor?: string;
+                    slugEn?: string;
+                    slugAr?: string;
+                    metaTitleEn?: string;
+                    metaDescriptionEn?: string;
+                    weight?: number;
+                    /** @enum {string} */
+                    weightUnit?: "g" | "kg";
+                };
             };
         };
         responses: {
@@ -3317,14 +3353,14 @@ export interface operations {
             content: {
                 "application/json": {
                     items: {
-                        product?: string;
-                        quantity?: number;
-                        price?: number;
+                        product: string;
+                        quantity: number;
+                        price: number;
                     }[];
                     /** @enum {string} */
                     paymentMethod?: "COD" | "INSTAPAY";
-                    /** @description Flat string (legacy) OR structured address object */
-                    shippingAddress?: string | components["schemas"]["StructuredAddress"];
+                    /** @description Required. Flat string (max 1000 chars) OR structured address object { address, city required } */
+                    shippingAddress: string | components["schemas"]["StructuredAddress"];
                     deliveryFee?: number;
                     /** @description Legacy: required for guest checkout if firstName/lastName not provided */
                     guestName?: string;
@@ -3380,7 +3416,7 @@ export interface operations {
                     "application/json": components["schemas"]["OrderResponse"];
                 };
             };
-            /** @description Validation error (e.g. guest checkout requires guestName/guestEmail or firstName/lastName/email), or invalid discount code */
+            /** @description Validation error: items and shippingAddress required; guest checkout requires guestName/guestEmail or firstName/lastName/email; invalid discount code */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -3665,7 +3701,8 @@ export interface operations {
         requestBody?: {
             content: {
                 "application/json": {
-                    confirmed: boolean;
+                    /** @description true = confirm payment, false = revoke */
+                    approved: boolean;
                 };
             };
         };
@@ -3726,8 +3763,8 @@ export interface operations {
                     }[];
                     /** @enum {string} */
                     paymentMethod?: "COD" | "INSTAPAY";
-                    /** @description Flat string (legacy) OR structured { address, apartment?, city, postalCode?, country? }. city can be city name or city _id (e.g. from cities dropdown); backend resolves _id to name. */
-                    shippingAddress?: string | components["schemas"]["StructuredAddress"];
+                    /** @description Required. Flat string (max 1000) OR structured { address, city required }. city can be name or city _id. */
+                    shippingAddress: string | components["schemas"]["StructuredAddress"];
                     deliveryFee?: number;
                     /** @description Guest checkout: required if firstName/lastName not provided */
                     guestName?: string;
@@ -3770,7 +3807,7 @@ export interface operations {
                     "application/json": components["schemas"]["OrderResponse"];
                 };
             };
-            /** @description Validation error, guest checkout missing name/email, or invalid/expired discount code */
+            /** @description Validation error: items and shippingAddress required; guest checkout missing name/email; invalid/expired discount code */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -4477,7 +4514,11 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": {
+                    nameEn: string;
+                    nameAr: string;
+                    deliveryFee?: number;
+                };
             };
         };
         responses: {
@@ -4734,7 +4775,28 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": {
+                    /** @description Product ID (required) */
+                    product: string;
+                    /** @description Required */
+                    customerName: string;
+                    /** @description Required */
+                    message: string;
+                    /** @description Required, 1-5 */
+                    rating: number;
+                    /** @description Optional */
+                    image?: string;
+                    /**
+                     * @description Optional
+                     * @default false
+                     */
+                    approved?: boolean;
+                    /**
+                     * @description Display order
+                     * @default 0
+                     */
+                    order?: number;
+                };
             };
         };
         responses: {
@@ -5676,9 +5738,15 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
+                    /** @description Required */
                     message: string;
                     /** @description Optional; omit to start new session */
                     sessionId?: string;
+                    /**
+                     * @description Optional response language
+                     * @enum {string}
+                     */
+                    locale?: "en" | "ar";
                 };
             };
         };

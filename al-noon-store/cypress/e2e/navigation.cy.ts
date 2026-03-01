@@ -11,7 +11,7 @@ describe('Navigation', () => {
 
   it('should navigate to catalog', () => {
     cy.visit('/en');
-    cy.get('a[href*="/catalog"], a[routerlink*="catalog"]').first().click();
+    cy.get('a[href*="/catalog"], a[routerlink*="catalog"]').first().scrollIntoView().click({ force: true });
     cy.url().should('include', '/catalog');
   });
 

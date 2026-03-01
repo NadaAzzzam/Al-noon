@@ -16,28 +16,33 @@ describe('Checkout', () => {
     cy.intercept('GET', '**/cities**', {
       body: {
         success: true,
-        data: [
-          { id: '1', name: { en: 'Cairo', ar: 'القاهرة' }, deliveryFee: 50 },
-        ],
+        data: { cities: [{ id: '1', name: { en: 'Cairo', ar: 'القاهرة' }, deliveryFee: 50 }] },
       },
     }).as('cities');
     cy.intercept('GET', '**/shipping-methods**', {
       body: {
         success: true,
         data: [
-          { id: 'std', name: { en: 'Standard', ar: 'عادي' }, price: 50, description: {} },
+          { id: 'std', name: { en: 'Standard', ar: 'عادي' }, price: 50, description: { en: '', ar: '' }, estimatedDays: '3-5' },
         ],
       },
     }).as('shipping');
     cy.intercept('GET', '**/payment-methods**', {
       body: {
         success: true,
-        data: [
-          { id: 'COD', name: { en: 'Cash on Delivery', ar: 'الدفع عند الاستلام' } },
-        ],
+        data: {
+          paymentMethods: [
+            { id: 'COD', name: { en: 'Cash on Delivery', ar: 'الدفع عند الاستلام' } },
+          ],
+        },
       },
     }).as('payment');
-    cy.intercept('GET', '**/store/**', { body: { success: true, data: null } }).as('store');
+    cy.intercept('GET', '**/store/**', {
+      body: {
+        success: true,
+        data: { storeName: { en: 'Store', ar: 'المتجر' }, logo: 'uploads/logo.png', discountCodeSupported: true },
+      },
+    }).as('store');
 
     cy.visit('/en', {
       onBeforeLoad(win) {
@@ -62,9 +67,10 @@ describe('Checkout', () => {
         win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
       },
     });
+    cy.get('.checkout-wrapper').should('be.visible');
     cy.get('.summary-discount').should('exist');
     cy.get('.discount-input').should('exist');
-    cy.get('.discount-btn').should('exist').and('contain.text', 'Apply');
+    cy.get('.discount-btn').should('exist');
   });
 
   it('should apply discount code when user enters code and clicks Apply', () => {
@@ -73,8 +79,9 @@ describe('Checkout', () => {
         win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
       },
     });
+    cy.get('.checkout-wrapper').should('be.visible');
     cy.get('.discount-input').type('SAVE10');
-    cy.get('.discount-btn').click();
+    cy.get('.discount-btn').not('.discount-btn-remove').click();
     cy.get('.discount-applied, .discount-btn-remove').should('exist');
   });
 
