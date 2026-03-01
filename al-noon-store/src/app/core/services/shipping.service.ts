@@ -1,12 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, catchError, of } from 'rxjs';
-import type { ShippingMethod, ShippingMethodRaw } from '../types/api.types';
-
-/** API can return { success, data } or { shippingMethods } */
-type ShippingMethodsApiPayload =
-  | { success?: boolean; data?: ShippingMethodRaw[] }
-  | { shippingMethods?: ShippingMethodRaw[] };
+import type { ShippingMethod, ShippingMethodRaw, SchemaListShippingMethodsResponse } from '../types/api.types';
 
 function formatEstimatedDays(ed: ShippingMethodRaw['estimatedDays']): string {
   if (typeof ed === 'string') return ed;
@@ -40,7 +35,7 @@ export class ShippingService {
   private readonly http = inject(HttpClient);
 
   getShippingMethods(): Observable<ShippingMethod[]> {
-    return this.http.get<ShippingMethodsApiPayload>('shipping-methods').pipe(
+    return this.http.get<SchemaListShippingMethodsResponse>('shipping-methods').pipe(
       map((r) => {
         const r2 = r as {
           data?: ShippingMethodRaw[] | { shippingMethods?: ShippingMethodRaw[] };

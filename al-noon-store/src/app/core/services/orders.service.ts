@@ -2,16 +2,15 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type {
-  ApiSuccess,
   Order,
   OrderItem,
   CreateOrderBody,
   Pagination,
   OrdersListResponse,
-  PaginatedOrdersApiResponse,
-  OrderApiResponse,
   Product,
   ProductApiShape,
+  SchemaOrderResponse,
+  SchemaPaginatedOrdersResponse,
 } from '../types/api.types';
 import { normalizeProductFromApi } from '../utils/product-normalizer';
 
@@ -59,7 +58,7 @@ export class OrdersService {
    * Same body as createOrder; use this on the checkout page.
    */
   checkout(body: CreateOrderBody): Observable<Order> {
-    return this.http.post<OrderApiResponse | ApiSuccess<Order>>('checkout', body).pipe(
+    return this.http.post<SchemaOrderResponse>('checkout', body).pipe(
       (o) =>
         new Observable<Order>((sub) => {
           o.subscribe({
@@ -81,7 +80,7 @@ export class OrdersService {
   }
 
   createOrder(body: CreateOrderBody): Observable<Order> {
-    return this.http.post<OrderApiResponse | ApiSuccess<Order>>('orders', body).pipe(
+    return this.http.post<SchemaOrderResponse>('orders', body).pipe(
       (o) =>
         new Observable<Order>((sub) => {
           o.subscribe({
@@ -108,7 +107,7 @@ export class OrdersService {
       if (v !== undefined && v !== '') httpParams = httpParams.set(k, String(v));
     });
     return this.http
-      .get<PaginatedOrdersApiResponse | (ApiSuccess<Order[]> & { pagination?: Pagination })>('orders', {
+      .get<SchemaPaginatedOrdersResponse>('orders', {
         params: httpParams,
       })
       .pipe(
@@ -117,15 +116,17 @@ export class OrdersService {
             o.subscribe({
               next: (r) => {
                 if (!r.success) return;
-                const raw = r.data as { orders?: Order[]; pagination?: Pagination } | Order[] | undefined;
-                const orderList = Array.isArray(raw) ? raw : raw?.orders ?? [];
-                const orders = orderList.map((o) => normalizeOrder(o));
-                const pagination = Array.isArray(raw)
-                  ? (r as ApiSuccess<Order[]>).pagination
-                  : (raw && 'pagination' in raw ? raw.pagination : (r as ApiSuccess<Order[]>).pagination);
+                const orderList = Array.isArray(r.data) ? r.data : [];
+                const orders = orderList.map((o) => normalizeOrder(o as Order & { _id?: string }));
+                const p = r.pagination;
                 sub.next({
                   data: orders,
-                  pagination: pagination ?? { total: 0, page: 1, limit: 10, totalPages: 0 },
+                  pagination: {
+                    total: p?.total ?? 0,
+                    page: p?.page ?? 1,
+                    limit: p?.limit ?? 10,
+                    totalPages: p?.totalPages ?? 0,
+                  },
                 });
               },
               error: (e) => sub.error(e),
@@ -140,7 +141,7 @@ export class OrdersService {
    * Use when sessionStorage is cleared (e.g. tab closed) to restore order confirmation.
    */
   getGuestOrder(id: string, email: string): Observable<Order> {
-    return this.http.get<OrderApiResponse | ApiSuccess<Order>>(`orders/guest/${id}`, {
+    return this.http.get<SchemaOrderResponse>(`orders/guest/${id}`, {
       params: { email },
     }).pipe(
       (o) =>
@@ -164,7 +165,7 @@ export class OrdersService {
   }
 
   getOrder(id: string): Observable<Order> {
-    return this.http.get<OrderApiResponse | ApiSuccess<Order>>(`orders/${id}`).pipe(
+    return this.http.get<SchemaOrderResponse>(`orders/${id}`).pipe(
       (o) =>
         new Observable<Order>((sub) => {
           o.subscribe({

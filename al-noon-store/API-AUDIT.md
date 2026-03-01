@@ -93,9 +93,9 @@ Generated from `api.schema.ts` (OpenAPI spec). Storefront calls are relative (e.
 ## Regenerating Schema
 
 ```bash
-# From backend running at localhost:4000
-npm run generate:api-types
+# From backend running at localhost:4000 (also saves spec.json for offline use)
+npm run sync:api
 
-# From local spec file
+# From local spec.json (offline)
 npm run generate:api-types:local
 ```

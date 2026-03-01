@@ -2,7 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, of } from 'rxjs';
-import type { ApiSuccess, ApiError, AuthUser, AuthTokens } from '../types/api.types';
+import type { ApiError, AuthUser, AuthTokens, SchemaAuthResponse, SchemaProfileResponse, SchemaSignOutResponse } from '../types/api.types';
 
 const SESSION_HINT_KEY = 'al_noon_auth_session';
 
@@ -31,10 +31,10 @@ export class AuthService {
   readonly loaded = this.loadedSignal.asReadonly();
 
   signUp(body: { name: string; email: string; password: string }): Observable<AuthTokens> {
-    return this.http.post<ApiSuccess<AuthTokens>>('auth/sign-up', body).pipe(
+    return this.http.post<SchemaAuthResponse>('auth/sign-up', body).pipe(
       tap((r) => {
-        if (r.success && r.data) {
-          this.userSignal.set(r.data.user);
+        if (r.success && r.data?.user) {
+          this.userSignal.set(r.data.user as AuthUser);
           setSessionHint();
         }
       }),
@@ -42,7 +42,8 @@ export class AuthService {
         new Observable<AuthTokens>((sub) => {
           o.subscribe({
             next: (r) => {
-              if (r.success && r.data) sub.next(r.data!);
+              if (r.success && r.data?.token != null && r.data?.user)
+                sub.next({ token: r.data.token!, user: r.data.user! } as AuthTokens);
               else sub.error((r as unknown as ApiError).message);
             },
             error: (e) => sub.error(e),
@@ -53,10 +54,10 @@ export class AuthService {
   }
 
   signIn(body: { email: string; password: string }): Observable<AuthTokens> {
-    return this.http.post<ApiSuccess<AuthTokens>>('auth/sign-in', body).pipe(
+    return this.http.post<SchemaAuthResponse>('auth/sign-in', body).pipe(
       tap((r) => {
-        if (r.success && r.data) {
-          this.userSignal.set(r.data.user);
+        if (r.success && r.data?.user) {
+          this.userSignal.set(r.data.user as AuthUser);
           setSessionHint();
         }
       }),
@@ -64,7 +65,8 @@ export class AuthService {
         new Observable<AuthTokens>((sub) => {
           o.subscribe({
             next: (r) => {
-              if (r.success && r.data) sub.next(r.data!);
+              if (r.success && r.data?.token != null && r.data?.user)
+                sub.next({ token: r.data.token!, user: r.data.user! } as AuthTokens);
               else sub.error((r as unknown as ApiError).message);
             },
             error: (e) => sub.error(e),
@@ -80,11 +82,11 @@ export class AuthService {
       this.userSignal.set(null);
       return of(null);
     }
-    return this.http.get<ApiSuccess<{ user: AuthUser }>>('auth/profile').pipe(
+    return this.http.get<SchemaProfileResponse>('auth/profile').pipe(
       tap((r) => {
         this.loadedSignal.set(true);
-        if (r.success && r.data && r.data.user) {
-          this.userSignal.set(r.data.user);
+        if (r.success && r.data?.user) {
+          this.userSignal.set(r.data.user as AuthUser);
           setSessionHint();
         } else {
           this.userSignal.set(null);
@@ -101,7 +103,7 @@ export class AuthService {
       (o) =>
         new Observable<AuthUser | null>((sub) => {
           o.subscribe({
-            next: (n) => sub.next(n && typeof n === 'object' && 'data' in n && n.data ? n.data.user : null),
+            next: (n) => sub.next(n && typeof n === 'object' && 'data' in n && n.data?.user ? (n.data.user as AuthUser) : null),
             error: () => {
               this.loadedSignal.set(true);
               this.userSignal.set(null);
@@ -115,7 +117,7 @@ export class AuthService {
   }
 
   signOut(): Observable<void> {
-    return this.http.post<ApiSuccess<unknown>>('auth/sign-out', {}).pipe(
+    return this.http.post<SchemaSignOutResponse>('auth/sign-out', {}).pipe(
       tap(() => {
         this.userSignal.set(null);
         clearSessionHint();

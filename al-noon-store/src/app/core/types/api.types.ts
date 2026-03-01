@@ -1,9 +1,10 @@
 /**
  * Store API types. Keep in sync with backend OpenAPI spec.
- * Regenerate schema types: npm run generate:api-types (from BE) or npm run generate:api-types:local (from spec.json).
+ * Regenerate schema types: npm run sync:api or npm run generate:api-types:local (from spec.json).
  * Raw OpenAPI-generated types: see api.schema.ts (paths, components).
+ * Flow: HTTP responses use Schema* types (from Swagger) → services normalize → display types (Product, Order, etc.) for pages.
  */
-import type { components } from './api.schema';
+import type { components, operations } from './api.schema';
 /** Generic API success response (list endpoints may include pagination + appliedFilters). */
 export interface ApiSuccess<T> {
   success: true;
@@ -798,3 +799,21 @@ export type SchemaPaginatedProductsResponse = components['schemas']['PaginatedPr
 export type SchemaProductResponse = components['schemas']['ProductResponse'];
 export type SchemaRelatedProductsResponse = components['schemas']['RelatedProductsResponse'];
 export type SchemaProductListAppliedFilters = components['schemas']['ProductListAppliedFilters'];
+export type SchemaPageResponse = components['schemas']['PageResponse'];
+export type SchemaMessageDataResponse = components['schemas']['MessageDataResponse'];
+export type SchemaAuthResponse = components['schemas']['AuthResponse'];
+export type SchemaProfileResponse = components['schemas']['ProfileResponse'];
+export type SchemaSignOutResponse = components['schemas']['SignOutResponse'];
+export type SchemaNewsletterConflictResponse = components['schemas']['NewsletterConflictResponse'];
+export type SchemaSortFiltersResponse = components['schemas']['SortFiltersResponse'];
+export type SchemaCategoriesResponse = components['schemas']['CategoriesResponse'];
+export type SchemaOrderResponse = components['schemas']['OrderResponse'];
+export type SchemaPaginatedOrdersResponse = components['schemas']['PaginatedOrdersResponse'];
+export type SchemaCitiesResponse = components['schemas']['CitiesResponse'];
+export type SchemaCityResponse = components['schemas']['CityResponse'];
+export type SchemaSettingsResponse = components['schemas']['SettingsResponse'];
+export type SchemaAiSettingsResponse = components['schemas']['AiSettingsResponse'];
+export type SchemaAiChatResponse = components['schemas']['AiChatResponse'];
+// Operation response types (inline schemas in OpenAPI)
+export type SchemaListShippingMethodsResponse = operations['listShippingMethods']['responses']['200']['content']['application/json'];
+export type SchemaGetPaymentMethodsResponse = operations['getPaymentMethods']['responses']['200']['content']['application/json'];

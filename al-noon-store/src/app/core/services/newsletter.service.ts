@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import type { ApiSuccess, ApiError } from '../types/api.types';
+import type { ApiError, SchemaMessageDataResponse, SchemaNewsletterConflictResponse } from '../types/api.types';
 
 /** API may return { success: true, message? } or plain { message? } on success. */
 function isSuccessResponse(r: unknown): r is { message?: string } {
@@ -29,7 +29,7 @@ export class NewsletterService {
   /** POST to newsletter/subscribe. Backend must accept { email: string } and return 2xx on success or 409 for already subscribed. */
   subscribe(email: string): Observable<{ message?: string }> {
     return this.http
-      .post<ApiSuccess<unknown> | ApiError | { message?: string }>('newsletter/subscribe', { email })
+      .post<SchemaMessageDataResponse | SchemaNewsletterConflictResponse | ApiError>('newsletter/subscribe', { email })
       .pipe(
         (o) =>
           new Observable<{ message?: string }>((sub) => {

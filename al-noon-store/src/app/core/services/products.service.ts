@@ -2,17 +2,16 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type {
-  ApiSuccess,
   Product,
   ProductApiShape,
   ProductFilterOption,
   ProductsQuery,
   ProductsListResponse,
   ProductsListAppliedFilters,
-  ProductApiResponse,
   SchemaPaginatedProductsResponse,
   SchemaProductResponse,
   SchemaRelatedProductsResponse,
+  SchemaSortFiltersResponse,
 } from '../types/api.types';
 import { normalizeProductFromApi } from '../utils/product-normalizer';
 import * as productAvailability from '../utils/product-availability';
@@ -50,7 +49,7 @@ export class ProductsService {
     set('minRating', query.minRating);
 
     return this.http
-      .get<SchemaPaginatedProductsResponse | (ApiSuccess<(ProductApiShape & { _id?: string })[]> & { pagination?: ProductsListResponse['pagination']; appliedFilters?: ProductsListResponse['appliedFilters'] })>(
+      .get<SchemaPaginatedProductsResponse>(
         'products',
         { params }
       )
@@ -83,7 +82,7 @@ export class ProductsService {
     let params = new HttpParams();
     if (options?.color?.trim()) params = params.set('color', options.color.trim());
     if (options?.size?.trim()) params = params.set('size', options.size.trim());
-    return this.http.get<SchemaProductResponse | ProductApiResponse | ApiSuccess<ProductApiShape & { _id?: string }>>(`products/${id}`, { params }).pipe(
+    return this.http.get<SchemaProductResponse>(`products/${id}`, { params }).pipe(
       (o) =>
         new Observable<Product>((sub) => {
           o.subscribe({
@@ -155,7 +154,7 @@ export class ProductsService {
   }
 
   getRelated(id: string): Observable<Product[]> {
-    return this.http.get<SchemaRelatedProductsResponse | ApiSuccess<(ProductApiShape & { _id?: string })[]>>(`products/${id}/related`).pipe(
+    return this.http.get<SchemaRelatedProductsResponse>(`products/${id}/related`).pipe(
       (o) =>
         new Observable<Product[]>((sub) => {
           o.subscribe({
@@ -172,7 +171,7 @@ export class ProductsService {
 
   /** GET /api/products/filters/sort – options for sort dropdown */
   getSortFilters(): Observable<ProductFilterOption[]> {
-    return this.http.get<ApiSuccess<ProductFilterOption[]>>('products/filters/sort').pipe(
+    return this.http.get<SchemaSortFiltersResponse>('products/filters/sort').pipe(
       (o) =>
         new Observable<ProductFilterOption[]>((sub) => {
           o.subscribe({

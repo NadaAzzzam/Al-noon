@@ -76,14 +76,35 @@ The landing page expects the backend to expose:
 
 ---
 
-## Regenerating API Types
+## Frontend Responsibilities (API Contract Sync)
 
-After backend schema changes:
+When the backend API changes, the frontend must stay in sync.
+
+### 1. Regenerate API types
 
 ```bash
-# Backend must be running on port 4000
-npm run generate:api-types
+# With backend running on port 4000 (fetches spec, saves spec.json, generates api.schema.ts)
+npm run sync:api
 
-# Or use local spec.json if backend is not running
+# Or use existing spec.json (works offline; run sync:api first when BE is running)
 npm run generate:api-types:local
 ```
+
+### 2. Pre-build hook
+
+Every `ng build` runs `prebuild`, which attempts to regenerate types. If the backend is unreachable and no `spec.json` exists, the build continues (no fail).
+
+### 3. After regenerating
+
+1. Run `ng build` – TypeScript errors show affected services/components.
+2. Update `api.types.ts` if hand-written types no longer match the schema.
+3. Update normalizers (e.g. `product-normalizer.ts`) if response shapes changed.
+4. Update [API-AUDIT.md](./API-AUDIT.md) if you add or remove storefront APIs.
+
+### 4. Finding affected pages
+
+After regeneration, build errors point to:
+
+- `src/app/core/services/*.ts` – API calls
+- `src/app/pages/**/*.ts` – Page components
+- `src/app/core/utils/product-normalizer.ts` – Product mapping

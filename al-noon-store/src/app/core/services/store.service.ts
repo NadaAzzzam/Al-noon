@@ -2,19 +2,17 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, shareReplay } from 'rxjs';
 import type {
-  ApiSuccess,
   StoreData,
   StoreFeedback,
   ContentPage,
-  HomeApiResponse,
-  PageApiResponse,
   StoreSocialLink,
   StoreQuickLink,
   HomeCollection,
   Settings,
-  SettingsApiResponse,
   SettingsRaw,
   SchemaStoreHomeResponse,
+  SchemaPageResponse,
+  SchemaSettingsResponse,
 } from '../types/api.types';
 import { normalizeProductFromApi } from '../utils/product-normalizer';
 
@@ -190,7 +188,7 @@ export class StoreService {
     }
     if (this.store$ && !force) return this.store$;
     this.store$ = this.http
-      .get<SchemaStoreHomeResponse | HomeApiResponse | ApiSuccess<{ home: Record<string, unknown> }>>('store/home')
+      .get<SchemaStoreHomeResponse>('store/home')
       .pipe(
         tap((res) => {
           if (res.success && res.data && 'home' in res.data) {
@@ -223,9 +221,7 @@ export class StoreService {
 
   getPage(slug: string): Observable<ContentPage> {
     return this.http
-      .get<PageApiResponse | ApiSuccess<{ page: ContentPage }> | ApiSuccess<ContentPage>>(
-        `store/page/${encodeURIComponent(slug)}`
-      )
+      .get<SchemaPageResponse>(`store/page/${encodeURIComponent(slug)}`)
       .pipe(
         (o) =>
           new Observable<ContentPage>((sub) => {
@@ -250,13 +246,13 @@ export class StoreService {
    * Call once from app root (App.ngOnInit). Response is also written to settings() signal so the whole app can read it reactively.
    */
   getSettings(): Observable<Settings> {
-    return this.http.get<SettingsApiResponse | ApiSuccess<{ settings: SettingsRaw }>>('settings').pipe(
+    return this.http.get<SchemaSettingsResponse>('settings').pipe(
       (o) =>
         new Observable<Settings>((sub) => {
           o.subscribe({
             next: (r) => {
               if (!r.success || !r.data) return;
-              const raw: SettingsRaw | null = 'settings' in r.data ? (r.data as { settings: SettingsRaw }).settings : null;
+              const raw: SettingsRaw | null = r.data && 'settings' in r.data ? (r.data as unknown as { settings: SettingsRaw }).settings : null;
               if (!raw || typeof raw !== 'object') return;
               const mapped: Settings = {
                 storeName: raw.storeName,

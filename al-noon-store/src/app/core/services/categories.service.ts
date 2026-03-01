@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { ApiSuccess, Category, CategoriesApiResponse, CategoryStatus } from '../types/api.types';
+import type { Category, CategoryStatus, SchemaCategoriesResponse } from '../types/api.types';
 
 /** API may return _id; normalize to id for FE. */
 function normalizeCategory(c: Category & { _id?: string }): Category {
@@ -21,7 +21,7 @@ export class CategoriesService {
   getCategories(params?: GetCategoriesParams): Observable<Category[]> {
     let httpParams = new HttpParams();
     if (params?.status) httpParams = httpParams.set('status', params.status);
-    return this.http.get<CategoriesApiResponse | ApiSuccess<Category[]>>('categories', { params: httpParams }).pipe(
+    return this.http.get<SchemaCategoriesResponse>('categories', { params: httpParams }).pipe(
       (o) =>
         new Observable<Category[]>((sub) => {
           o.subscribe({

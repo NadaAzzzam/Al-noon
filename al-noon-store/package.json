@@ -5,19 +5,21 @@
         "ng": "ng",
         "start": "ng serve",
         "build": "ng build",
+        "prebuild": "node scripts/generate-api-types.mjs --silent",
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
         "serve:ssr": "node dist/al-noon-store/server/server.mjs",
         "serve:ssr:al-noon-store": "node dist/al-noon-store/server/server.mjs",
         "generate:api-types": "openapi-typescript http://localhost:4000/api-docs/spec.json -o src/app/core/types/api.schema.ts",
         "generate:api-types:local": "node scripts/generate-api-types.mjs",
+        "sync:api": "node scripts/generate-api-types.mjs",
         "lint": "ng lint",
         "lint:fix": "ng lint --configuration=fix",
         "test:ci": "ng test --no-watch --configuration=ci",
         "e2e": "cypress run",
         "e2e:open": "cypress open",
         "e2e:serve": "npx serve -s dist/al-noon-store/browser -l 4202",
-        "e2e:ci": "ng build --configuration=e2e && npx start-server-and-test e2e:serve http://localhost:4202 \"cypress run --config baseUrl=http://localhost:4202\""
+        "e2e:ci": "npx start-server-and-test \"ng serve --configuration=e2e --port=4202\" http://localhost:4202 \"cypress run --config baseUrl=http://localhost:4202\""
     },
     "prettier": {
         "printWidth": 100,

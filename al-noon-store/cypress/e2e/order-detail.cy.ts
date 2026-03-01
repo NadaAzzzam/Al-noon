@@ -15,7 +15,7 @@ describe('Order Detail Page (requires auth)', () => {
       success: true,
       data: { user: mockUser },
     }).as('getProfile');
-    cy.intercept('GET', '**/orders/ord-1*', { success: true, data: { order: mockOrder } }).as('getOrder');
+    cy.intercept('GET', '**/api/orders/ord-1*', { success: true, data: { order: mockOrder } }).as('getOrder');
     cy.intercept('GET', '**/i18n/*.json', { body: {} }).as('getI18n');
     cy.intercept('GET', '**/store/**', { body: { success: true, data: {} } }).as('getStore');
 

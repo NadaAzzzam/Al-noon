@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { ApiSuccess, ApiError, AiSettings, AiChatRequest, AiChatResponse, AiProductCard } from '../types/api.types';
+import type { ApiError, AiSettings, AiChatRequest, AiChatResponse, AiProductCard, SchemaAiSettingsResponse, SchemaAiChatResponse } from '../types/api.types';
 
 const DEFAULT_SETTINGS: AiSettings = {
   enabled: false,
@@ -77,7 +77,7 @@ export class AiChatService {
   private readonly http = inject(HttpClient);
 
   getSettings(): Observable<AiSettings> {
-    return this.http.get<ApiSuccess<AiSettings> | AiSettings>('ai/settings').pipe(
+    return this.http.get<SchemaAiSettingsResponse>('ai/settings').pipe(
       (o) =>
         new Observable<AiSettings>((sub) => {
           o.subscribe({
@@ -90,7 +90,7 @@ export class AiChatService {
   }
 
   chat(body: AiChatRequest): Observable<AiChatResponse> {
-    return this.http.post<ApiSuccess<AiChatResponse> | ApiError | AiChatResponse>('ai/chat', body).pipe(
+    return this.http.post<SchemaAiChatResponse | ApiError>('ai/chat', body).pipe(
       (o) =>
         new Observable<AiChatResponse>((sub) => {
           o.subscribe({

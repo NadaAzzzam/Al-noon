@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { ApiSuccess, City, CitiesApiResponse, CityApiResponse } from '../types/api.types';
+import type { City, SchemaCitiesResponse, SchemaCityResponse } from '../types/api.types';
 
 /** API may return _id; normalize to id for FE. */
 function normalizeCity(c: City & { _id?: string }): City {
@@ -14,7 +14,7 @@ export class CitiesService {
   private readonly http = inject(HttpClient);
 
   getCities(): Observable<City[]> {
-    return this.http.get<CitiesApiResponse | ApiSuccess<City[]>>('cities').pipe(
+    return this.http.get<SchemaCitiesResponse>('cities').pipe(
       (o) =>
         new Observable<City[]>((sub) => {
           o.subscribe({
@@ -35,7 +35,7 @@ export class CitiesService {
   }
 
   getCity(id: string): Observable<City> {
-    return this.http.get<CityApiResponse | ApiSuccess<City>>(`cities/${id}`).pipe(
+    return this.http.get<SchemaCityResponse>(`cities/${id}`).pipe(
       (o) =>
         new Observable<City>((sub) => {
           o.subscribe({

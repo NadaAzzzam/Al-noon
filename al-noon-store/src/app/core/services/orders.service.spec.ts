@@ -37,7 +37,8 @@ describe('OrdersService', () => {
     httpMock.get.mockReturnValue(
       of({
         success: true,
-        data: { orders: [mockOrder], pagination: { total: 1, page: 1, limit: 10, totalPages: 1 } },
+        data: [mockOrder],
+        pagination: { total: 1, page: 1, limit: 10, totalPages: 1 },
       })
     );
     const res = await firstValueFrom(service.getOrders());

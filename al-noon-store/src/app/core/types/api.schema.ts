@@ -1130,12 +1130,9 @@ export interface components {
             en?: string;
             ar?: string;
         };
-        /** @description Category when populated (list/detail) */
+        /** @description Category when populated (list/detail). Storefront uses _id only for catalog filters. */
         ProductCategoryRef: {
             _id?: string;
-            name?: components["schemas"]["LocalizedString"];
-            /** @enum {string} */
-            status?: "DRAFT" | "PUBLISHED";
         };
         /** @description Single media asset (image, video, or gif) – generic and reusable */
         ProductMediaItem: {
@@ -1160,7 +1157,7 @@ export interface components {
             /** @description Optional preview video (e.g. product detail) */
             previewVideo?: components["schemas"]["ProductMediaItem"];
         };
-        /** @description Product in list responses (GET /products, GET /products/:id/related, store newArrivals). Has media only; images, videos, imageColors are omitted. */
+        /** @description Product in list responses (GET /products, GET /products/:id/related, store newArrivals). With ?for=storefront: tags included; has media only; images, videos, imageColors omitted. */
         ProductListItem: {
             _id?: string;
             name?: components["schemas"]["LocalizedString"];
@@ -1191,28 +1188,22 @@ export interface components {
             ratingCount?: number | null;
             /** @description Units sold */
             soldQty?: number | null;
+            /** @description Present when ?for=storefront; for clickable filter links on product detail */
+            tags?: string[] | null;
+            /** @description URL-friendly slugs per locale */
+            slug?: {
+                en?: string;
+                ar?: string;
+            };
         };
-        /** @description Per-color availability and optional image. hasImage true when imageColors[i] matches this color. */
+        /** @description Per-color availability. Color-specific images come from refetch with ?color=. */
         ProductColorAvailability: {
             color?: string;
             available?: boolean;
             outOfStock?: boolean;
-            /** @description Number of sizes in stock for this color. When variants is empty, equals product.sizes.length. */
-            availableSizeCount?: number;
-            /** @description True when at least one image is linked to this color via imageColors */
-            hasImage?: boolean;
-            /** @description First image URL for this color when hasImage is true */
-            imageUrl?: string;
         };
-        /** @description Availability block on GET /products/:id. Colors include hasImage/imageUrl for color-specific images. When product has no variant records, variants are synthesized from global stock (variantsSource: estimated). */
+        /** @description Availability block on GET /products/:id. When product has no variant records, variants are synthesized from global stock. */
         ProductAvailabilityDetail: {
-            /**
-             * @description exact when variants come from DB; estimated when synthesized from global stock (no variants stored).
-             * @enum {string}
-             */
-            variantsSource?: "exact" | "estimated";
-            /** @description Total number of sizes that are available (in stock) for this product. */
-            availableSizeCount?: number;
             colors?: components["schemas"]["ProductColorAvailability"][];
             sizes?: {
                 size?: string;
@@ -1226,7 +1217,7 @@ export interface components {
                 outOfStock?: boolean;
             }[];
         };
-        /** @description Full product (single product: GET /products/:id, create/update/delete/status). Includes media + images, videos, imageColors for detail/admin. GET response also includes availability (with hasImage/imageUrl per color) and formattedDetails. */
+        /** @description Product (GET /products/:id with ?for=storefront returns this slim shape). Admin CRUD may return additional fields. For storefront: tags are included (for clickable filter links); vendor, imageColors, defaultMediaType, hoverMediaType, weightUnit, sizeDescriptions, variants, __v, createdAt, updatedAt, isNewArrival are omitted. */
         ProductData: {
             _id?: string;
             name?: components["schemas"]["LocalizedString"];
@@ -1236,45 +1227,47 @@ export interface components {
             discountPrice?: number | null;
             /** @description Structured media: default, hover, previewVideo */
             media?: components["schemas"]["ProductMedia"];
-            /** @description Full gallery (only on single-product responses) */
+            /** @description Full gallery (single-product responses) */
             images?: string[];
-            /** @description Color per image; only on single-product responses */
-            imageColors?: string[];
-            /** @description Video URLs; only on single-product responses */
+            /** @description Video URLs (single-product responses) */
             videos?: string[];
-            /**
-             * @description Preferred media type for default display on product cards
-             * @enum {string|null}
-             */
-            defaultMediaType?: "image" | "video" | null;
-            /**
-             * @description Preferred media type for hover display on product cards
-             * @enum {string|null}
-             */
-            hoverMediaType?: "image" | "video" | null;
             stock?: number;
             /** @enum {string} */
             status?: "ACTIVE" | "INACTIVE";
-            isNewArrival?: boolean;
             sizes?: string[];
-            sizeDescriptions?: string[];
             colors?: string[];
             details?: components["schemas"]["LocalizedString"];
             stylingTip?: components["schemas"]["LocalizedString"];
-            /** Format: date-time */
-            deletedAt?: string | null;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
+            inStock?: boolean;
+            /** @description Discount % when discountPrice is set, e.g. 30 for 30% off */
+            discountPercent?: number | null;
+            /** @description Parsed rich-text details (paragraphs, lists) per locale */
+            formattedDetails?: {
+                en?: Record<string, never>[];
+                ar?: Record<string, never>[];
+            } | null;
             /** @description Present when ratings exist */
             averageRating?: number | null;
-            /** @description Present on list */
+            /** @description Present when ratings exist */
             ratingCount?: number | null;
             /** @description Units sold */
             soldQty?: number | null;
-            /** @description Present on GET /products/:id; colors include hasImage and imageUrl when product has color-specific images */
+            /** @description Free-form tags for filtering; included in storefront for clickable links to product listing filtered by tag */
+            tags?: string[] | null;
+            /** @description URL-friendly slugs per locale */
+            slug?: {
+                en?: string;
+                ar?: string;
+            };
+            /** @description Present on GET /products/:id */
             availability?: components["schemas"]["ProductAvailabilityDetail"];
+            /** @description Present when GET /products/:id is called with both ?color= and ?size=. Contains stock and outOfStock for that variant. */
+            selectedVariant?: {
+                color?: string;
+                size?: string;
+                stock?: number;
+                outOfStock?: boolean;
+            } | null;
         };
         /** @description Payload for get/create/update/delete/status/stock (single product) */
         ProductSingleData: {
@@ -1929,6 +1922,10 @@ export interface components {
              * @default false
              */
             textNews: boolean;
+            /** @description Applied discount code (e.g. SAVE10) */
+            discountCode?: string | null;
+            /** @description Discount amount in EGP */
+            discountAmount?: number | null;
             payment?: {
                 method?: string;
                 status?: string;
@@ -2592,12 +2589,16 @@ export interface operations {
                 color?: string;
                 /** @description Only products with average rating >= this (1–5) */
                 minRating?: number;
-                /** @description Filter by tags (comma-separated) */
+                /** @description Filter by tags (comma-separated). Matches products with any of the tags. Use with GET /api/products for storefront product listing when user clicks a tag. */
                 tags?: string;
                 /** @description Filter by vendor/brand (case-insensitive) */
                 vendor?: string;
                 /** @description Filter products with/without discount */
                 hasDiscount?: "true" | "false";
+                /** @description Lookup by slug.en or slug.ar (e.g. embroidered-malhafa-sale). Returns products with exact match. Use "*" to list all. Optional; defaults to "*" when omitted (storefront-friendly). */
+                slug?: string;
+                /** @description When storefront, returns slim product shape (tags included for clickable filter links; vendor, imageColors, etc. omitted) */
+                for?: "storefront";
             };
             header?: never;
             path?: never;
@@ -2681,6 +2682,10 @@ export interface operations {
             query?: {
                 /** @description Filter media/images by color (e.g. Black). When set, media and images arrays show only images for that color. */
                 color?: string;
+                /** @description When provided with color, response includes selectedVariant for that color+size (stock, outOfStock). Enables variant-specific data without redundant calls. */
+                size?: string;
+                /** @description When storefront, returns slim product shape with tags included for clickable filter links on product detail */
+                for?: "storefront";
             };
             header?: never;
             path: {
@@ -3360,6 +3365,8 @@ export interface operations {
                      * @default false
                      */
                     textNews?: boolean;
+                    /** @description Optional discount code to apply */
+                    discountCode?: string;
                 };
             };
         };
@@ -3373,7 +3380,7 @@ export interface operations {
                     "application/json": components["schemas"]["OrderResponse"];
                 };
             };
-            /** @description Validation error (e.g. guest checkout requires guestName/guestEmail or firstName/lastName/email) */
+            /** @description Validation error (e.g. guest checkout requires guestName/guestEmail or firstName/lastName/email), or invalid discount code */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -3748,11 +3755,13 @@ export interface operations {
                     emailNews?: boolean;
                     /** @default false */
                     textNews?: boolean;
+                    /** @description Optional discount code to apply. If invalid/expired/not applicable, returns 400 with a clear message. */
+                    discountCode?: string;
                 };
             };
         };
         responses: {
-            /** @description Order created; data.order returned (includes guest fields for guest checkout) */
+            /** @description Order created; data.order returned (includes guest fields, discountCode, discountAmount when applied) */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -3761,7 +3770,7 @@ export interface operations {
                     "application/json": components["schemas"]["OrderResponse"];
                 };
             };
-            /** @description Validation error or guest checkout missing name/email */
+            /** @description Validation error, guest checkout missing name/email, or invalid/expired discount code */
             400: {
                 headers: {
                     [name: string]: unknown;
