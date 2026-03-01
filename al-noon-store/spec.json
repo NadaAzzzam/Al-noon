@@ -641,6 +641,10 @@
                       },
                       "newsletterEnabled": {
                         "type": "boolean"
+                      },
+                      "discountCodeSupported": {
+                        "type": "boolean",
+                        "description": "Whether discount codes are enabled at checkout"
                       }
                     }
                   },
@@ -679,7 +683,7 @@
                     "items": {
                       "type": "object"
                     },
-                    "description": "Home page collections/categories"
+                    "description": "Home page collections/categories. Duplicates by url are deduplicated (first occurrence kept)."
                   },
                   "homeCollectionsDisplayLimit": {
                     "type": "integer"
@@ -717,6 +721,75 @@
                   "promoBanner": {
                     "type": "object",
                     "description": "Promotional banner config"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "StoreSettingsResponse": {
+        "type": "object",
+        "description": "Public store settings (GET /api/store/settings). No auth required.",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "settings": {
+                "type": "object",
+                "properties": {
+                  "storeName": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string"
+                      },
+                      "ar": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "logo": {
+                    "type": "string"
+                  },
+                  "announcementBar": {
+                    "type": "object",
+                    "description": "Top announcement bar config"
+                  },
+                  "socialLinks": {
+                    "type": "object"
+                  },
+                  "newsletterEnabled": {
+                    "type": "boolean"
+                  },
+                  "contentPages": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "slug": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  },
+                  "currency": {
+                    "type": "string",
+                    "example": "EGP"
+                  },
+                  "currencySymbol": {
+                    "type": "string",
+                    "example": "LE"
+                  },
+                  "discountCodeSupported": {
+                    "type": "boolean"
                   }
                 }
               }
@@ -2570,6 +2643,27 @@
         }
       }
     },
+    "/api/store/settings": {
+      "get": {
+        "operationId": "getStoreSettings",
+        "tags": [
+          "Store"
+        ],
+        "summary": "Get storefront-safe settings (no auth). Store name, logo, announcement bar, social links, newsletter flag, content page slugs, currency.",
+        "responses": {
+          "200": {
+            "description": "Public store settings for e-commerce frontend",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreSettingsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/store/page/{slug}": {
       "get": {
         "operationId": "getPageBySlug",
@@ -2677,6 +2771,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Service temporarily unavailable (DB down)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
           }
         }
       }
@@ -2720,7 +2824,7 @@
             }
           },
           "400": {
-            "description": "Validation error",
+            "description": "Validation error (invalid email or newsletter disabled)",
             "content": {
               "application/json": {
                 "schema": {
@@ -2735,6 +2839,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/NewsletterConflictResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service temporarily unavailable (DB down)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
                 }
               }
             }

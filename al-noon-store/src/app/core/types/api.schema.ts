@@ -38,6 +38,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/store/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get storefront-safe settings (no auth). Store name, logo, announcement bar, social links, newsletter flag, content page slugs, currency. */
+        get: operations["getStoreSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/store/page/{slug}": {
         parameters: {
             query?: never;
@@ -1315,6 +1332,8 @@ export interface components {
                         quickLinks?: Record<string, never>[];
                         socialLinks?: Record<string, never>;
                         newsletterEnabled?: boolean;
+                        /** @description Whether discount codes are enabled at checkout */
+                        discountCodeSupported?: boolean;
                     };
                     /** @description Hero section config with images/videos, title, subtitle, CTA */
                     hero?: Record<string, never>;
@@ -1325,7 +1344,7 @@ export interface components {
                     /** @description Section media for New Arrivals block */
                     newArrivalsSectionImages?: string[];
                     newArrivalsSectionVideos?: string[];
-                    /** @description Home page collections/categories */
+                    /** @description Home page collections/categories. Duplicates by url are deduplicated (first occurrence kept). */
                     homeCollections?: Record<string, never>[];
                     homeCollectionsDisplayLimit?: number;
                     /** @description Section media for Our Collection block */
@@ -1339,6 +1358,33 @@ export interface components {
                     announcementBar?: Record<string, never>;
                     /** @description Promotional banner config */
                     promoBanner?: Record<string, never>;
+                };
+            };
+        };
+        /** @description Public store settings (GET /api/store/settings). No auth required. */
+        StoreSettingsResponse: {
+            /** @example true */
+            success?: boolean;
+            data?: {
+                settings?: {
+                    storeName?: {
+                        en?: string;
+                        ar?: string;
+                    };
+                    logo?: string;
+                    /** @description Top announcement bar config */
+                    announcementBar?: Record<string, never>;
+                    socialLinks?: Record<string, never>;
+                    newsletterEnabled?: boolean;
+                    contentPages?: {
+                        slug?: string;
+                        title?: Record<string, never>;
+                    }[];
+                    /** @example EGP */
+                    currency?: string;
+                    /** @example LE */
+                    currencySymbol?: string;
+                    discountCodeSupported?: boolean;
                 };
             };
         };
@@ -2244,6 +2290,26 @@ export interface operations {
             };
         };
     };
+    getStoreSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Public store settings for e-commerce frontend */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreSettingsResponse"];
+                };
+            };
+        };
+    };
     getPageBySlug: {
         parameters: {
             query?: never;
@@ -2318,6 +2384,15 @@ export interface operations {
                     "application/json": components["schemas"]["ApiError"];
                 };
             };
+            /** @description Service temporarily unavailable (DB down) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
         };
     };
     subscribeNewsletter: {
@@ -2345,7 +2420,7 @@ export interface operations {
                     "application/json": components["schemas"]["MessageDataResponse"];
                 };
             };
-            /** @description Validation error */
+            /** @description Validation error (invalid email or newsletter disabled) */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -2361,6 +2436,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NewsletterConflictResponse"];
+                };
+            };
+            /** @description Service temporarily unavailable (DB down) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
                 };
             };
         };

@@ -65,6 +65,7 @@
         "@types/node": "^20.17.19",
         "@typescript-eslint/eslint-plugin": "^8.56.1",
         "@typescript-eslint/parser": "^8.56.1",
+        "@vitest/coverage-istanbul": "^4.0.18",
         "@vitest/coverage-v8": "^4.0.18",
         "cypress": "^15.11.0",
         "eslint": "^9.39.3",

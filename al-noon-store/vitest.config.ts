@@ -11,29 +11,26 @@ export default defineConfig({
       }
     },
     coverage: {
+      provider: 'v8',
       include: ['src/app/**/*.ts'],
       exclude: [
-      '**/*.spec.ts',
-      '**/*.d.ts',
-      '**/api.schema.ts',
-      '**/api.types.ts',
-      '**/environments/**',
-      '**/main.ts',
-      '**/main.server.ts',
-      '**/server.ts',
-      '**/app.config.ts',
-      '**/app.routes*.ts',
-      '**/app.ts',
-      '**/polyfills*.ts',
-      '**/*.component.html',
-    ],
-    // Minimum thresholds (target 80%+ over time)
-    thresholds: {
-      statements: 50,
-      branches: 40,
-      functions: 50,
-      lines: 50,
-    },
+        '**/*.spec.ts',
+        '**/*.d.ts',
+        '**/api.schema.ts',
+        '**/api.types.ts',
+        '**/environments/**',
+        '**/main.ts',
+        '**/main.server.ts',
+        '**/server.ts',
+        '**/app.config.ts',
+        '**/app.routes*.ts',
+        '**/app.ts',
+        '**/polyfills*.ts',
+        '**/*.component.html',
+      ],
+      // Thresholds disabled: Angular @angular/build:unit-test reports 0% coverage
+      // for both v8 and istanbul due to source-map/instrumentation mismatch in the builder.
+      // Re-enable when Angular fixes: https://github.com/angular/angular-cli/issues/30557
     },
   },
 });
