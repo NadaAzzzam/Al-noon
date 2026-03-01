@@ -1,3 +1,4 @@
+/// <reference types="cypress" />
 describe('Authentication', () => {
   beforeEach(() => {
     cy.intercept('GET', '**/api/**', { body: { success: true, data: {} } }).as('api');
