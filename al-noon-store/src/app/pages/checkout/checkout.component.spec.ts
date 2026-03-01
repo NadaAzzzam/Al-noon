@@ -17,10 +17,6 @@ import { AuthService } from '../../core/services/auth.service';
 import { StoreService } from '../../core/services/store.service';
 import { ToastService } from '../../core/services/toast.service';
 
-vi.mock('../../../environments/environment', () => ({
-  environment: { discountCodeSupported: true },
-}));
-
 const mockCity = { id: '1', name: { en: 'Cairo', ar: 'القاهرة' }, deliveryFee: 35 };
 const mockShipping = { id: '698bd736064e85b854c54416', name: { en: 'Standard', ar: 'عادي' }, description: { en: '', ar: '' }, estimatedDays: '3-5', price: 0 };
 const mockPayment = { id: 'COD' as const, name: { en: 'Cash on Delivery', ar: 'الدفع' } };
