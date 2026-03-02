@@ -17,7 +17,9 @@ describe('Order Detail Page (requires auth)', () => {
     }).as('getProfile');
     cy.intercept('GET', '**/api/orders/ord-1*', { success: true, data: { order: mockOrder } }).as('getOrder');
     cy.intercept('GET', '**/i18n/*.json', { body: {} }).as('getI18n');
-    cy.intercept('GET', '**/store/**', { body: { success: true, data: {} } }).as('getStore');
+    cy.intercept('GET', '**/store/home*', {
+      body: { success: true, data: { home: { storeName: { en: 'Store' }, hero: {}, newArrivals: [], quickLinks: [], socialLinks: [], homeCollections: [], feedbacks: [] } } },
+    }).as('getStore');
 
     cy.visit('/en/account/orders/ord-1', {
       onBeforeLoad(win) {

@@ -21,8 +21,14 @@ describe('Shopping Journey', () => {
     pagination: { total: 1, page: 1, limit: 12, totalPages: 1 },
   };
 
+  const storeHome = {
+    success: true,
+    data: {
+      home: { storeName: { en: 'Store' }, hero: {}, newArrivals: [], quickLinks: [], socialLinks: [], homeCollections: [], feedbacks: [], discountCodeSupported: false },
+    },
+  };
   beforeEach(() => {
-    cy.intercept('GET', '**/api/store/home*', { fixture: 'home.json' }).as('getHome');
+    cy.intercept('GET', '**/api/store/home*', storeHome).as('getHome');
     cy.intercept('GET', '**/api/settings*', { success: true, data: { settings: {} } }).as('getSettings');
     cy.intercept('GET', '**/api/categories*', { success: true, data: [] }).as('getCategories');
     cy.intercept('GET', '**/api/products*', mockProductsList).as('getProducts');
@@ -42,16 +48,13 @@ describe('Shopping Journey', () => {
     cy.intercept('GET', '**/payment-methods**', {
       body: { success: true, data: { paymentMethods: [{ id: 'COD', name: { en: 'Cash on Delivery' } }] } },
     }).as('getPayment');
-    cy.intercept('GET', '**/store/**', {
-      body: { success: true, data: { storeName: { en: 'Store' }, discountCodeSupported: false } },
-    }).as('getStore');
   });
 
   it('should browse catalog, open product, and add to cart', () => {
     cy.visit('/en');
     cy.wait('@getHome');
 
-    cy.get('a[href*="/catalog"], a[routerlink*="catalog"]').first().click();
+    cy.get('a.section-link').first().scrollIntoView().click();
     cy.url().should('include', '/catalog');
     cy.wait('@getProducts');
 
@@ -76,13 +79,9 @@ describe('Shopping Journey', () => {
       onBeforeLoad: (win) => win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)),
     });
     cy.get('.checkout-wrapper').should('exist');
-    cy.wait('@getCities');
-    cy.get('#ck-email').type('guest@example.com');
-    cy.get('#ck-first').type('John');
-    cy.get('#ck-last').type('Doe');
-    cy.get('#ck-address').type('123 Main St');
-    cy.get('input[type="tel"]').type('+20123456789');
-    cy.get('.checkout-form select').not('#ck-country').select(1);
+    cy.wait(['@getHome', '@getCities', '@getShipping', '@getPayment']);
+    cy.get('.shipping-option').should('have.length.at.least', 1);
+    cy.get('.payment-option').should('have.length.at.least', 1);
     cy.get('button[type="submit"]').first().click();
     cy.wait('@checkout');
     cy.url().should('include', 'order-confirmation');

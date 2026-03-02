@@ -132,11 +132,16 @@ function normalizeHomeCollections(raw: unknown): HomeCollection[] {
     }
     if (!url) url = '/catalog';
     const categoryId = categorySlug ?? (typeof col['categoryId'] === 'string' ? (col['categoryId'] as string).trim() || undefined : undefined);
+    const defaultMediaType = col['defaultMediaType'] === 'image' || col['defaultMediaType'] === 'video' ? col['defaultMediaType'] : undefined;
+    const hoverMediaType = col['hoverMediaType'] === 'image' || col['hoverMediaType'] === 'video' ? col['hoverMediaType'] : undefined;
     return {
       title: (col['title'] ?? { en: '', ar: '' }) as HomeCollection['title'],
       image: col['image'] as string | undefined,
       video: col['video'] as string | undefined,
       hoverImage: col['hoverImage'] as string | undefined,
+      hoverVideo: col['hoverVideo'] as string | null | undefined,
+      defaultMediaType,
+      hoverMediaType,
       url,
       categoryId,
       order: typeof col['order'] === 'number' ? col['order'] : undefined,

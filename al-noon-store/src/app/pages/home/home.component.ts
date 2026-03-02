@@ -110,6 +110,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     return (obj[lang] ?? obj.en ?? obj.ar ?? '') as string;
   }
 
+  onFeedbackImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    const placeholder = img.parentElement?.querySelector('.testimonial-image-placeholder');
+    if (!placeholder) {
+      const div = document.createElement('div');
+      div.className = 'testimonial-image-placeholder';
+      div.innerHTML = `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="80" height="80" rx="40" fill="currentColor" opacity="0.08"/>
+        <path d="M40 22c-5.52 0-10 4.48-10 10s4.48 10 10 10 10-4.48 10-10-4.48-10-10-10zm0 30c-11.05 0-20 4.48-20 10v4h40v-4c0-5.52-8.95-10-20-10z" fill="currentColor" opacity="0.18"/>
+      </svg>`;
+      img.parentElement?.appendChild(div);
+    }
+  }
+
   /** Query params for collection link so catalog filters by category (avoids URL encoding issues). */
   getCollectionQueryParams(col: { url: string; categoryId?: string }): { category?: string } {
     if (col.categoryId?.trim()) return { category: col.categoryId.trim() };

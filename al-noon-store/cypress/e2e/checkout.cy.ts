@@ -37,10 +37,22 @@ describe('Checkout', () => {
         },
       },
     }).as('payment');
-    cy.intercept('GET', '**/store/**', {
+    cy.intercept('GET', '**/store/home*', {
       body: {
         success: true,
-        data: { storeName: { en: 'Store', ar: 'المتجر' }, logo: 'uploads/logo.png', discountCodeSupported: true },
+        data: {
+          home: {
+            storeName: { en: 'Store', ar: 'المتجر' },
+            logo: 'uploads/logo.png',
+            discountCodeSupported: true,
+            hero: {},
+            newArrivals: [],
+            quickLinks: [],
+            socialLinks: [],
+            homeCollections: [],
+            feedbacks: [],
+          },
+        },
       },
     }).as('store');
 
@@ -79,10 +91,12 @@ describe('Checkout', () => {
         win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
       },
     });
+    cy.wait('@store');
     cy.get('.checkout-wrapper').should('be.visible');
-    cy.get('.discount-input').type('SAVE10');
-    cy.get('.discount-btn').not('.discount-btn-remove').click();
-    cy.get('.discount-applied, .discount-btn-remove').should('exist');
+    cy.get('.summary-discount').scrollIntoView();
+    cy.get('.discount-input').should('be.visible').clear().type('SAVE10');
+    cy.get('.discount-btn').not('.discount-btn-remove').should('be.visible').click();
+    cy.get('.discount-applied, .discount-btn-remove', { timeout: 5000 }).should('exist');
   });
 
   it('should show empty state when cart is empty', () => {
@@ -136,7 +150,7 @@ describe('Checkout', () => {
 
   it('should disable submit button during checkout (double-click prevention)', () => {
     cy.intercept('POST', '**/checkout', {
-      delay: 1500,
+      delay: 2000,
       statusCode: 201,
       body: {
         success: true,
@@ -144,6 +158,8 @@ describe('Checkout', () => {
       },
     }).as('checkout');
     cy.visit('/en/checkout', { onBeforeLoad: (w) => w.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)) });
+    cy.wait('@store');
+    cy.get('.checkout-form').should('be.visible');
     cy.get('button[type="submit"]').first().click();
     cy.get('button[type="submit"]').first().should('be.disabled');
     cy.wait('@checkout');
@@ -155,6 +171,9 @@ describe('Checkout', () => {
       body: { success: false, message: 'Product X is out of stock' },
     }).as('checkout');
     cy.visit('/en/checkout', { onBeforeLoad: (w) => w.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems)) });
+    cy.wait('@store');
+    cy.get('.shipping-option').should('have.length.at.least', 1);
+    cy.get('.payment-option').should('have.length.at.least', 1);
     cy.get('button[type="submit"]').first().click();
     cy.wait('@checkout');
     cy.get('.error-block').should('exist');

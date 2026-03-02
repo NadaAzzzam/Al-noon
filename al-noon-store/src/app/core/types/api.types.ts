@@ -66,6 +66,12 @@ export interface HomeCollection {
   video?: string;
   /** Image to show on hover (image swap); ignored when video is shown */
   hoverImage?: string;
+  /** Optional hover video URL (OpenAPI HomeCollectionOutput) */
+  hoverVideo?: string | null;
+  /** Preferred default media type: image | video (OpenAPI HomeCollectionOutput) */
+  defaultMediaType?: 'image' | 'video';
+  /** Preferred hover media type: image | video (OpenAPI HomeCollectionOutput) */
+  hoverMediaType?: 'image' | 'video';
   url: string;
   /** Category id/slug for catalog filter; used to build url when url is empty or to link to category */
   categoryId?: string;
@@ -797,6 +803,7 @@ export interface SettingsApiResponse {
 export type SchemaProductListItem = components['schemas']['ProductListItem'];
 export type SchemaProductData = components['schemas']['ProductData'];
 export type SchemaStoreHomeResponse = components['schemas']['StoreHomeResponse'];
+export type SchemaStoreSettingsResponse = components['schemas']['StoreSettingsResponse'];
 export type SchemaPaginatedProductsResponse = components['schemas']['PaginatedProductsResponse'];
 export type SchemaProductResponse = components['schemas']['ProductResponse'];
 export type SchemaRelatedProductsResponse = components['schemas']['RelatedProductsResponse'];
@@ -808,6 +815,7 @@ export type SchemaProfileResponse = components['schemas']['ProfileResponse'];
 export type SchemaSignOutResponse = components['schemas']['SignOutResponse'];
 export type SchemaNewsletterConflictResponse = components['schemas']['NewsletterConflictResponse'];
 export type SchemaSortFiltersResponse = components['schemas']['SortFiltersResponse'];
+export type SchemaAvailabilityFiltersResponse = components['schemas']['AvailabilityFiltersResponse'];
 export type SchemaCategoriesResponse = components['schemas']['CategoriesResponse'];
 export type SchemaOrderResponse = components['schemas']['OrderResponse'];
 export type SchemaPaginatedOrdersResponse = components['schemas']['PaginatedOrdersResponse'];

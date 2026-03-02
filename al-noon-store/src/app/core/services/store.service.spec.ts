@@ -50,17 +50,18 @@ describe('StoreService', () => {
       success: true,
       data: {
         settings: {
-          storeName: 'Store',
+          storeName: { en: 'Store', ar: 'متجر' },
           seoSettings: null,
           contentPages: [],
-          stockDisplay: {},
+          lowStockThreshold: undefined,
+          stockInfoThreshold: undefined,
         },
       },
     };
 
     service.getSettings().subscribe((s) => {
       expect(s).toBeDefined();
-      expect(s.storeName).toBe('Store');
+      expect(s.storeName).toEqual({ en: 'Store', ar: 'متجر' });
     });
 
     const req = httpMock.expectOne((r) => r.url.includes('settings'));
@@ -119,17 +120,17 @@ describe('StoreService', () => {
       success: true,
       data: {
         settings: {
-          storeName: 'My Store',
+          storeName: { en: 'My Store', ar: 'متجري' },
           lowStockThreshold: 3,
           stockInfoThreshold: 8,
         },
       },
     };
     service.getSettings().subscribe((s) => {
-      expect(s.storeName).toBe('My Store');
+      expect(s.storeName).toEqual({ en: 'My Store', ar: 'متجري' });
     });
     httpMock.expectOne((r) => r.url.includes('settings')).flush(mockData);
-    expect(service.settings()?.storeName).toBe('My Store');
+    expect(service.settings()?.storeName).toEqual({ en: 'My Store', ar: 'متجري' });
   });
 
   it('should get page when data is page object at top level', () => {
@@ -277,6 +278,46 @@ describe('StoreService', () => {
     };
     service.getStore().subscribe((s) => {
       expect(s.homeCollections?.[0].url).toContain('category=');
+    });
+    httpMock.expectOne((r) => r.url.includes('store/home')).flush(mockData);
+  });
+
+  it('should normalize homeCollections with new schema fields (hoverVideo, defaultMediaType, hoverMediaType)', () => {
+    const mockData = {
+      success: true,
+      data: {
+        home: {
+          storeName: { en: 'S' },
+          hero: {},
+          newArrivals: [],
+          homeCollections: [
+            {
+              title: { en: 'Abayas', ar: 'عبايات' },
+              image: '/img.jpg',
+              video: '/video.mp4',
+              hoverImage: '/hover.jpg',
+              hoverVideo: '/hover-video.mp4',
+              defaultMediaType: 'video',
+              hoverMediaType: 'video',
+              url: '/catalog?category=abayas',
+              categoryId: 'abayas-id',
+              order: 1,
+            },
+          ],
+        },
+      },
+    };
+    service.getStore().subscribe((s) => {
+      const col = s.homeCollections?.[0];
+      expect(col?.title).toEqual({ en: 'Abayas', ar: 'عبايات' });
+      expect(col?.image).toBe('/img.jpg');
+      expect(col?.video).toBe('/video.mp4');
+      expect(col?.hoverImage).toBe('/hover.jpg');
+      expect(col?.hoverVideo).toBe('/hover-video.mp4');
+      expect(col?.defaultMediaType).toBe('video');
+      expect(col?.hoverMediaType).toBe('video');
+      expect(col?.categoryId).toBe('abayas-id');
+      expect(col?.order).toBe(1);
     });
     httpMock.expectOne((r) => r.url.includes('store/home')).flush(mockData);
   });

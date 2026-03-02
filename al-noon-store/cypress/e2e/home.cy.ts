@@ -24,7 +24,7 @@ describe('Home Page', () => {
   });
 
   it('should navigate to catalog when catalog link clicked', () => {
-    cy.get('a[href*="/catalog"], a[routerlink*="catalog"]').first().click();
+    cy.get('a.section-link').first().scrollIntoView().click();
     cy.url().should('include', '/catalog');
   });
 });

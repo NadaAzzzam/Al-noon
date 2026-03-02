@@ -9,15 +9,11 @@ describe('Dynamic Page (Content Pages)', () => {
     },
   };
 
+  const storeHome = { success: true, data: { home: { storeName: { en: 'Store' }, hero: {}, newArrivals: [], quickLinks: [], socialLinks: [], homeCollections: [], feedbacks: [] } } };
   beforeEach(() => {
     cy.intercept('GET', '**/i18n/*.json', { body: {} }).as('getI18n');
-    cy.intercept('GET', '**/store/**', (req) => {
-      if (req.url.includes('/store/page/')) {
-        req.reply(mockPage);
-      } else {
-        req.reply({ body: { success: true, data: {} } });
-      }
-    }).as('getStore');
+    cy.intercept('GET', '**/store/home*', { body: storeHome }).as('getStoreHome');
+    cy.intercept('GET', '**/store/page/**', (req) => req.reply(mockPage)).as('getStorePage');
   });
 
   it('should load page by slug', () => {
