@@ -147,10 +147,10 @@
               "watch": false,
               "coverage": true,
               "coverageThresholds": {
-                "statements": 50,
-                "branches": 45,
-                "functions": 50,
-                "lines": 55
+                "statements": 55,
+                "branches": 48,
+                "functions": 58,
+                "lines": 60
               }
             }
           },

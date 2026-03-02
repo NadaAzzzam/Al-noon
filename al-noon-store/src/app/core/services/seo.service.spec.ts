@@ -42,4 +42,61 @@ describe('SeoService', () => {
     expect(link).toBeTruthy();
     expect(link?.getAttribute('href') ?? link?.href).toContain('example.com/page');
   });
+
+  it('should use seoSettings homePageMeta when pageKind is home', () => {
+    service.setSeoSettings({
+      homePageMeta: { title: { en: 'Home Title', ar: '' }, description: { en: 'Home desc', ar: '' } },
+      defaultMetaDescription: { en: 'Default', ar: '' },
+    });
+    service.setPage({ pageKind: 'home' });
+    expect(title.getTitle()).toContain('Home Title');
+  });
+
+  it('should use catalogPageMeta when pageKind is catalog', () => {
+    service.setSeoSettings({
+      catalogPageMeta: { title: { en: 'Catalog', ar: '' }, description: { en: 'Browse', ar: '' } },
+    });
+    service.setPage({ pageKind: 'catalog' });
+    expect(title.getTitle()).toContain('Catalog');
+  });
+
+  it('should set product JSON-LD', () => {
+    service.setProductJsonLd({
+      name: 'Product',
+      description: 'Desc',
+      price: 99,
+      availability: 'https://schema.org/InStock',
+    });
+    const script = document.querySelector('script[type="application/ld+json"]');
+    expect(script).toBeTruthy();
+    const json = JSON.parse(script!.textContent || '{}');
+    expect(json['@type']).toBe('Product');
+    expect(json.name).toBe('Product');
+    expect(json.offers.price).toBe(99);
+  });
+
+  it('should use product titleSuffix when type is product', () => {
+    service.setSeoSettings(
+      { productPageMeta: { titleSuffix: { en: '| Shop', ar: '' } } },
+      { en: 'Store', ar: '' }
+    );
+    service.setPage({ title: 'Widget', type: 'product' });
+    expect(title.getTitle()).toContain('| Shop');
+  });
+
+  it('should use ogImage from seoSettings when not in config', () => {
+    service.setSeoSettings({ ogImage: '/og.jpg' });
+    service.setPage({ title: 'T' });
+    const ogTag = meta.getTag('property="og:image"');
+    expect(ogTag?.content).toContain('/og.jpg');
+  });
+
+  it('should use defaultMetaDescription when description not provided', () => {
+    service.setSeoSettings({
+      defaultMetaDescription: { en: 'Default description', ar: '' },
+    });
+    service.setPage({ title: 'T' });
+    const descTag = meta.getTag('name="description"');
+    expect(descTag?.content).toBe('Default description');
+  });
 });

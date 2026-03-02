@@ -114,6 +114,7 @@ export interface StoreData {
   feedbackSectionEnabled: boolean;
   feedbackDisplayLimit: number;
   feedbacks: StoreFeedback[];
+  discountCodeSupported: boolean;
 }
 
 /** Localized slug from BE: { en, ar } same shape as LocalizedText */
@@ -629,6 +630,7 @@ export interface StoreHomeData {
   feedbacks?: unknown;
   announcementBar?: { text?: LocalizedText; enabled?: boolean; backgroundColor?: string };
   promoBanner?: { enabled?: boolean; image?: string; title?: LocalizedText; subtitle?: LocalizedText; ctaLabel?: LocalizedText; ctaUrl?: string };
+  discountCodeSupported?: boolean;
   [key: string]: unknown;
 }
 

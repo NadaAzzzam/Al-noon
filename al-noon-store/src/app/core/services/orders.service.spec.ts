@@ -57,4 +57,34 @@ describe('OrdersService', () => {
     httpMock.post.mockReturnValue(of({ success: false, message: 'Invalid' }));
     await expect(firstValueFrom(service.checkout({ items: [] }))).rejects.toBeDefined();
   });
+
+  it('should create order and return normalized order', async () => {
+    httpMock.post.mockReturnValue(of({ success: true, data: mockOrder }));
+    const order = await firstValueFrom(service.createOrder({ items: [{ product: '1', quantity: 1, price: 100 }] }));
+    expect(order.id).toBe('o1');
+    expect(httpMock.post).toHaveBeenCalledWith('orders', expect.any(Object));
+  });
+
+  it('should get order by id', async () => {
+    httpMock.get.mockReturnValue(of({ success: true, data: mockOrder }));
+    const order = await firstValueFrom(service.getOrder('o1'));
+    expect(order.id).toBe('o1');
+    expect(httpMock.get).toHaveBeenCalledWith('orders/o1');
+  });
+
+  it('should error when getOrder returns success: false', async () => {
+    httpMock.get.mockReturnValue(of({ success: false }));
+    await expect(firstValueFrom(service.getOrder('bad'))).rejects.toBeDefined();
+  });
+
+  it('should error when getGuestOrder returns success: false', async () => {
+    httpMock.get.mockReturnValue(of({ success: false }));
+    await expect(firstValueFrom(service.getGuestOrder('bad', 'x@y.com'))).rejects.toBeDefined();
+  });
+
+  it('should pass params to getOrders', async () => {
+    httpMock.get.mockReturnValue(of({ success: true, data: [], pagination: { total: 0, page: 2, limit: 5, totalPages: 0 } }));
+    await firstValueFrom(service.getOrders({ page: 2, limit: 5 }));
+    expect(httpMock.get).toHaveBeenCalledWith('orders', expect.objectContaining({ params: expect.any(Object) }));
+  });
 });

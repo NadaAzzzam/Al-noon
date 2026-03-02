@@ -43,4 +43,30 @@ describe('NewsletterService', () => {
     const req = httpMock.expectOne((r) => r.url.includes('newsletter/subscribe'));
     req.flush({ code: 'CONFLICT' }, { status: 409, statusText: 'Conflict' });
   });
+
+  it('should handle success response without success key', () => {
+    service.subscribe('user@example.com').subscribe({
+      next: (r) => {
+        expect(r).toBeDefined();
+      },
+    });
+    const req = httpMock.expectOne((r) => r.url.includes('newsletter/subscribe'));
+    req.flush({ message: 'Subscribed' });
+  });
+
+  it('should handle ApiError with success: false in body', () => {
+    service.subscribe('bad@example.com').subscribe({
+      error: (e) => expect(e).toBeDefined(),
+    });
+    const req = httpMock.expectOne((r) => r.url.includes('newsletter/subscribe'));
+    req.flush({ success: false, message: 'Invalid email' });
+  });
+
+  it('should handle alreadySubscribed in response body', () => {
+    service.subscribe('dup@example.com').subscribe({
+      error: (e) => expect(e.alreadySubscribed).toBe(true),
+    });
+    const req = httpMock.expectOne((r) => r.url.includes('newsletter/subscribe'));
+    req.flush({ success: false, alreadySubscribed: true, message: 'Already subscribed' });
+  });
 });

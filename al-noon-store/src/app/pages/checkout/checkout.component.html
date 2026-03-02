@@ -310,7 +310,7 @@
         }
       </div>
 
-      <!-- Discount code: check & apply; wired for BE (environment.discountCodeSupported) -->
+      <!-- Discount code: check & apply (driven by store.discountCodeSupported from API) -->
       <div class="summary-discount">
         <input type="text" class="discount-input" [value]="discountCode()"
           (input)="discountCode.set($any($event.target).value); discountCodeError.set(null); discountCodeApplied.set(false)"

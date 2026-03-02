@@ -10,7 +10,6 @@ import { CitiesService } from '../../core/services/cities.service';
 import { ShippingService } from '../../core/services/shipping.service';
 import { PaymentMethodsService } from '../../core/services/payment-methods.service';
 import { ApiService } from '../../core/services/api.service';
-import { environment } from '../../../environments/environment';
 import { LocaleService } from '../../core/services/locale.service';
 import { LocalizedPathService } from '../../core/services/localized-path.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -155,7 +154,9 @@ export class CheckoutComponent implements OnInit {
   showUpdateCart = signal(false);
   touched = signal(false);
 
-  /** Discount code: check & apply (placeholder until BE supports discountCode in checkout API) */
+  /** Whether the store supports discount codes (from API: store.discountCodeSupported) */
+  discountCodeSupported = signal(false);
+
   discountCode = signal('');
   discountCodeApplied = signal(false);
   discountCodeError = signal<string | null>(null);
@@ -293,6 +294,7 @@ export class CheckoutComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((s) => {
       this.store.set(s);
+      this.discountCodeSupported.set(s?.discountCodeSupported === true);
       this.updateFavicon(s?.logo);
     });
 
@@ -398,7 +400,7 @@ export class CheckoutComponent implements OnInit {
       this.discountCodeError.set(this.translate.instant('checkout.discountCodeRequired'));
       return;
     }
-    if (!environment.discountCodeSupported) {
+    if (!this.discountCodeSupported()) {
       this.discountCodeChecking.set(true);
       setTimeout(() => {
         this.discountCodeChecking.set(false);
@@ -475,7 +477,7 @@ export class CheckoutComponent implements OnInit {
       shippingMethod: this.selectedShippingMethod(),
       emailNews: this.emailNews(),
       textNews: this.textNews(),
-      ...(environment.discountCodeSupported && this.discountCodeApplied() && this.discountCode().trim()
+      ...(this.discountCodeSupported() && this.discountCodeApplied() && this.discountCode().trim()
         ? { discountCode: this.discountCode().trim() }
         : {}),
     };

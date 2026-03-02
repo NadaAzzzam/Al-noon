@@ -158,6 +158,7 @@ function normalizeStore(home: Record<string, unknown>): StoreData {
     socialLinks: normalizeSocialLinks(flat['socialLinks'] ?? nested?.['socialLinks']),
     feedbacks: normalizeFeedbacks(flat['feedbacks']),
     homeCollections: normalizeHomeCollections(flat['homeCollections']),
+    discountCodeSupported: flat['discountCodeSupported'] === true,
     ...(newArrivals != null ? { newArrivals } : {}),
   } as StoreData;
 }

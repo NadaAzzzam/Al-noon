@@ -50,7 +50,7 @@ describe('CheckoutComponent', () => {
           provide: StoreService,
           useValue: {
             settings: signal(null),
-            getStore: () => of(null),
+            getStore: () => of({ discountCodeSupported: true }),
           },
         },
         { provide: ToastService, useValue: toastSpy },

@@ -69,6 +69,20 @@ describe('ShippingService', () => {
     expect(methods[0].id).toBe('1');
   });
 
+  it('should return methods from top-level shippingMethods', async () => {
+    httpMock.get.mockReturnValue(
+      of({
+        success: true,
+        shippingMethods: [
+          { id: '3', name: { en: 'Express' }, estimatedDays: '1-2', enabled: true, order: 0 },
+        ],
+      })
+    );
+    const methods = await firstValueFrom(service.getShippingMethods());
+    expect(methods).toHaveLength(1);
+    expect(methods[0].id).toBe('3');
+  });
+
   it('should return empty array on error', async () => {
     httpMock.get.mockReturnValue(throwError(() => new Error('Network error')));
     const methods = await firstValueFrom(service.getShippingMethods());
