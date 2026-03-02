@@ -880,7 +880,10 @@ export interface paths {
         };
         /** Get settings */
         get: operations["getSettings"];
-        /** Update settings (Admin) */
+        /**
+         * Update settings (Admin)
+         * @description Partial update of settings. All fields are optional. Includes store info, hero, collections, media, feedback settings, AI config, payment, etc. Use languageCode suffixes (En/Ar) for multilingual fields. Use singular form for objects (e.g., socialLinks) and arrays with proper item schema. Example: { storeNameEn: 'Al-noon', newsletterEnabled: true, discountCodeSupported: false }
+         */
         put: operations["updateSettings"];
         post?: never;
         delete?: never;
@@ -1017,8 +1020,28 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Upload promo image (Admin) */
+        /** Upload promo image (Admin) [Deprecated: use /upload-media?type=promo] */
         post: operations["uploadPromoImage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/upload-media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload home page media (image or video) with auto-detection (Admin)
+         * @description Unified endpoint for uploading hero, section, collection, and promo images/videos. Automatically detects file type and sets appropriate path. Use 'type' query parameter: 'hero' | 'section' | 'collection' | 'promo' (default: 'section'). Returns { image: 'path' } for images or { video: 'path' } for videos.
+         */
+        post: operations["uploadHomePageMedia"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1146,6 +1169,65 @@ export interface components {
         LocalizedString: {
             en?: string;
             ar?: string;
+        };
+        /** @description Home collection item for PUT /api/settings. Matches BE validation. */
+        HomeCollectionInput: {
+            /** @description Title (English) */
+            titleEn: string;
+            /** @description Title (Arabic) */
+            titleAr: string;
+            /** @description Default image URL (required) */
+            image: string;
+            /** @description Hover image URL (optional) */
+            hoverImage?: string;
+            /** @description Default video URL (optional) */
+            video?: string;
+            /** @description Hover video URL (optional) */
+            hoverVideo?: string;
+            /**
+             * @description Default card media type (optional, defaults to image)
+             * @enum {string}
+             */
+            defaultMediaType?: "image" | "video";
+            /**
+             * @description Hover card media type (optional, defaults to image)
+             * @enum {string}
+             */
+            hoverMediaType?: "image" | "video";
+            /** @description Link URL */
+            url: string;
+            /** @description Display order */
+            order: number;
+            /** @description Optional category reference */
+            categoryId?: string;
+        };
+        /** @description Home collection in API responses (title as localized object). Duplicates by url are deduplicated. */
+        HomeCollectionOutput: {
+            title?: components["schemas"]["LocalizedString"];
+            /** @description Default image URL */
+            image?: string;
+            /** @description Hover image URL */
+            hoverImage?: string | null;
+            /** @description Default video URL */
+            video?: string | null;
+            /** @description Hover video URL */
+            hoverVideo?: string | null;
+            /**
+             * @description Default card media type
+             * @enum {string}
+             */
+            defaultMediaType?: "image" | "video";
+            /**
+             * @description Hover card media type
+             * @enum {string}
+             */
+            hoverMediaType?: "image" | "video";
+            /** @description Link URL */
+            url?: string;
+            /** @description Display order */
+            order?: number;
+            /** @description Optional category ID */
+            categoryId?: string | null;
         };
         /** @description Category when populated (list/detail). Storefront uses _id only for catalog filters. */
         ProductCategoryRef: {
@@ -1345,7 +1427,7 @@ export interface components {
                     newArrivalsSectionImages?: string[];
                     newArrivalsSectionVideos?: string[];
                     /** @description Home page collections/categories. Duplicates by url are deduplicated (first occurrence kept). */
-                    homeCollections?: Record<string, never>[];
+                    homeCollections?: components["schemas"]["HomeCollectionOutput"][];
                     homeCollectionsDisplayLimit?: number;
                     /** @description Section media for Our Collection block */
                     ourCollectionSectionImages?: string[];
@@ -2100,12 +2182,88 @@ export interface components {
             success: boolean;
             data: components["schemas"]["TopSellingData"];
         };
-        /** @description Full settings object */
+        /** @description Full admin settings object (GET/PUT /api/settings) */
         SettingsResponse: {
             /** @example true */
             success?: boolean;
-            /** @description Store, hero, collections, etc. */
-            data?: Record<string, never>;
+            data?: {
+                /** @description Complete settings including store, hero, collections, media, feedback, AI, etc. */
+                settings?: {
+                    storeName?: {
+                        en?: string;
+                        ar?: string;
+                    };
+                    /** @description Store logo URL */
+                    logo?: string;
+                    /** @description Footer quick links */
+                    quickLinks?: {
+                        label?: Record<string, never>;
+                        url?: string;
+                    }[];
+                    socialLinks?: {
+                        facebook?: string;
+                        instagram?: string;
+                    };
+                    newsletterEnabled?: boolean;
+                    /** @description Whether discount codes are enabled at checkout */
+                    discountCodeSupported?: boolean;
+                    /** @description Hero section: images, videos, title, subtitle, CTA label and URL */
+                    hero?: Record<string, never>;
+                    heroEnabled?: boolean;
+                    /** @description New arrival products (no duplicate media arrays when properly cleaned) */
+                    newArrivals?: Record<string, never>[];
+                    /** @description Home page collections (deduplicated by url) */
+                    homeCollections?: components["schemas"]["HomeCollectionOutput"][];
+                    feedbackSectionEnabled?: boolean;
+                    feedbackDisplayLimit?: number;
+                    /** @description Customer feedbacks (single message field, no duplicate comment) */
+                    feedbacks?: Record<string, never>[];
+                    announcementBar?: {
+                        text?: Record<string, never>;
+                        enabled?: boolean;
+                        backgroundColor?: string;
+                    };
+                    promoBanner?: {
+                        enabled?: boolean;
+                        image?: string;
+                        title?: Record<string, never>;
+                        subtitle?: Record<string, never>;
+                        ctaLabel?: Record<string, never>;
+                        ctaUrl?: string;
+                    };
+                    featuredProductsEnabled?: boolean;
+                    featuredProductsLimit?: number;
+                    contentPages?: {
+                        slug?: string;
+                        title?: Record<string, never>;
+                        content?: Record<string, never>;
+                    }[];
+                    orderNotificationsEnabled?: boolean;
+                    /** Format: email */
+                    orderNotificationEmail?: string;
+                    aiAssistant?: {
+                        enabled?: boolean;
+                        geminiApiKey?: string;
+                        assistantName?: string;
+                        greeting?: Record<string, never>;
+                        systemPrompt?: string;
+                        suggestedQuestions?: Record<string, never>[];
+                    };
+                    /** @example EGP */
+                    currency?: string;
+                    /** @example LE */
+                    currencySymbol?: string;
+                    /** @description InstaPay number for payments */
+                    instaPayNumber?: string;
+                    paymentMethods?: {
+                        cod?: boolean;
+                        instaPay?: boolean;
+                    };
+                    lowStockThreshold?: number;
+                    stockInfoThreshold?: number;
+                    googleAnalyticsId?: string;
+                };
+            };
         };
         /** @description Reports (sales, orders, etc.) */
         ReportsResponse: {
@@ -5365,7 +5523,49 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": Record<string, never>;
+                "application/json": {
+                    storeNameEn?: string;
+                    storeNameAr?: string;
+                    logo?: string;
+                    newsletterEnabled?: boolean;
+                    discountCodeSupported?: boolean;
+                    quickLinks?: {
+                        labelEn?: string;
+                        labelAr?: string;
+                        url?: string;
+                    }[];
+                    socialLinks?: {
+                        facebook?: string;
+                        instagram?: string;
+                    };
+                    hero?: {
+                        images?: string[];
+                        videos?: string[];
+                        titleEn?: string;
+                        titleAr?: string;
+                        subtitleEn?: string;
+                        subtitleAr?: string;
+                        ctaLabelEn?: string;
+                        ctaLabelAr?: string;
+                        ctaUrl?: string;
+                    };
+                    heroEnabled?: boolean;
+                    newArrivalsLimit?: number;
+                    /** @description Collections with deduplication by url. Required per item: titleEn, titleAr, image, url, order. */
+                    homeCollections?: components["schemas"]["HomeCollectionInput"][];
+                    feedbackSectionEnabled?: boolean;
+                    feedbackDisplayLimit?: number;
+                    aiAssistant?: {
+                        enabled?: boolean;
+                        geminiApiKey?: string;
+                        greetingEn?: string;
+                        greetingAr?: string;
+                        systemPrompt?: string;
+                        suggestedQuestions?: Record<string, never>[];
+                    };
+                    currency?: string;
+                    currencySymbol?: string;
+                };
             };
         };
         responses: {
@@ -5376,6 +5576,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SettingsResponse"];
+                };
+            };
+            /** @description Validation error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
                 };
             };
             /** @description Unauthorized */
@@ -5729,6 +5938,66 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SingleUrlResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    uploadHomePageMedia: {
+        parameters: {
+            query?: {
+                /** @description Media type/section context */
+                type?: "hero" | "section" | "collection" | "promo";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /**
+                     * Format: binary
+                     * @description Image or video file
+                     */
+                    file?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Image or video URL */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SingleUrlResponse"];
+                };
+            };
+            /** @description No file uploaded or invalid file */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
                 };
             };
             /** @description Unauthorized */

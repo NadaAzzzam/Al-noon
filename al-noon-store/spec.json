@@ -90,6 +90,137 @@
           }
         }
       },
+      "HomeCollectionInput": {
+        "type": "object",
+        "description": "Home collection item for PUT /api/settings. Matches BE validation.",
+        "required": [
+          "titleEn",
+          "titleAr",
+          "image",
+          "url",
+          "order"
+        ],
+        "properties": {
+          "titleEn": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Title (English)"
+          },
+          "titleAr": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Title (Arabic)"
+          },
+          "image": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Default image URL (required)"
+          },
+          "hoverImage": {
+            "type": "string",
+            "maxLength": 2000,
+            "description": "Hover image URL (optional)"
+          },
+          "video": {
+            "type": "string",
+            "maxLength": 2000,
+            "description": "Default video URL (optional)"
+          },
+          "hoverVideo": {
+            "type": "string",
+            "maxLength": 2000,
+            "description": "Hover video URL (optional)"
+          },
+          "defaultMediaType": {
+            "type": "string",
+            "enum": [
+              "image",
+              "video"
+            ],
+            "description": "Default card media type (optional, defaults to image)"
+          },
+          "hoverMediaType": {
+            "type": "string",
+            "enum": [
+              "image",
+              "video"
+            ],
+            "description": "Hover card media type (optional, defaults to image)"
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "description": "Link URL"
+          },
+          "order": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Display order"
+          },
+          "categoryId": {
+            "type": "string",
+            "description": "Optional category reference"
+          }
+        }
+      },
+      "HomeCollectionOutput": {
+        "type": "object",
+        "description": "Home collection in API responses (title as localized object). Duplicates by url are deduplicated.",
+        "properties": {
+          "title": {
+            "$ref": "#/components/schemas/LocalizedString"
+          },
+          "image": {
+            "type": "string",
+            "description": "Default image URL"
+          },
+          "hoverImage": {
+            "type": "string",
+            "description": "Hover image URL",
+            "nullable": true
+          },
+          "video": {
+            "type": "string",
+            "description": "Default video URL",
+            "nullable": true
+          },
+          "hoverVideo": {
+            "type": "string",
+            "description": "Hover video URL",
+            "nullable": true
+          },
+          "defaultMediaType": {
+            "type": "string",
+            "enum": [
+              "image",
+              "video"
+            ],
+            "description": "Default card media type"
+          },
+          "hoverMediaType": {
+            "type": "string",
+            "enum": [
+              "image",
+              "video"
+            ],
+            "description": "Hover card media type"
+          },
+          "url": {
+            "type": "string",
+            "description": "Link URL"
+          },
+          "order": {
+            "type": "integer",
+            "description": "Display order"
+          },
+          "categoryId": {
+            "type": "string",
+            "description": "Optional category ID",
+            "nullable": true
+          }
+        }
+      },
       "ProductCategoryRef": {
         "type": "object",
         "description": "Category when populated (list/detail). Storefront uses _id only for catalog filters.",
@@ -681,7 +812,7 @@
                   "homeCollections": {
                     "type": "array",
                     "items": {
-                      "type": "object"
+                      "$ref": "#/components/schemas/HomeCollectionOutput"
                     },
                     "description": "Home page collections/categories. Duplicates by url are deduplicated (first occurrence kept)."
                   },
@@ -2198,7 +2329,7 @@
       },
       "SettingsResponse": {
         "type": "object",
-        "description": "Full settings object",
+        "description": "Full admin settings object (GET/PUT /api/settings)",
         "properties": {
           "success": {
             "type": "boolean",
@@ -2206,7 +2337,227 @@
           },
           "data": {
             "type": "object",
-            "description": "Store, hero, collections, etc."
+            "properties": {
+              "settings": {
+                "type": "object",
+                "description": "Complete settings including store, hero, collections, media, feedback, AI, etc.",
+                "properties": {
+                  "storeName": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string"
+                      },
+                      "ar": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "logo": {
+                    "type": "string",
+                    "description": "Store logo URL"
+                  },
+                  "quickLinks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "object"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "description": "Footer quick links"
+                  },
+                  "socialLinks": {
+                    "type": "object",
+                    "properties": {
+                      "facebook": {
+                        "type": "string"
+                      },
+                      "instagram": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "newsletterEnabled": {
+                    "type": "boolean"
+                  },
+                  "discountCodeSupported": {
+                    "type": "boolean",
+                    "description": "Whether discount codes are enabled at checkout"
+                  },
+                  "hero": {
+                    "type": "object",
+                    "description": "Hero section: images, videos, title, subtitle, CTA label and URL"
+                  },
+                  "heroEnabled": {
+                    "type": "boolean"
+                  },
+                  "newArrivals": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    },
+                    "description": "New arrival products (no duplicate media arrays when properly cleaned)"
+                  },
+                  "homeCollections": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/HomeCollectionOutput"
+                    },
+                    "description": "Home page collections (deduplicated by url)"
+                  },
+                  "feedbackSectionEnabled": {
+                    "type": "boolean"
+                  },
+                  "feedbackDisplayLimit": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 50
+                  },
+                  "feedbacks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    },
+                    "description": "Customer feedbacks (single message field, no duplicate comment)"
+                  },
+                  "announcementBar": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "object"
+                      },
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "backgroundColor": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "promoBanner": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "image": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "object"
+                      },
+                      "subtitle": {
+                        "type": "object"
+                      },
+                      "ctaLabel": {
+                        "type": "object"
+                      },
+                      "ctaUrl": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "featuredProductsEnabled": {
+                    "type": "boolean"
+                  },
+                  "featuredProductsLimit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 24
+                  },
+                  "contentPages": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "slug": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "object"
+                        },
+                        "content": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  },
+                  "orderNotificationsEnabled": {
+                    "type": "boolean"
+                  },
+                  "orderNotificationEmail": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "aiAssistant": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "geminiApiKey": {
+                        "type": "string"
+                      },
+                      "assistantName": {
+                        "type": "string"
+                      },
+                      "greeting": {
+                        "type": "object"
+                      },
+                      "systemPrompt": {
+                        "type": "string"
+                      },
+                      "suggestedQuestions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  },
+                  "currency": {
+                    "type": "string",
+                    "example": "EGP"
+                  },
+                  "currencySymbol": {
+                    "type": "string",
+                    "example": "LE"
+                  },
+                  "instaPayNumber": {
+                    "type": "string",
+                    "description": "InstaPay number for payments"
+                  },
+                  "paymentMethods": {
+                    "type": "object",
+                    "properties": {
+                      "cod": {
+                        "type": "boolean"
+                      },
+                      "instaPay": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "lowStockThreshold": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "stockInfoThreshold": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "googleAnalyticsId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
           }
         }
       },
@@ -7380,6 +7731,7 @@
           "Settings"
         ],
         "summary": "Update settings (Admin)",
+        "description": "Partial update of settings. All fields are optional. Includes store info, hero, collections, media, feedback settings, AI config, payment, etc. Use languageCode suffixes (En/Ar) for multilingual fields. Use singular form for objects (e.g., socialLinks) and arrays with proper item schema. Example: { storeNameEn: 'Al-noon', newsletterEnabled: true, discountCodeSupported: false }",
         "security": [
           {
             "bearerAuth": []
@@ -7389,7 +7741,155 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "description": "Partial settings update (all fields optional)",
+                "properties": {
+                  "storeNameEn": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "storeNameAr": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "logo": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "newsletterEnabled": {
+                    "type": "boolean"
+                  },
+                  "discountCodeSupported": {
+                    "type": "boolean"
+                  },
+                  "quickLinks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "labelEn": {
+                          "type": "string"
+                        },
+                        "labelAr": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "maxItems": 20
+                  },
+                  "socialLinks": {
+                    "type": "object",
+                    "properties": {
+                      "facebook": {
+                        "type": "string"
+                      },
+                      "instagram": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "hero": {
+                    "type": "object",
+                    "properties": {
+                      "images": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "maxItems": 10
+                      },
+                      "videos": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "maxItems": 5
+                      },
+                      "titleEn": {
+                        "type": "string"
+                      },
+                      "titleAr": {
+                        "type": "string"
+                      },
+                      "subtitleEn": {
+                        "type": "string"
+                      },
+                      "subtitleAr": {
+                        "type": "string"
+                      },
+                      "ctaLabelEn": {
+                        "type": "string"
+                      },
+                      "ctaLabelAr": {
+                        "type": "string"
+                      },
+                      "ctaUrl": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "heroEnabled": {
+                    "type": "boolean"
+                  },
+                  "newArrivalsLimit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 24
+                  },
+                  "homeCollections": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/HomeCollectionInput"
+                    },
+                    "maxItems": 20,
+                    "description": "Collections with deduplication by url. Required per item: titleEn, titleAr, image, url, order."
+                  },
+                  "feedbackSectionEnabled": {
+                    "type": "boolean"
+                  },
+                  "feedbackDisplayLimit": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 50
+                  },
+                  "aiAssistant": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "geminiApiKey": {
+                        "type": "string"
+                      },
+                      "greetingEn": {
+                        "type": "string"
+                      },
+                      "greetingAr": {
+                        "type": "string"
+                      },
+                      "systemPrompt": {
+                        "type": "string"
+                      },
+                      "suggestedQuestions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  },
+                  "currency": {
+                    "type": "string",
+                    "maxLength": 10
+                  },
+                  "currencySymbol": {
+                    "type": "string",
+                    "maxLength": 10
+                  }
+                }
               }
             }
           }
@@ -7401,6 +7901,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SettingsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
                 }
               }
             }
@@ -7846,7 +8356,7 @@
         "tags": [
           "Settings"
         ],
-        "summary": "Upload promo image (Admin)",
+        "summary": "Upload promo image (Admin) [Deprecated: use /upload-media?type=promo]",
         "security": [
           {
             "bearerAuth": []
@@ -7874,6 +8384,96 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SingleUrlResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/settings/upload-media": {
+      "post": {
+        "operationId": "uploadHomePageMedia",
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Upload home page media (image or video) with auto-detection (Admin)",
+        "description": "Unified endpoint for uploading hero, section, collection, and promo images/videos. Automatically detects file type and sets appropriate path. Use 'type' query parameter: 'hero' | 'section' | 'collection' | 'promo' (default: 'section'). Returns { image: 'path' } for images or { video: 'path' } for videos.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hero",
+                "section",
+                "collection",
+                "promo"
+              ],
+              "default": "section"
+            },
+            "description": "Media type/section context"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Image or video file"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Image or video URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleUrlResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No file uploaded or invalid file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
                 }
               }
             }
