@@ -1,8 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, of } from 'rxjs';
-import type { ApiError, AuthUser, AuthTokens, SchemaAuthResponse, SchemaProfileResponse, SchemaSignOutResponse } from '../types/api.types';
+import { Observable, tap, catchError, of, switchMap, map } from 'rxjs';
+import type { ApiError, AuthUser, AuthTokens, SchemaAuthResponse, SchemaProfileResponse, SchemaStorefrontProfileResponse, SchemaSignOutResponse, SchemaForgotPasswordSentResponse, SchemaResetPasswordResponse } from '../types/api.types';
 
 const SESSION_HINT_KEY = 'al_noon_auth_session';
 
@@ -116,6 +116,46 @@ export class AuthService {
     );
   }
 
+  /**
+   * GET /api/store/profile – current customer profile (storefront).
+   * Use this on the account page so the storefront gets customer-only data.
+   * Updates the current user signal from the response.
+   */
+  getStoreProfile(): Observable<AuthUser | null> {
+    return this.http.get<SchemaStorefrontProfileResponse>('store/profile').pipe(
+      tap((r) => {
+        if (r.success && r.data?.user) {
+          const u = r.data.user;
+          this.userSignal.set({
+            id: u.id ?? '',
+            name: u.name ?? '',
+            email: u.email ?? '',
+            role: 'customer',
+          });
+          setSessionHint();
+        } else {
+          this.userSignal.set(null);
+          clearSessionHint();
+        }
+      }),
+      map((r) =>
+        r?.success && r?.data?.user
+          ? {
+              id: r.data!.user!.id ?? '',
+              name: r.data!.user!.name ?? '',
+              email: r.data!.user!.email ?? '',
+              role: 'customer',
+            }
+          : null
+      ),
+      catchError((_err) => {
+        this.userSignal.set(null);
+        clearSessionHint();
+        return of(null);
+      })
+    );
+  }
+
   signOut(): Observable<void> {
     return this.http.post<SchemaSignOutResponse>('auth/sign-out', {}).pipe(
       tap(() => {
@@ -132,6 +172,44 @@ export class AuthService {
             complete: () => sub.complete(),
           });
         })
+    );
+  }
+
+  /** POST /api/auth/forgot-password – request password reset email (storefront). Always returns success for security. */
+  forgotPassword(email: string): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<SchemaForgotPasswordSentResponse>('auth/forgot-password', { email: email.trim() }).pipe(
+      (o) =>
+        new Observable<{ success: boolean; message?: string }>((sub) => {
+          o.subscribe({
+            next: (r) => sub.next({ success: !!r.success, message: r.message ?? undefined }),
+            error: (e) => sub.error(e),
+            complete: () => sub.complete(),
+          });
+        })
+    );
+  }
+
+  /** POST /api/auth/reset-password – set new password with token from email. When the API returns a token (and optionally user), sets session and loads user for auto-login. */
+  resetPassword(body: { token: string; password: string; confirmPassword: string }): Observable<{ success: boolean; message?: string }> {
+    type ResetRes = SchemaResetPasswordResponse & { token?: string; user?: AuthUser; data?: { reset?: boolean; token?: string; user?: AuthUser } };
+    return this.http.post<ResetRes>('auth/reset-password', body).pipe(
+      switchMap((r) => {
+        const success = !!r.success;
+        const message = r.message ?? undefined;
+        if (success) {
+          setSessionHint();
+          const user = r.user ?? r.data?.user;
+          if (user) {
+            this.userSignal.set(user as AuthUser);
+            return of({ success: true, message });
+          }
+          return this.loadProfile().pipe(
+            map(() => ({ success: true, message })),
+            catchError(() => of({ success: true, message }))
+          );
+        }
+        return of({ success: false, message });
+      })
     );
   }
 

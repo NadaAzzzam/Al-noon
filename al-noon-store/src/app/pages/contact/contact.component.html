@@ -1,46 +1,48 @@
-<div class="container contact-page">
-  <h1 class="page-title">{{ 'contact.title' | translate }}</h1>
-  <form (ngSubmit)="submit($event)" class="contact-form" action="javascript:void(0)">
-    @if (message() === 'success') {
-    <p class="success-msg">{{ 'contact.success' | translate }}</p>
-    }
-    @if (message() === 'error') {
-    <p class="error-msg">{{ 'contact.error' | translate }}</p>
-    }
-    <div class="form-group">
-      <label>{{ 'contact.name' | translate }} *</label>
-      <input type="text" [value]="name()" (input)="name.set($any($event.target).value)" [class.has-error]="submitted() && nameError()" />
-      @if (submitted() && nameError()) {
-      <span class="field-error">{{ nameError() }}</span>
+<section class="section">
+  <div class="container contact-page">
+    <h1 class="page-title">{{ 'contact.title' | translate }}</h1>
+    <form (ngSubmit)="submit($event)" class="contact-form" action="javascript:void(0)">
+      @if (message() === 'success') {
+      <p class="success-msg">{{ 'contact.success' | translate }}</p>
       }
-    </div>
-    <div class="form-group">
-      <label>{{ 'auth.email' | translate }} *</label>
-      <input type="email" [value]="email()" (input)="email.set($any($event.target).value)" [class.has-error]="submitted() && emailError()" />
-      @if (submitted() && emailError()) {
-      <span class="field-error">{{ emailError() }}</span>
+      @if (message() === 'error') {
+      <p class="error-msg">{{ 'contact.error' | translate }}</p>
       }
-    </div>
-    <div class="form-group">
-      <label>{{ 'contact.phone' | translate }}</label>
-      <input type="tel" [value]="phone()" (input)="phone.set($any($event.target).value)" [class.has-error]="submitted() && phoneErrorMsg()" />
-      @if (submitted() && phoneErrorMsg()) {
-      <span class="field-error">{{ phoneErrorMsg() }}</span>
-      }
-    </div>
-    <div class="form-group">
-      <label>{{ 'contact.message' | translate }} *</label>
-      <textarea [value]="comment()" (input)="comment.set($any($event.target).value)" rows="5" [class.has-error]="submitted() && commentError()"></textarea>
-      @if (submitted() && commentError()) {
-      <span class="field-error">{{ commentError() }}</span>
-      }
-    </div>
-    <button type="submit" class="btn" [disabled]="submitDisabled()">
-      @if (submitting()) {
-      {{ 'contact.sending' | translate }}
-      } @else {
-      {{ 'contact.send' | translate }}
-      }
-    </button>
-  </form>
-</div>
+      <div class="form-group">
+        <label>{{ 'contact.name' | translate }} *</label>
+        <input type="text" [value]="name()" (input)="name.set($any($event.target).value)" [class.has-error]="submitted() && nameError()" />
+        @if (submitted() && nameError()) {
+        <span class="field-error">{{ nameError() }}</span>
+        }
+      </div>
+      <div class="form-group">
+        <label>{{ 'auth.email' | translate }} *</label>
+        <input type="email" [value]="email()" (input)="email.set($any($event.target).value)" [class.has-error]="submitted() && emailError()" />
+        @if (submitted() && emailError()) {
+        <span class="field-error">{{ emailError() }}</span>
+        }
+      </div>
+      <div class="form-group">
+        <label>{{ 'contact.phone' | translate }}</label>
+        <input type="tel" [value]="phone()" (input)="phone.set($any($event.target).value)" [class.has-error]="submitted() && phoneErrorMsg()" />
+        @if (submitted() && phoneErrorMsg()) {
+        <span class="field-error">{{ phoneErrorMsg() }}</span>
+        }
+      </div>
+      <div class="form-group">
+        <label>{{ 'contact.message' | translate }} *</label>
+        <textarea [value]="comment()" (input)="comment.set($any($event.target).value)" rows="5" [class.has-error]="submitted() && commentError()"></textarea>
+        @if (submitted() && commentError()) {
+        <span class="field-error">{{ commentError() }}</span>
+        }
+      </div>
+      <button type="submit" class="btn" [disabled]="submitDisabled()">
+        @if (submitting()) {
+        {{ 'contact.sending' | translate }}
+        } @else {
+        {{ 'contact.send' | translate }}
+        }
+      </button>
+    </form>
+  </div>
+</section>

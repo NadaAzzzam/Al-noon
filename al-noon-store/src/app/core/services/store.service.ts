@@ -11,8 +11,8 @@ import type {
   Settings,
   SettingsRaw,
   SchemaStoreHomeResponse,
+  SchemaStoreSettingsResponse,
   SchemaPageResponse,
-  SchemaSettingsResponse,
 } from '../types/api.types';
 import { normalizeProductFromApi } from '../utils/product-normalizer';
 
@@ -175,7 +175,7 @@ export class StoreService {
   /** Pending shared request so header + footer (and others) trigger only one HTTP call */
   private store$: Observable<StoreData> | null = null;
 
-  /** Settings from GET /api/settings – loaded once from app root, updated by getSettings() tap. Read everywhere via settings(). */
+  /** Settings from GET /api/store/settings – loaded once from app root. Public storefront endpoint (no auth). */
   private readonly settingsSignal = signal<Settings | null>(null);
   readonly settings = this.settingsSignal.asReadonly();
 
@@ -248,18 +248,17 @@ export class StoreService {
   }
 
   /**
-   * GET /api/settings – BE returns { success, data: { settings: SettingsRaw } }.
-   * Call once from app root (App.ngOnInit). Response is also written to settings() signal so the whole app can read it reactively.
+   * GET /api/store/settings – public storefront settings (no auth).
+   * BE returns { success, data: { settings } }. Response is written to settings() signal.
    */
   getSettings(): Observable<Settings> {
-    return this.http.get<SchemaSettingsResponse>('settings').pipe(
+    return this.http.get<SchemaStoreSettingsResponse>('store/settings').pipe(
       (o) =>
         new Observable<Settings>((sub) => {
           o.subscribe({
             next: (r) => {
-              if (!r.success || !r.data) return;
-              const raw: SettingsRaw | null = r.data && 'settings' in r.data ? (r.data as unknown as { settings: SettingsRaw }).settings : null;
-              if (!raw || typeof raw !== 'object') return;
+              if (!r.success || !r.data?.settings) return;
+              const raw = r.data.settings as unknown as SettingsRaw;
               const mapped: Settings = {
                 storeName: raw.storeName,
                 logo: raw.logo,
@@ -268,10 +267,13 @@ export class StoreService {
                 showSocialLinks: raw.showSocialLinks,
                 newsletterEnabled: raw.newsletterEnabled,
                 contentPages: raw.contentPages,
-                stockDisplay: {
-                  lowStockThreshold: raw.lowStockThreshold,
-                  stockInfoThreshold: raw.stockInfoThreshold,
-                },
+                stockDisplay:
+                  raw.lowStockThreshold != null || raw.stockInfoThreshold != null
+                    ? {
+                        lowStockThreshold: raw.lowStockThreshold,
+                        stockInfoThreshold: raw.stockInfoThreshold,
+                      }
+                    : undefined,
                 currency: raw.currency,
                 currencySymbol: raw.currencySymbol,
                 seoSettings: raw.seoSettings,

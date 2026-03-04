@@ -18,6 +18,9 @@
         <span class="field-error">{{ passwordError() }}</span>
       }
     </div>
+    <p class="auth-forgot">
+      <a [routerLink]="pathService.path('account', 'forgot-password')">{{ 'auth.forgotPassword' | translate }}</a>
+    </p>
     <button type="submit" class="btn btn-block">
       {{ 'auth.submitLogin' | translate }}
     </button>

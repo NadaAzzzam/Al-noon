@@ -1,0 +1,29 @@
+<div class="container account-page">
+  <h1 class="page-title">{{ 'account.title' | translate }}</h1>
+
+  @if (loading()) {
+    <p class="account-loading">{{ 'orders.loading' | translate }}</p>
+  } @else if (user(); as u) {
+    <p class="account-greeting">{{ 'account.greeting' | translate: { name: u.name || u.email } }}</p>
+
+    <nav class="account-nav" aria-label="{{ 'account.menu' | translate }}">
+      <a [routerLink]="pathService.path('account', 'orders')" class="account-card">
+        <span class="account-card-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
+          </svg>
+        </span>
+        <span class="account-card-label">{{ 'nav.myOrders' | translate }}</span>
+        <span class="account-card-arrow" aria-hidden="true">→</span>
+      </a>
+    </nav>
+
+    <div class="account-actions">
+      <button type="button" class="btn btn-outline" (click)="signOut()">
+        {{ 'nav.logOut' | translate }}
+      </button>
+    </div>
+  }
+</div>

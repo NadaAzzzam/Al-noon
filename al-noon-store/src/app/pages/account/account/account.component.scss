@@ -1,0 +1,78 @@
+.account-page {
+  padding: 32px 0 48px;
+  max-width: 520px;
+}
+
+.page-title {
+  margin-bottom: 8px;
+}
+
+.account-loading {
+  color: var(--color-text-muted);
+}
+
+.account-greeting {
+  margin: 0 0 28px;
+  font-size: 16px;
+  color: var(--color-text-muted);
+}
+
+.account-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.account-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-accent);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+.account-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--color-bg-muted, rgba(0, 0, 0, 0.04));
+  color: var(--color-accent);
+}
+
+.account-card-label {
+  flex: 1;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.account-card-arrow {
+  font-size: 18px;
+  color: var(--color-text-muted);
+}
+
+.account-actions {
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.account-actions .btn {
+  min-width: 140px;
+}

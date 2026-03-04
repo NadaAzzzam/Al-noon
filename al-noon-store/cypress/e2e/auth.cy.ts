@@ -74,4 +74,83 @@ describe('Authentication', () => {
       cy.get('form').should('exist');
     });
   });
+
+  describe('Forgot password', () => {
+    beforeEach(() => {
+      cy.visit('/en/account/forgot-password');
+    });
+
+    it('should display forgot-password form and email input', () => {
+      cy.get('.auth-form').should('exist');
+      cy.get('.auth-form input[type="email"]').should('exist');
+      cy.get('h1').should('contain.text', 'Forgot'); // or translate key
+    });
+
+    it('should show success message when request succeeds', () => {
+      cy.intercept('POST', '**/auth/forgot-password', {
+        statusCode: 200,
+        body: { success: true, message: 'If an account exists, you will receive an email.' },
+      }).as('forgotPassword');
+      cy.get('.auth-form input[type="email"]').type('user@example.com');
+      cy.get('.auth-form button[type="submit"]').click();
+      cy.wait('@forgotPassword');
+      cy.get('.success-msg').should('exist');
+    });
+
+    it('should show error when request fails', () => {
+      cy.intercept('POST', '**/auth/forgot-password', {
+        statusCode: 500,
+        body: { message: 'Server error' },
+      }).as('forgotPasswordFail');
+      cy.get('.auth-form input[type="email"]').type('user@example.com');
+      cy.get('.auth-form button[type="submit"]').click();
+      cy.wait('@forgotPasswordFail');
+      cy.get('.error-msg').should('exist');
+    });
+
+    it('should have link back to login', () => {
+      cy.get('.auth-footer a[href*="login"]').should('exist');
+    });
+  });
+
+  describe('Reset password', () => {
+    it('should show invalid token message when no token in URL', () => {
+      cy.visit('/en/account/reset-password');
+      cy.get('.error-msg').should('exist');
+      cy.get('.auth-footer a[href*="forgot-password"]').should('exist');
+    });
+
+    it('should display reset form when token is present', () => {
+      cy.visit('/en/account/reset-password?token=valid-reset-token');
+      cy.get('.auth-form').should('exist');
+      cy.get('.auth-form input[type="password"]').should('have.length', 2);
+    });
+
+    it('should show success after reset and have back to login link', () => {
+      cy.intercept('POST', '**/auth/reset-password', {
+        statusCode: 200,
+        body: { success: true, message: 'Password updated.' },
+      }).as('resetPassword');
+      cy.visit('/en/account/reset-password?token=valid-token');
+      cy.get('.auth-form input[type="password"]').first().type('newpass123');
+      cy.get('.auth-form input[type="password"]').last().type('newpass123');
+      cy.get('.auth-form button[type="submit"]').click();
+      cy.wait('@resetPassword');
+      cy.get('.success-msg').should('exist');
+      cy.get('.auth-footer a[href*="login"]').should('exist');
+    });
+
+    it('should show error when reset fails (e.g. invalid token)', () => {
+      cy.intercept('POST', '**/auth/reset-password', {
+        statusCode: 400,
+        body: { message: 'Invalid or expired token' },
+      }).as('resetPasswordFail');
+      cy.visit('/en/account/reset-password?token=expired-token');
+      cy.get('.auth-form input[type="password"]').first().type('newpass123');
+      cy.get('.auth-form input[type="password"]').last().type('newpass123');
+      cy.get('.auth-form button[type="submit"]').click();
+      cy.wait('@resetPasswordFail');
+      cy.get('.error-msg').should('exist');
+    });
+  });
 });

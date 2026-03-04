@@ -30,7 +30,7 @@
       </button>
 
       @if (isLoggedIn()) {
-      <a [routerLink]="pathService.path('account', 'orders')" class="icon-btn"
+      <a [routerLink]="pathService.path('account')" class="icon-btn"
         [attr.aria-label]="'nav.myOrders' | translate">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round">
@@ -150,7 +150,7 @@
 
       <!-- Log in -->
       @if (isLoggedIn()) {
-      <a [routerLink]="pathService.path('account', 'orders')" class="sidebar-login" (click)="closeSidebar()">{{
+      <a [routerLink]="pathService.path('account')" class="sidebar-login" (click)="closeSidebar()">{{
         'nav.myOrders' |
         translate }}</a>
       } @else {

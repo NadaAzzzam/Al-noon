@@ -31,7 +31,23 @@
     "haveAccount": "Already have an account?",
     "createAccount": "Sign up",
     "submitLogin": "Log in",
-    "submitRegister": "Sign up"
+    "submitRegister": "Sign up",
+    "forgotPassword": "Forgot password?",
+    "forgotPasswordTitle": "Forgot password",
+    "forgotPasswordHint": "Enter your email and we'll send you a link to reset your password.",
+    "forgotPasswordSuccess": "If an account exists for that email, we've sent a reset link. Please check your inbox.",
+    "sendResetLink": "Send reset link",
+    "sending": "Sending…",
+    "backToLogin": "Back to log in",
+    "rememberPassword": "Remember your password?",
+    "resetPassword": "Reset password",
+    "resetPasswordTitle": "Set new password",
+    "confirmPassword": "Confirm password",
+    "resetPasswordSuccess": "Your password has been reset. You can now log in.",
+    "resetting": "Resetting…",
+    "passwordMismatch": "Passwords do not match",
+    "resetPasswordInvalidToken": "This reset link is invalid or has expired.",
+    "requestNewLink": "Request a new link"
   },
   "cart": {
     "title": "Cart",
@@ -201,6 +217,11 @@
   },
   "sale": "Sale",
   "soldOut": "Sold out",
+  "account": {
+    "title": "Account",
+    "greeting": "Hello, {{name}}.",
+    "menu": "Account menu"
+  },
   "orders": {
     "myOrders": "My orders",
     "loading": "Loading...",
@@ -285,6 +306,8 @@
     "rateLimited": "Too many requests. Please wait a moment and try again.",
     "loginFailed": "Login failed",
     "registrationFailed": "Registration failed",
+    "forgotPasswordFailed": "Could not send reset email. Please try again.",
+    "resetPasswordFailed": "Could not reset password. The link may have expired.",
     "pleaseFillRequired": "Please fill in all required fields."
   }
 }

@@ -17,7 +17,7 @@
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "JWT",
-        "description": "JWT from sign-in (cookie `al_noon_token` or Authorization: Bearer <token>)"
+        "description": "JWT from sign-in. Admin routes use cookie `al_noon_admin_token` or Authorization: Bearer <token>. Storefront/customer routes use cookie `al_noon_token` or Bearer."
       }
     },
     "schemas": {
@@ -1135,7 +1135,7 @@
       },
       "ProfileResponse": {
         "type": "object",
-        "description": "Current user profile",
+        "description": "Current user profile. Admin token: includes role and permissions. Customer token: only id, name, email.",
         "properties": {
           "success": {
             "type": "boolean",
@@ -1161,7 +1161,44 @@
                     "enum": [
                       "ADMIN",
                       "USER"
-                    ]
+                    ],
+                    "description": "Present only for admin token."
+                  },
+                  "permissions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Present only for admin token."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "StorefrontProfileResponse": {
+        "type": "object",
+        "description": "Current customer profile (GET /api/store/profile). Id, name, email only.",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "user": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
                   }
                 }
               }
@@ -1183,6 +1220,75 @@
           "data": {
             "type": "object",
             "nullable": true
+          }
+        }
+      },
+      "ForgotPasswordSentResponse": {
+        "type": "object",
+        "description": "Forgot password request accepted; email sent if account exists",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "i18n key / translated message"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "sent": {
+                "type": "boolean",
+                "example": true
+              }
+            }
+          }
+        }
+      },
+      "ResetPasswordResponse": {
+        "type": "object",
+        "description": "Password reset successfully",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "i18n key / translated message"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "reset": {
+                "type": "boolean",
+                "example": true
+              }
+            }
+          }
+        }
+      },
+      "ChangePasswordResponse": {
+        "type": "object",
+        "description": "Password changed successfully",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "i18n key / translated message"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "changed": {
+                "type": "boolean",
+                "example": true
+              }
+            }
           }
         }
       },
@@ -3115,6 +3221,43 @@
         }
       }
     },
+    "/api/store/profile": {
+      "get": {
+        "operationId": "getStorefrontProfile",
+        "tags": [
+          "Store"
+        ],
+        "summary": "Current customer profile (storefront)",
+        "description": "Returns the logged-in customer (id, name, email only). Uses customer token only (al_noon_token cookie or Bearer). Use this from the storefront so both admin and customer cookies don't cause the admin profile to be returned. Returns 401 if no customer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer profile (id, name, email)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorefrontProfileResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/store/page/{slug}": {
       "get": {
         "operationId": "getPageBySlug",
@@ -3314,6 +3457,7 @@
           "Auth"
         ],
         "summary": "Sign in",
+        "description": "Sets cookie and returns token and user. Use `admin: true` for dashboard (sets `al_noon_admin_token`); omit or `admin: false` for storefront (sets `al_noon_token`).",
         "requestBody": {
           "required": true,
           "content": {
@@ -3333,6 +3477,10 @@
                     "type": "string",
                     "minLength": 6,
                     "description": "Required, min 6 characters"
+                  },
+                  "admin": {
+                    "type": "boolean",
+                    "description": "When true, sets admin cookie (dashboard); when false/omitted, sets customer cookie (storefront)"
                   }
                 }
               }
@@ -3346,6 +3494,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
                 }
               }
             }
@@ -3442,6 +3600,7 @@
           "Auth"
         ],
         "summary": "Current user profile",
+        "description": "Returns the current user. When authenticated with admin token (admin cookie or Bearer with ADMIN role), includes role and permissions. When authenticated with customer token, returns only id, name, and email.",
         "security": [
           {
             "bearerAuth": []
@@ -3478,24 +3637,260 @@
           "Auth"
         ],
         "summary": "Sign out",
+        "description": "Clears the session cookie. Send `admin: true` in body to clear admin cookie; omit or `admin: false` to clear customer cookie.",
         "security": [
           {
             "bearerAuth": []
           }
         ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "admin": {
+                    "type": "boolean",
+                    "description": "When true, clears admin cookie (dashboard); when false/omitted, clears customer cookie (storefront)"
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
-          "200": {
-            "description": "Signed out",
+          "204": {
+            "description": "Signed out; cookie cleared"
+          },
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SignOutResponse"
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/forgot-password": {
+      "post": {
+        "operationId": "forgotPassword",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Request password reset (sitefront)",
+        "description": "Sends a password reset email if the account exists. Always returns success for security (no email enumeration).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "customer@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "If account exists, reset email sent; same response either way",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgotPasswordSentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "operationId": "resetPassword",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Reset password with token (sitefront)",
+        "description": "Set new password using the token from the forgot-password email. Requires password and confirmPassword to match.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "token",
+                  "password",
+                  "confirmPassword"
+                ],
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "description": "Token from reset email link",
+                    "example": "abc123..."
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "maxLength": 128,
+                    "example": "newSecurePass1"
+                  },
+                  "confirmPassword": {
+                    "type": "string",
+                    "description": "Must match password",
+                    "example": "newSecurePass1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetPasswordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid/expired token or passwords do not match",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/change-password": {
+      "post": {
+        "operationId": "changePassword",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Change password (logged-in customer)",
+        "description": "Change password when user is logged in. Requires current password and new password + confirm. Uses customer token (al_noon_token or Bearer).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "currentPassword",
+                  "newPassword",
+                  "confirmPassword"
+                ],
+                "properties": {
+                  "currentPassword": {
+                    "type": "string",
+                    "example": "oldPassword"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "minLength": 6,
+                    "maxLength": 128,
+                    "example": "newSecurePass1"
+                  },
+                  "confirmPassword": {
+                    "type": "string",
+                    "description": "Must match newPassword",
+                    "example": "newSecurePass1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password changed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangePasswordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Passwords do not match or validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
                 }
               }
             }
           },
           "401": {
-            "description": "Unauthorized",
+            "description": "Unauthorized or current password incorrect",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
             "content": {
               "application/json": {
                 "schema": {
@@ -6197,6 +6592,121 @@
         }
       }
     },
+    "/api/customers/{id}/password": {
+      "put": {
+        "operationId": "updateCustomerPassword",
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Set customer password (Admin)",
+        "description": "Admin sets a new password for a customer (role USER). Requires newPassword and confirmPassword to match.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Customer ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "newPassword",
+                  "confirmPassword"
+                ],
+                "properties": {
+                  "newPassword": {
+                    "type": "string",
+                    "minLength": 6,
+                    "maxLength": 128,
+                    "example": "newSecurePass1"
+                  },
+                  "confirmPassword": {
+                    "type": "string",
+                    "description": "Must match newPassword",
+                    "example": "newSecurePass1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangePasswordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Passwords do not match or validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Customer not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/roles": {
       "get": {
         "operationId": "listRoles",
@@ -7956,7 +8466,7 @@
           "Settings"
         ],
         "summary": "Update settings (Admin)",
-        "description": "Partial update of settings. All fields are optional. Includes store info, hero, collections, media, feedback settings, AI config, payment, etc. Use languageCode suffixes (En/Ar) for multilingual fields. Use singular form for objects (e.g., socialLinks) and arrays with proper item schema. Example: { storeNameEn: 'Al-noon', newsletterEnabled: true, discountCodeSupported: false }",
+        "description": "Partial update of settings. All fields are optional. Validation: storeNameEn/Ar max 200; logo, instaPayNumber max 50/2000; lowStockThreshold, stockInfoThreshold 0–100000; quickLinks items require labelEn, labelAr, url (min 1 char), max 20 items; orderNotificationEmail must be valid email or empty string to clear; currency/currencySymbol max 10; message fields max 500; homeCollections per HomeCollectionInput. Returns 400 with code errors.common.validation_error and details (e.g. body.orderNotificationEmail: Invalid email).",
         "security": [
           {
             "bearerAuth": []
@@ -7967,19 +8477,90 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "description": "Partial settings update (all fields optional)",
+                "description": "Partial settings update (all fields optional). When provided, values are validated per rules above.",
                 "properties": {
                   "storeNameEn": {
                     "type": "string",
-                    "maxLength": 200
+                    "maxLength": 200,
+                    "description": "Store name (English)"
                   },
                   "storeNameAr": {
                     "type": "string",
-                    "maxLength": 200
+                    "maxLength": 200,
+                    "description": "Store name (Arabic)"
                   },
                   "logo": {
                     "type": "string",
                     "maxLength": 2000
+                  },
+                  "instaPayNumber": {
+                    "type": "string",
+                    "maxLength": 50
+                  },
+                  "paymentMethods": {
+                    "type": "object",
+                    "properties": {
+                      "cod": {
+                        "type": "boolean"
+                      },
+                      "instaPay": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "lowStockThreshold": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100000
+                  },
+                  "stockInfoThreshold": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100000
+                  },
+                  "googleAnalyticsId": {
+                    "type": "string",
+                    "maxLength": 50
+                  },
+                  "quickLinks": {
+                    "type": "array",
+                    "maxItems": 20,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "labelEn",
+                        "labelAr",
+                        "url"
+                      ],
+                      "properties": {
+                        "labelEn": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "labelAr": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "url": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000
+                        }
+                      }
+                    }
+                  },
+                  "socialLinks": {
+                    "type": "object",
+                    "properties": {
+                      "facebook": {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      "instagram": {
+                        "type": "string",
+                        "maxLength": 500
+                      }
+                    }
                   },
                   "newsletterEnabled": {
                     "type": "boolean"
@@ -7987,77 +8568,117 @@
                   "discountCodeSupported": {
                     "type": "boolean"
                   },
-                  "quickLinks": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "labelEn": {
-                          "type": "string"
-                        },
-                        "labelAr": {
-                          "type": "string"
-                        },
-                        "url": {
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "maxItems": 20
-                  },
-                  "socialLinks": {
-                    "type": "object",
-                    "properties": {
-                      "facebook": {
-                        "type": "string"
-                      },
-                      "instagram": {
-                        "type": "string"
-                      }
-                    }
-                  },
                   "hero": {
                     "type": "object",
                     "properties": {
                       "images": {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "type": "string",
+                          "maxLength": 2000
                         },
                         "maxItems": 10
                       },
                       "videos": {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "type": "string",
+                          "maxLength": 2000
                         },
                         "maxItems": 5
                       },
                       "titleEn": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 200
                       },
                       "titleAr": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 200
                       },
                       "subtitleEn": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 300
                       },
                       "subtitleAr": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 300
                       },
                       "ctaLabelEn": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 50
                       },
                       "ctaLabelAr": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 50
                       },
                       "ctaUrl": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 2000
                       }
                     }
                   },
                   "heroEnabled": {
                     "type": "boolean"
+                  },
+                  "announcementBar": {
+                    "type": "object",
+                    "properties": {
+                      "textEn": {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      "textAr": {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "backgroundColor": {
+                        "type": "string",
+                        "maxLength": 500
+                      }
+                    }
+                  },
+                  "promoBanner": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "image": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      "titleEn": {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      "titleAr": {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      "subtitleEn": {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      "subtitleAr": {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      "ctaLabelEn": {
+                        "type": "string",
+                        "maxLength": 50
+                      },
+                      "ctaLabelAr": {
+                        "type": "string",
+                        "maxLength": 50
+                      },
+                      "ctaUrl": {
+                        "type": "string",
+                        "maxLength": 2000
+                      }
+                    }
                   },
                   "newArrivalsLimit": {
                     "type": "integer",
@@ -8070,7 +8691,15 @@
                       "$ref": "#/components/schemas/HomeCollectionInput"
                     },
                     "maxItems": 20,
-                    "description": "Collections with deduplication by url. Required per item: titleEn, titleAr, image, url, order."
+                    "description": "Required per item: titleEn, titleAr, image, url, order."
+                  },
+                  "featuredProductsEnabled": {
+                    "type": "boolean"
+                  },
+                  "featuredProductsLimit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 24
                   },
                   "feedbackSectionEnabled": {
                     "type": "boolean"
@@ -8080,6 +8709,61 @@
                     "minimum": 0,
                     "maximum": 50
                   },
+                  "contentPages": {
+                    "type": "array",
+                    "maxItems": 50,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "slug",
+                        "titleEn",
+                        "titleAr",
+                        "contentEn",
+                        "contentAr"
+                      ],
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100,
+                          "enum": [
+                            "privacy",
+                            "return-policy",
+                            "shipping-policy",
+                            "about",
+                            "contact"
+                          ]
+                        },
+                        "titleEn": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "titleAr": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "contentEn": {
+                          "type": "string",
+                          "maxLength": 100000
+                        },
+                        "contentAr": {
+                          "type": "string",
+                          "maxLength": 100000
+                        }
+                      }
+                    }
+                  },
+                  "orderNotificationsEnabled": {
+                    "type": "boolean"
+                  },
+                  "orderNotificationEmail": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 254,
+                    "description": "Valid email when provided. Empty string allowed to clear."
+                  },
                   "aiAssistant": {
                     "type": "object",
                     "properties": {
@@ -8087,21 +8771,40 @@
                         "type": "boolean"
                       },
                       "geminiApiKey": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      "assistantName": {
+                        "type": "string",
+                        "maxLength": 100
                       },
                       "greetingEn": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 500
                       },
                       "greetingAr": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 500
                       },
                       "systemPrompt": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 10000
                       },
                       "suggestedQuestions": {
                         "type": "array",
+                        "maxItems": 10,
                         "items": {
-                          "type": "object"
+                          "type": "object",
+                          "properties": {
+                            "en": {
+                              "type": "string",
+                              "maxLength": 200
+                            },
+                            "ar": {
+                              "type": "string",
+                              "maxLength": 200
+                            }
+                          }
                         }
                       }
                     }
@@ -8115,32 +8818,26 @@
                     "maxLength": 10
                   },
                   "comingSoonMode": {
-                    "type": "boolean",
-                    "description": "When true, storefront shows coming-soon page"
+                    "type": "boolean"
                   },
                   "comingSoonMessageEn": {
                     "type": "string",
-                    "maxLength": 500,
-                    "description": "Coming-soon message (EN)"
+                    "maxLength": 500
                   },
                   "comingSoonMessageAr": {
                     "type": "string",
-                    "maxLength": 500,
-                    "description": "Coming-soon message (AR)"
+                    "maxLength": 500
                   },
                   "underConstructionMode": {
-                    "type": "boolean",
-                    "description": "When true, storefront shows under-construction page"
+                    "type": "boolean"
                   },
                   "underConstructionMessageEn": {
                     "type": "string",
-                    "maxLength": 500,
-                    "description": "Under-construction message (EN)"
+                    "maxLength": 500
                   },
                   "underConstructionMessageAr": {
                     "type": "string",
-                    "maxLength": 500,
-                    "description": "Under-construction message (AR)"
+                    "maxLength": 500
                   }
                 }
               }
@@ -8159,11 +8856,18 @@
             }
           },
           "400": {
-            "description": "Validation error",
+            "description": "Validation error (invalid field types, lengths, or format). Response includes details with field path and message (e.g. body.orderNotificationEmail: Invalid email).",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "success": false,
+                  "message": "Validation error",
+                  "code": "errors.common.validation_error",
+                  "data": null,
+                  "details": "body.orderNotificationEmail: Invalid email"
                 }
               }
             }

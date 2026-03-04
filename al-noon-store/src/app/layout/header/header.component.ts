@@ -121,7 +121,10 @@ export class HeaderComponent implements OnInit {
   }
 
   signOut(): void {
-    this.auth.signOut().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => { });
+    this.auth.signOut().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.closeSidebar();
+      this.router.navigate(this.pathService.path());
+    });
   }
 
   submitSearch(): void {

@@ -64,7 +64,7 @@ describe('StoreService', () => {
       expect(s.storeName).toEqual({ en: 'Store', ar: 'متجر' });
     });
 
-    const req = httpMock.expectOne((r) => r.url.includes('settings'));
+    const req = httpMock.expectOne((r) => r.url.includes('store/settings'));
     expect(req.request.method).toBe('GET');
     req.flush(mockData);
   });
@@ -129,7 +129,7 @@ describe('StoreService', () => {
     service.getSettings().subscribe((s) => {
       expect(s.storeName).toEqual({ en: 'My Store', ar: 'متجري' });
     });
-    httpMock.expectOne((r) => r.url.includes('settings')).flush(mockData);
+    httpMock.expectOne((r) => r.url.includes('store/settings')).flush(mockData);
     expect(service.settings()?.storeName).toEqual({ en: 'My Store', ar: 'متجري' });
   });
 

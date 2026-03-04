@@ -92,4 +92,57 @@ describe('AuthService', () => {
     });
     expect(service.user()).toBeNull();
   });
+
+  it('should return success from forgotPassword when API succeeds', () => {
+    httpMock.post.mockReturnValue(of({ success: true, message: 'Email sent' }));
+    service.forgotPassword('user@example.com').subscribe((r) => {
+      expect(r.success).toBe(true);
+      expect(r.message).toBe('Email sent');
+    });
+    expect(httpMock.post).toHaveBeenCalledWith('auth/forgot-password', { email: 'user@example.com' });
+  });
+
+  it('should trim email when calling forgotPassword', () => {
+    httpMock.post.mockReturnValue(of({ success: true }));
+    service.forgotPassword('  user@example.com  ').subscribe();
+    expect(httpMock.post).toHaveBeenCalledWith('auth/forgot-password', { email: 'user@example.com' });
+  });
+
+  it('should propagate error when forgotPassword API fails', () => {
+    httpMock.post.mockReturnValue(throwError(() => ({ message: 'Network error' })));
+    service.forgotPassword('user@example.com').subscribe({
+      error: (err) => expect(err.message).toBe('Network error'),
+    });
+  });
+
+  it('should return success from resetPassword and set user when API returns user', () => {
+    const user = { id: '1', email: 'u@t.com', name: 'User' };
+    httpMock.post.mockReturnValue(of({ success: true, user }));
+    service.resetPassword({
+      token: 'tk',
+      password: 'newpass123',
+      confirmPassword: 'newpass123',
+    }).subscribe((r) => {
+      expect(r.success).toBe(true);
+    });
+    expect(service.user()).toEqual(user);
+    expect(httpMock.post).toHaveBeenCalledWith('auth/reset-password', {
+      token: 'tk',
+      password: 'newpass123',
+      confirmPassword: 'newpass123',
+    });
+  });
+
+  it('should return success from resetPassword without setting user when API does not return user', () => {
+    httpMock.post.mockReturnValue(of({ success: true }));
+    httpMock.get.mockReturnValue(of({ success: true, data: { user: null } }));
+    service.resetPassword({
+      token: 'tk',
+      password: 'newpass123',
+      confirmPassword: 'newpass123',
+    }).subscribe((r) => {
+      expect(r.success).toBe(true);
+    });
+    expect(service.user()).toBeNull();
+  });
 });

@@ -1,12 +1,14 @@
-<div class="container page-content">
-  @if (notFound()) {
-    <p class="not-found">{{ 'page.notFound' | translate }}</p>
-  } @else if (loading()) {
-    <p class="page-loading">{{ 'catalog.loading' | translate }}</p>
-  } @else if (page(); as p) {
-    <article>
-      <h1 class="page-title">{{ p.title | localized:locale.lang() }}</h1>
-      <div class="page-body" [innerHTML]="(p.content | localized:locale.lang()) ?? ''"></div>
-    </article>
-  }
-</div>
+<section class="section">
+  <div class="container page-content">
+    @if (notFound()) {
+      <p class="not-found">{{ 'page.notFound' | translate }}</p>
+    } @else if (loading()) {
+      <p class="page-loading">{{ 'catalog.loading' | translate }}</p>
+    } @else if (page(); as p) {
+      <article>
+        <h1 class="page-title">{{ p.title | localized:locale.lang() }}</h1>
+        <div class="page-body" [innerHTML]="(p.content | localized:locale.lang()) ?? ''"></div>
+      </article>
+    }
+  </div>
+</section>

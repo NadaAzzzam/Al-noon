@@ -55,6 +55,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/store/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Current customer profile (storefront)
+         * @description Returns the logged-in customer (id, name, email only). Uses customer token only (al_noon_token cookie or Bearer). Use this from the storefront so both admin and customer cookies don't cause the admin profile to be returned. Returns 401 if no customer token.
+         */
+        get: operations["getStorefrontProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/store/page/{slug}": {
         parameters: {
             query?: never;
@@ -115,7 +135,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Sign in */
+        /**
+         * Sign in
+         * @description Sets cookie and returns token and user. Use `admin: true` for dashboard (sets `al_noon_admin_token`); omit or `admin: false` for storefront (sets `al_noon_token`).
+         */
         post: operations["signIn"];
         delete?: never;
         options?: never;
@@ -147,7 +170,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Current user profile */
+        /**
+         * Current user profile
+         * @description Returns the current user. When authenticated with admin token (admin cookie or Bearer with ADMIN role), includes role and permissions. When authenticated with customer token, returns only id, name, and email.
+         */
         get: operations["getProfile"];
         put?: never;
         post?: never;
@@ -166,8 +192,71 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Sign out */
+        /**
+         * Sign out
+         * @description Clears the session cookie. Send `admin: true` in body to clear admin cookie; omit or `admin: false` to clear customer cookie.
+         */
         post: operations["signOut"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/forgot-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request password reset (sitefront)
+         * @description Sends a password reset email if the account exists. Always returns success for security (no email enumeration).
+         */
+        post: operations["forgotPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset password with token (sitefront)
+         * @description Set new password using the token from the forgot-password email. Requires password and confirmPassword to match.
+         */
+        post: operations["resetPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/change-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change password (logged-in customer)
+         * @description Change password when user is logged in. Requires current password and new password + confirm. Uses customer token (al_noon_token or Bearer).
+         */
+        post: operations["changePassword"];
         delete?: never;
         options?: never;
         head?: never;
@@ -644,6 +733,26 @@ export interface paths {
         patch: operations["updateUserRole"];
         trace?: never;
     };
+    "/api/customers/{id}/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set customer password (Admin)
+         * @description Admin sets a new password for a customer (role USER). Requires newPassword and confirmPassword to match.
+         */
+        put: operations["updateCustomerPassword"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/roles": {
         parameters: {
             query?: never;
@@ -902,7 +1011,7 @@ export interface paths {
         get: operations["getSettings"];
         /**
          * Update settings (Admin)
-         * @description Partial update of settings. All fields are optional. Includes store info, hero, collections, media, feedback settings, AI config, payment, etc. Use languageCode suffixes (En/Ar) for multilingual fields. Use singular form for objects (e.g., socialLinks) and arrays with proper item schema. Example: { storeNameEn: 'Al-noon', newsletterEnabled: true, discountCodeSupported: false }
+         * @description Partial update of settings. All fields are optional. Validation: storeNameEn/Ar max 200; logo, instaPayNumber max 50/2000; lowStockThreshold, stockInfoThreshold 0–100000; quickLinks items require labelEn, labelAr, url (min 1 char), max 20 items; orderNotificationEmail must be valid email or empty string to clear; currency/currencySymbol max 10; message fields max 500; homeCollections per HomeCollectionInput. Returns 400 with code errors.common.validation_error and details (e.g. body.orderNotificationEmail: Invalid email).
          */
         put: operations["updateSettings"];
         post?: never;
@@ -1572,7 +1681,7 @@ export interface components {
                 };
             };
         };
-        /** @description Current user profile */
+        /** @description Current user profile. Admin token: includes role and permissions. Customer token: only id, name, email. */
         ProfileResponse: {
             /** @example true */
             success?: boolean;
@@ -1581,8 +1690,25 @@ export interface components {
                     id?: string;
                     name?: string;
                     email?: string;
-                    /** @enum {string} */
+                    /**
+                     * @description Present only for admin token.
+                     * @enum {string}
+                     */
                     role?: "ADMIN" | "USER";
+                    /** @description Present only for admin token. */
+                    permissions?: string[];
+                };
+            };
+        };
+        /** @description Current customer profile (GET /api/store/profile). Id, name, email only. */
+        StorefrontProfileResponse: {
+            /** @example true */
+            success?: boolean;
+            data?: {
+                user?: {
+                    id?: string;
+                    name?: string;
+                    email?: string;
                 };
             };
         };
@@ -1592,6 +1718,39 @@ export interface components {
             success?: boolean;
             message?: string;
             data?: Record<string, never> | null;
+        };
+        /** @description Forgot password request accepted; email sent if account exists */
+        ForgotPasswordSentResponse: {
+            /** @example true */
+            success?: boolean;
+            /** @description i18n key / translated message */
+            message?: string;
+            data?: {
+                /** @example true */
+                sent?: boolean;
+            };
+        };
+        /** @description Password reset successfully */
+        ResetPasswordResponse: {
+            /** @example true */
+            success?: boolean;
+            /** @description i18n key / translated message */
+            message?: string;
+            data?: {
+                /** @example true */
+                reset?: boolean;
+            };
+        };
+        /** @description Password changed successfully */
+        ChangePasswordResponse: {
+            /** @example true */
+            success?: boolean;
+            /** @description i18n key / translated message */
+            message?: string;
+            data?: {
+                /** @example true */
+                changed?: boolean;
+            };
         };
         /** @description Paginated subscribers list */
         PaginatedSubscribersResponse: {
@@ -2532,6 +2691,35 @@ export interface operations {
             };
         };
     };
+    getStorefrontProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Customer profile (id, name, email) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StorefrontProfileResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
     getPageBySlug: {
         parameters: {
             query?: never;
@@ -2685,6 +2873,8 @@ export interface operations {
                     email: string;
                     /** @description Required, min 6 characters */
                     password: string;
+                    /** @description When true, sets admin cookie (dashboard); when false/omitted, sets customer cookie (storefront) */
+                    admin?: boolean;
                 };
             };
         };
@@ -2696,6 +2886,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuthResponse"];
+                };
+            };
+            /** @description Validation error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
                 };
             };
             /** @description Invalid credentials */
@@ -2792,19 +2991,188 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": {
+                    /** @description When true, clears admin cookie (dashboard); when false/omitted, clears customer cookie (storefront) */
+                    admin?: boolean;
+                };
+            };
+        };
         responses: {
-            /** @description Signed out */
+            /** @description Signed out; cookie cleared */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    forgotPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * Format: email
+                     * @example customer@example.com
+                     */
+                    email: string;
+                };
+            };
+        };
+        responses: {
+            /** @description If account exists, reset email sent; same response either way */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SignOutResponse"];
+                    "application/json": components["schemas"]["ForgotPasswordSentResponse"];
                 };
             };
-            /** @description Unauthorized */
+            /** @description Validation error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Database not available */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    resetPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description Token from reset email link
+                     * @example abc123...
+                     */
+                    token: string;
+                    /** @example newSecurePass1 */
+                    password: string;
+                    /**
+                     * @description Must match password
+                     * @example newSecurePass1
+                     */
+                    confirmPassword: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Password reset successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResetPasswordResponse"];
+                };
+            };
+            /** @description Invalid/expired token or passwords do not match */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Database not available */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    changePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @example oldPassword */
+                    currentPassword: string;
+                    /** @example newSecurePass1 */
+                    newPassword: string;
+                    /**
+                     * @description Must match newPassword
+                     * @example newSecurePass1
+                     */
+                    confirmPassword: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Password changed successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChangePasswordResponse"];
+                };
+            };
+            /** @description Passwords do not match or validation error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Unauthorized or current password incorrect */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Database not available */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4469,6 +4837,86 @@ export interface operations {
             };
         };
     };
+    updateCustomerPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Customer ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @example newSecurePass1 */
+                    newPassword: string;
+                    /**
+                     * @description Must match newPassword
+                     * @example newSecurePass1
+                     */
+                    confirmPassword: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Password updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChangePasswordResponse"];
+                };
+            };
+            /** @description Passwords do not match or validation error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Customer not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Database not available */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
     listRoles: {
         parameters: {
             query?: never;
@@ -5670,20 +6118,30 @@ export interface operations {
         requestBody?: {
             content: {
                 "application/json": {
+                    /** @description Store name (English) */
                     storeNameEn?: string;
+                    /** @description Store name (Arabic) */
                     storeNameAr?: string;
                     logo?: string;
-                    newsletterEnabled?: boolean;
-                    discountCodeSupported?: boolean;
+                    instaPayNumber?: string;
+                    paymentMethods?: {
+                        cod?: boolean;
+                        instaPay?: boolean;
+                    };
+                    lowStockThreshold?: number;
+                    stockInfoThreshold?: number;
+                    googleAnalyticsId?: string;
                     quickLinks?: {
-                        labelEn?: string;
-                        labelAr?: string;
-                        url?: string;
+                        labelEn: string;
+                        labelAr: string;
+                        url: string;
                     }[];
                     socialLinks?: {
                         facebook?: string;
                         instagram?: string;
                     };
+                    newsletterEnabled?: boolean;
+                    discountCodeSupported?: boolean;
                     hero?: {
                         images?: string[];
                         videos?: string[];
@@ -5696,32 +6154,63 @@ export interface operations {
                         ctaUrl?: string;
                     };
                     heroEnabled?: boolean;
+                    announcementBar?: {
+                        textEn?: string;
+                        textAr?: string;
+                        enabled?: boolean;
+                        backgroundColor?: string;
+                    };
+                    promoBanner?: {
+                        enabled?: boolean;
+                        image?: string;
+                        titleEn?: string;
+                        titleAr?: string;
+                        subtitleEn?: string;
+                        subtitleAr?: string;
+                        ctaLabelEn?: string;
+                        ctaLabelAr?: string;
+                        ctaUrl?: string;
+                    };
                     newArrivalsLimit?: number;
-                    /** @description Collections with deduplication by url. Required per item: titleEn, titleAr, image, url, order. */
+                    /** @description Required per item: titleEn, titleAr, image, url, order. */
                     homeCollections?: components["schemas"]["HomeCollectionInput"][];
+                    featuredProductsEnabled?: boolean;
+                    featuredProductsLimit?: number;
                     feedbackSectionEnabled?: boolean;
                     feedbackDisplayLimit?: number;
+                    contentPages?: {
+                        /** @enum {string} */
+                        slug: "privacy" | "return-policy" | "shipping-policy" | "about" | "contact";
+                        titleEn: string;
+                        titleAr: string;
+                        contentEn: string;
+                        contentAr: string;
+                    }[];
+                    orderNotificationsEnabled?: boolean;
+                    /**
+                     * Format: email
+                     * @description Valid email when provided. Empty string allowed to clear.
+                     */
+                    orderNotificationEmail?: string;
                     aiAssistant?: {
                         enabled?: boolean;
                         geminiApiKey?: string;
+                        assistantName?: string;
                         greetingEn?: string;
                         greetingAr?: string;
                         systemPrompt?: string;
-                        suggestedQuestions?: Record<string, never>[];
+                        suggestedQuestions?: {
+                            en?: string;
+                            ar?: string;
+                        }[];
                     };
                     currency?: string;
                     currencySymbol?: string;
-                    /** @description When true, storefront shows coming-soon page */
                     comingSoonMode?: boolean;
-                    /** @description Coming-soon message (EN) */
                     comingSoonMessageEn?: string;
-                    /** @description Coming-soon message (AR) */
                     comingSoonMessageAr?: string;
-                    /** @description When true, storefront shows under-construction page */
                     underConstructionMode?: boolean;
-                    /** @description Under-construction message (EN) */
                     underConstructionMessageEn?: string;
-                    /** @description Under-construction message (AR) */
                     underConstructionMessageAr?: string;
                 };
             };
@@ -5736,12 +6225,21 @@ export interface operations {
                     "application/json": components["schemas"]["SettingsResponse"];
                 };
             };
-            /** @description Validation error */
+            /** @description Validation error (invalid field types, lengths, or format). Response includes details with field path and message (e.g. body.orderNotificationEmail: Invalid email). */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "Validation error",
+                     *       "code": "errors.common.validation_error",
+                     *       "data": null,
+                     *       "details": "body.orderNotificationEmail: Invalid email"
+                     *     }
+                     */
                     "application/json": components["schemas"]["ApiError"];
                 };
             };

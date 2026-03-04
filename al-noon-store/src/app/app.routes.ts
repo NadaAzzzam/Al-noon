@@ -7,6 +7,13 @@ import { storeStatusGuard, statusPageGuard } from './core/guards/store-status.gu
 export const routes: Routes = [
   { path: '', redirectTo: 'en', pathMatch: 'full' },
   {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./pages/account/reset-password-redirect/reset-password-redirect.component').then(
+        (m) => m.ResetPasswordRedirectComponent
+      ),
+  },
+  {
     path: ':lang',
     canActivate: [localeGuard],
     children: [
@@ -46,8 +53,15 @@ export const routes: Routes = [
           {
             path: 'account',
             children: [
+              {
+                path: '',
+                loadComponent: () => import('./pages/account/account/account.component').then((m) => m.AccountComponent),
+                canActivate: [authGuard],
+              },
               { path: 'login', loadComponent: () => import('./pages/account/login/login.component').then((m) => m.LoginComponent) },
               { path: 'register', loadComponent: () => import('./pages/account/register/register.component').then((m) => m.RegisterComponent) },
+              { path: 'forgot-password', loadComponent: () => import('./pages/account/forgot-password/forgot-password.component').then((m) => m.ForgotPasswordComponent) },
+              { path: 'reset-password', loadComponent: () => import('./pages/account/reset-password/reset-password.component').then((m) => m.ResetPasswordComponent) },
               {
                 path: 'orders',
                 loadComponent: () => import('./pages/account/orders/orders.component').then((m) => m.OrdersComponent),

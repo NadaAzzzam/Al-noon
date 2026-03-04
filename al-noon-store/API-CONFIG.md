@@ -63,16 +63,29 @@ Replace `your-api-host.com` with your deployed backend URL (e.g. `api.noon-store
 The landing page expects the backend to expose:
 
 - `GET /api/store/home` – Home data (store, hero, collections, etc.)
+- `GET /api/store/settings` – Storefront settings (store name, logo, announcement bar, content pages, coming-soon/under-construction, etc.)
+- `GET /api/store/page/{slug}` – Footer page content by slug
 - `GET /api/products` – Product list with filters
 - `GET /api/products/:id` – Product detail (ObjectId only; FE resolves slug→id via `?slug=` before calling)
 - `POST /api/checkout` – Create order (guest or authenticated)
 - `GET /api/shipping-methods` – Shipping options
 - `GET /api/payment-methods` – Payment options
 - `GET /api/cities` – Cities (for delivery fee)
-- `GET /api/settings` – Store settings, content pages
 - And others – see OpenAPI spec at `http://localhost:4000/api-docs`
 
 **cURL examples:** `docs/PRODUCTS-CURL-EXAMPLES.md`, `docs/CHECKOUT-CURL-EXAMPLES.md`
+
+---
+
+## Password reset email link
+
+The frontend expects reset links to include the **locale** and **account** path:
+
+- **Correct:** `{origin}/{locale}/account/reset-password?token=...`  
+  Example: `http://localhost:4200/en/account/reset-password?token=abc123`
+- **Avoid:** `{origin}/reset-password?token=...` or `{origin}//reset-password?token=...` (no double slash; include `/en/` or `/ar/` and `account`).
+
+If the backend sends a link without the locale/account path (e.g. `/reset-password?token=...`), the app will redirect to the correct URL and preserve the `token` query param, but it is better to send the correct URL so the user lands directly on the right page.
 
 ---
 

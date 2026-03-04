@@ -31,7 +31,23 @@
     "haveAccount": "لديك حساب؟",
     "createAccount": "إنشاء حساب",
     "submitLogin": "دخول",
-    "submitRegister": "تسجيل"
+    "submitRegister": "تسجيل",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "forgotPasswordTitle": "استعادة كلمة المرور",
+    "forgotPasswordHint": "أدخل بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور.",
+    "forgotPasswordSuccess": "إذا وُجد حساب لهذا البريد، أرسلنا رابط الاستعادة. تحقق من صندوق الوارد.",
+    "sendResetLink": "إرسال رابط الاستعادة",
+    "sending": "جاري الإرسال…",
+    "backToLogin": "العودة لتسجيل الدخول",
+    "rememberPassword": "تذكرت كلمة المرور؟",
+    "resetPassword": "إعادة تعيين كلمة المرور",
+    "resetPasswordTitle": "تعيين كلمة مرور جديدة",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "resetPasswordSuccess": "تم إعادة تعيين كلمة المرور. يمكنك تسجيل الدخول الآن.",
+    "resetting": "جاري التعيين…",
+    "passwordMismatch": "كلمتا المرور غير متطابقتين",
+    "resetPasswordInvalidToken": "رابط الاستعادة غير صالح أو منتهي الصلاحية.",
+    "requestNewLink": "طلب رابط جديد"
   },
   "cart": {
     "title": "السلة",
@@ -201,6 +217,11 @@
   },
   "sale": "خصم",
   "soldOut": "نفذ",
+  "account": {
+    "title": "الحساب",
+    "greeting": "مرحباً، {{name}}.",
+    "menu": "قائمة الحساب"
+  },
   "orders": {
     "myOrders": "طلباتي",
     "loading": "جاري التحميل...",
@@ -285,6 +306,8 @@
     "rateLimited": "طلبات كثيرة. يرجى الانتظار قليلاً والمحاولة مرة أخرى.",
     "loginFailed": "فشل تسجيل الدخول",
     "registrationFailed": "فشل إنشاء الحساب",
+    "forgotPasswordFailed": "تعذر إرسال بريد الاستعادة. يرجى المحاولة مرة أخرى.",
+    "resetPasswordFailed": "تعذر إعادة تعيين كلمة المرور. ربما انتهت صلاحية الرابط.",
     "pleaseFillRequired": "يرجى ملء جميع الحقول المطلوبة."
   }
 }

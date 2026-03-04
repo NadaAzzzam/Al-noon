@@ -748,7 +748,7 @@ export interface SettingsContentPage {
   title?: LocalizedText;
 }
 
-/** Normalized settings consumed by the app (from GET /api/settings via StoreService.getSettings()). */
+/** Normalized settings consumed by the app (from GET /api/store/settings via StoreService.getSettings()). */
 export interface Settings {
   storeName?: LocalizedText;
   logo?: string;
@@ -820,7 +820,10 @@ export type SchemaPageResponse = components['schemas']['PageResponse'];
 export type SchemaMessageDataResponse = components['schemas']['MessageDataResponse'];
 export type SchemaAuthResponse = components['schemas']['AuthResponse'];
 export type SchemaProfileResponse = components['schemas']['ProfileResponse'];
+export type SchemaStorefrontProfileResponse = components['schemas']['StorefrontProfileResponse'];
 export type SchemaSignOutResponse = components['schemas']['SignOutResponse'];
+export type SchemaForgotPasswordSentResponse = components['schemas']['ForgotPasswordSentResponse'];
+export type SchemaResetPasswordResponse = components['schemas']['ResetPasswordResponse'];
 export type SchemaNewsletterConflictResponse = components['schemas']['NewsletterConflictResponse'];
 export type SchemaSortFiltersResponse = components['schemas']['SortFiltersResponse'];
 export type SchemaAvailabilityFiltersResponse = components['schemas']['AvailabilityFiltersResponse'];
