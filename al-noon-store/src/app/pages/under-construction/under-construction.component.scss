@@ -56,10 +56,9 @@
 }
 
 .uc-logo {
-  height: 60px;
-  width: auto;
-  margin: 0 auto 40px;
-  object-fit: contain;
+  height: 12rem;
+  width: 12rem;
+  margin: 0 auto 1rem;
   opacity: 0;
   animation: ucFadeIn 0.6s ease-out 0.2s forwards;
 }
@@ -167,47 +166,101 @@
 }
 
 @keyframes ucFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes ucShapeFloat {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(-25px, 15px) scale(1.04); }
-  66% { transform: translate(20px, -10px) scale(0.96); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-25px, 15px) scale(1.04);
+  }
+  66% {
+    transform: translate(20px, -10px) scale(0.96);
+  }
 }
 
 @keyframes gearSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes wrenchWiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-8deg); }
-  75% { transform: rotate(8deg); }
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-8deg);
+  }
+  75% {
+    transform: rotate(8deg);
+  }
 }
 
 @keyframes progressSlide {
-  0% { width: 30%; opacity: 0.3; }
-  50% { width: 70%; opacity: 0.5; }
-  100% { width: 30%; opacity: 0.3; }
+  0% {
+    width: 30%;
+    opacity: 0.3;
+  }
+  50% {
+    width: 70%;
+    opacity: 0.5;
+  }
+  100% {
+    width: 30%;
+    opacity: 0.3;
+  }
 }
 
 @keyframes progressPulse {
-  0%, 100% { opacity: 0.08; width: 32; }
-  50% { opacity: 0.18; width: 48; }
+  0%,
+  100% {
+    opacity: 0.08;
+    width: 32;
+  }
+  50% {
+    opacity: 0.18;
+    width: 48;
+  }
 }
 
 @keyframes ucTwinkle {
-  0%, 100% { opacity: 0.08; }
-  50% { opacity: 0.3; }
+  0%,
+  100% {
+    opacity: 0.08;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .uc-gear-outer, .uc-wrench, .uc-progress, .uc-dot, .uc-dot-delay,
-  .uc-shape, .uc-content, .uc-logo, .uc-icon,
-  .uc-title, .uc-message, .uc-progress-bar, .uc-progress-fill, .uc-footer-text {
+  .uc-gear-outer,
+  .uc-wrench,
+  .uc-progress,
+  .uc-dot,
+  .uc-dot-delay,
+  .uc-shape,
+  .uc-content,
+  .uc-logo,
+  .uc-icon,
+  .uc-title,
+  .uc-message,
+  .uc-progress-bar,
+  .uc-progress-fill,
+  .uc-footer-text {
     animation: none !important;
     opacity: 1 !important;
   }

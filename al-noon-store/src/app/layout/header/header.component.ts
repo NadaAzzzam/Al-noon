@@ -1,8 +1,8 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive, ActivatedRoute } from '@angular/router';
-import { DOCUMENT } from '@angular/common';
 import { StoreService } from '../../core/services/store.service';
+import { FaviconService } from '../../core/services/favicon.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
 import { LocaleService } from '../../core/services/locale.service';
@@ -32,7 +32,7 @@ export class HeaderComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly doc = inject(DOCUMENT);
+  private readonly faviconService = inject(FaviconService);
   readonly api = inject(ApiService);
   private readonly categoriesService = inject(CategoriesService);
 
@@ -74,7 +74,7 @@ export class HeaderComponent implements OnInit {
   ngOnInit(): void {
     this.storeService.getStore().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((s) => {
       this.store.set(s);
-      this.updateFavicon(s?.logo);
+      this.faviconService.setFavicon(s?.logo);
     });
     this.categoriesService.getCategories({ status: 'PUBLISHED' }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((c) =>
       this.categories.set(c)
@@ -83,21 +83,6 @@ export class HeaderComponent implements OnInit {
 
   toggleShopCollection(): void {
     this.shopCollectionExpanded.update((v) => !v);
-  }
-
-  private updateFavicon(logoPath: string | undefined | null): void {
-    const path = logoPath ?? 'uploads/logos/default-logo.png';
-    const url = this.api.imageUrl(path) || null;
-    let link = this.doc.querySelector<HTMLLinkElement>('link[rel="icon"]');
-    if (url) {
-      if (!link) {
-        link = this.doc.createElement('link');
-        link.setAttribute('rel', 'icon');
-        link.setAttribute('type', 'image/x-icon');
-        this.doc.head.appendChild(link);
-      }
-      link.setAttribute('href', url);
-    }
   }
 
   toggleSearch(): void {
