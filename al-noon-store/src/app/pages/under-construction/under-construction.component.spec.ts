@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { signal } from '@angular/core';
@@ -6,11 +6,13 @@ import { UnderConstructionComponent } from './under-construction.component';
 import { StoreService } from '../../core/services/store.service';
 import { LocaleService } from '../../core/services/locale.service';
 import { ApiService } from '../../core/services/api.service';
+import { FaviconService } from '../../core/services/favicon.service';
 import type { Settings } from '../../core/types/api.types';
 
 describe('UnderConstructionComponent', () => {
   let fixture: ComponentFixture<UnderConstructionComponent>;
   let component: UnderConstructionComponent;
+  let faviconMock: { setFavicon: ReturnType<typeof vi.fn> };
 
   const settingsSignal = signal<Settings | null>({
     storeName: { en: 'Test Store', ar: 'متجر' },
@@ -28,12 +30,14 @@ describe('UnderConstructionComponent', () => {
   };
 
   beforeEach(async () => {
+    faviconMock = { setFavicon: vi.fn() };
     await TestBed.configureTestingModule({
       imports: [UnderConstructionComponent, TranslateModule.forRoot()],
       providers: [
         { provide: StoreService, useValue: { settings: settingsSignal.asReadonly() } },
         { provide: LocaleService, useValue: { getLocale: () => 'en', lang: signal('en') } },
         { provide: ApiService, useValue: apiService },
+        { provide: FaviconService, useValue: faviconMock },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(UnderConstructionComponent);
@@ -80,5 +84,10 @@ describe('UnderConstructionComponent', () => {
   it('should resolve logo via ApiService.imageUrl', () => {
     expect(component.logoUrl()).toBe('http://localhost:4000/uploads/logos/logo.png');
     expect(component.message()).toEqual({ en: 'Improving things!', ar: 'نعمل على التحسينات!' });
+  });
+
+  it('should set favicon from settings logo on init', () => {
+    fixture.detectChanges();
+    expect(faviconMock.setFavicon).toHaveBeenCalledWith('/uploads/logos/logo.png');
   });
 });

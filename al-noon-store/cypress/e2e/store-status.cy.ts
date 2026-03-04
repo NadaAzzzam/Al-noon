@@ -43,6 +43,30 @@ describe('Store Status Pages', () => {
       cy.get('.cs-message').should('contain.text', 'We are launching soon!');
     });
 
+    it('should set favicon from backend logo when settings include logo', () => {
+      cy.intercept('GET', '**/api/settings*', {
+        body: {
+          success: true,
+          data: {
+            settings: {
+              storeName: { en: 'Al-Noon', ar: 'النون' },
+              logo: 'uploads/logos/store-logo.png',
+              comingSoonMode: true,
+              comingSoonMessage: { en: 'We are launching soon!', ar: 'سنفتح قريبًا!' },
+              underConstructionMode: false,
+            },
+          },
+        },
+      }).as('getSettingsWithLogo');
+      cy.visit('/en/coming-soon');
+      cy.document().then((doc) => {
+        const link = doc.querySelector('link[rel="icon"]');
+        expect(link).to.exist;
+        expect(link?.getAttribute('href')).to.be.a('string').and.not.be.empty;
+        expect(link?.getAttribute('href')).to.include('logo');
+      });
+    });
+
     it('should redirect catalog to coming-soon', () => {
       cy.visit('/en/catalog');
       cy.url().should('include', '/coming-soon');
@@ -93,6 +117,30 @@ describe('Store Status Pages', () => {
     it('should display the custom message', () => {
       cy.visit('/en/under-construction');
       cy.get('.uc-message').should('contain.text', 'We are improving!');
+    });
+
+    it('should set favicon from backend logo when settings include logo', () => {
+      cy.intercept('GET', '**/api/settings*', {
+        body: {
+          success: true,
+          data: {
+            settings: {
+              storeName: { en: 'Al-Noon', ar: 'النون' },
+              logo: 'uploads/logos/store-logo.png',
+              comingSoonMode: false,
+              underConstructionMode: true,
+              underConstructionMessage: { en: 'We are improving!', ar: 'نعمل على التحسينات!' },
+            },
+          },
+        },
+      }).as('getSettingsWithLogo');
+      cy.visit('/en/under-construction');
+      cy.document().then((doc) => {
+        const link = doc.querySelector('link[rel="icon"]');
+        expect(link).to.exist;
+        expect(link?.getAttribute('href')).to.be.a('string').and.not.be.empty;
+        expect(link?.getAttribute('href')).to.include('logo');
+      });
     });
 
     it('should show progress bar', () => {

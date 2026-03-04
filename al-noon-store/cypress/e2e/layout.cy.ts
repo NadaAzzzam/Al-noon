@@ -45,4 +45,32 @@ describe('Layout', () => {
     cy.get('header, .header, app-header').should('exist');
     cy.get('a[href*="/"], a[routerlink*="/"]').should('exist');
   });
+
+  it('should set favicon from backend store logo when home returns logo', () => {
+    cy.intercept('GET', '**/api/store/home*', {
+      body: {
+        success: true,
+        data: {
+          home: {
+            storeName: { en: 'Al-Noon', ar: 'الظهر' },
+            logo: 'uploads/logos/store.png',
+            hero: {},
+            newArrivals: [],
+            homeCollections: [],
+            feedbacks: [],
+            quickLinks: [],
+            socialLinks: [],
+          },
+        },
+      },
+    }).as('getHomeWithLogo');
+    cy.visit('/en');
+    cy.wait('@getHomeWithLogo');
+    cy.document().then((doc) => {
+      const link = doc.querySelector('link[rel="icon"]');
+      expect(link).to.exist;
+      expect(link?.getAttribute('href')).to.be.a('string').and.not.be.empty;
+      expect(link?.getAttribute('href')).to.include('logo');
+    });
+  });
 });

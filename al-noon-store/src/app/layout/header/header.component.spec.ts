@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { HeaderComponent } from './header.component';
 import { StoreService } from '../../core/services/store.service';
+import { FaviconService } from '../../core/services/favicon.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
 import { LocaleService } from '../../core/services/locale.service';
@@ -16,8 +17,10 @@ describe('HeaderComponent', () => {
   let fixture: ComponentFixture<HeaderComponent>;
   let storeMock: { getStore: ReturnType<typeof vi.fn>; settings: ReturnType<typeof vi.fn> };
   let categoriesMock: { getCategories: ReturnType<typeof vi.fn> };
+  let faviconMock: { setFavicon: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
+    faviconMock = { setFavicon: vi.fn() };
     storeMock = {
       getStore: vi.fn().mockReturnValue(of({ storeName: { en: 'Test Store' }, logo: null })),
       settings: vi.fn().mockReturnValue({}),
@@ -32,6 +35,7 @@ describe('HeaderComponent', () => {
         provideRouter([]),
         { provide: ActivatedRoute, useValue: { snapshot: { queryParams: {} } } },
         { provide: StoreService, useValue: storeMock },
+        { provide: FaviconService, useValue: faviconMock },
         { provide: AuthService, useValue: { isLoggedIn: () => false, signOut: () => of(void 0) } },
         CartService,
         { provide: LocaleService, useValue: { getLocale: () => 'en', lang: () => 'en' } },
@@ -53,6 +57,17 @@ describe('HeaderComponent', () => {
     fixture.detectChanges();
     expect(storeMock.getStore).toHaveBeenCalled();
     expect(categoriesMock.getCategories).toHaveBeenCalledWith({ status: 'PUBLISHED' });
+  });
+
+  it('should set favicon from store logo on init', () => {
+    fixture.detectChanges();
+    expect(faviconMock.setFavicon).toHaveBeenCalledWith(null);
+  });
+
+  it('should set favicon to store logo when getStore emits logo', () => {
+    storeMock.getStore.mockReturnValue(of({ storeName: { en: 'Store' }, logo: 'uploads/logos/logo.png' }));
+    fixture.detectChanges();
+    expect(faviconMock.setFavicon).toHaveBeenCalledWith('uploads/logos/logo.png');
   });
 
   it('should toggle shop collection', () => {
