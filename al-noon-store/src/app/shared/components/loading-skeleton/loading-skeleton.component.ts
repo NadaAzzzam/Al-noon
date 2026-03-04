@@ -25,7 +25,7 @@ import { Component, input, computed, ChangeDetectionStrategy } from '@angular/co
     .skeleton-image { width: 100%; aspect-ratio: 3/4; border-radius: 4px; }
     .skeleton-text { border-radius: 4px; }
     .skeleton {
-      background: linear-gradient(90deg, var(--color-border, #e8e6e3) 25%, #f0eeeb 50%, var(--color-border, #e8e6e3) 75%);
+      background: linear-gradient(90deg, var(--color-border, #e8d5db) 25%, #f5e8ec 50%, var(--color-border, #e8d5db) 75%);
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;
     }

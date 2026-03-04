@@ -99,7 +99,7 @@ import type { Product } from '../../../core/types/api.types';
       overflow: hidden;
       aspect-ratio: 3 / 4;
       background: var(--color-surface, #fff);
-      border: 1px solid var(--color-border, #e8e6e3);
+      border: 1px solid var(--color-border, #e8d5db);
       border-radius: 4px;
     }
     /* ── Image swap on hover (CSS-only so hover is reliable) ── */
@@ -132,8 +132,8 @@ import type { Product } from '../../../core/types/api.types';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--color-bg, #faf9f7);
-      color: var(--color-text-muted, #5c5c5c);
+      background: var(--color-bg, #faf2f4);
+      color: var(--color-text-muted, #8a6070);
     }
     .quick-view {
       position: absolute;
@@ -142,7 +142,7 @@ import type { Product } from '../../../core/types/api.types';
       transform: translateX(-50%) translateY(8px);
       background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(4px);
-      color: var(--color-text, #1a1a1a);
+      color: var(--color-text, #2d1520);
       font-size: 12px;
       font-weight: 600;
       letter-spacing: 0.05em;
@@ -158,7 +158,7 @@ import type { Product } from '../../../core/types/api.types';
       position: absolute;
       top: 10px;
       inset-inline-start: 10px;
-      background: var(--color-sale, #b8462a);
+      background: var(--color-sale, #c4384a);
       color: #fff;
       font-size: 11px;
       font-weight: 600;
@@ -172,7 +172,7 @@ import type { Product } from '../../../core/types/api.types';
       position: absolute;
       top: 10px;
       inset-inline-start: 10px;
-      background: var(--color-text, #1a1a1a);
+      background: var(--color-text, #2d1520);
       color: #fff;
       font-size: 11px;
       font-weight: 600;
@@ -184,7 +184,7 @@ import type { Product } from '../../../core/types/api.types';
       position: absolute;
       top: 10px;
       inset-inline-end: 10px;
-      background: var(--color-accent, #2c2c2c);
+      background: var(--color-accent, #4a2035);
       color: #fff;
       font-size: 11px;
       font-weight: 600;
@@ -209,14 +209,14 @@ import type { Product } from '../../../core/types/api.types';
       transition: color 0.2s;
     }
     .product-card:hover .product-name {
-      color: var(--color-text-muted, #5c5c5c);
+      color: var(--color-text-muted, #8a6070);
     }
     .price {
       margin-top: 6px;
       font-size: 0.875rem;
     }
     .price .original {
-      color: var(--color-text-muted, #5c5c5c);
+      color: var(--color-text-muted, #8a6070);
       text-decoration: line-through;
       margin-inline-end: 8px;
     }
@@ -224,7 +224,7 @@ import type { Product } from '../../../core/types/api.types';
       font-weight: 600;
     }
     .price .current.sale-price {
-      color: var(--color-sale, #b8462a);
+      color: var(--color-sale, #c4384a);
     }
   `],
 })

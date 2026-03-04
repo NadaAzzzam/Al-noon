@@ -31,10 +31,10 @@ export interface BreadcrumbItem {
     .breadcrumb { margin-bottom: 16px; font-size: 0.875rem; }
     ol { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 0; padding: 0; margin: 0; }
     li { display: flex; align-items: center; }
-    a { color: var(--color-text-muted, #5c5c5c); text-decoration: none; }
+    a { color: var(--color-text-muted, #8a6070); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    span[aria-current] { color: var(--color-text, #1a1a1a); font-weight: 500; }
-    .separator { display: inline-block; margin: 0 8px; color: var(--color-text-muted, #5c5c5c); }
+    span[aria-current] { color: var(--color-text, #2d1520); font-weight: 500; }
+    .separator { display: inline-block; margin: 0 8px; color: var(--color-text-muted, #8a6070); }
     :host-context([dir='rtl']) .separator { transform: scaleX(-1); }
   `],
 })

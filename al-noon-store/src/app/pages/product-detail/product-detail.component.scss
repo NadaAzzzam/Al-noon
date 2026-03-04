@@ -269,13 +269,13 @@
 }
 
 .sale-price {
-  color: var(--color-sale, #b8462a);
+  color: var(--color-sale, #c4384a);
   font-weight: 600;
 }
 
 .discount-badge-inline {
   display: inline-block;
-  background: var(--color-sale, #b8462a);
+  background: var(--color-sale, #c4384a);
   color: #fff;
   font-size: 0.75rem;
   font-weight: 600;
@@ -327,7 +327,7 @@
 
   &:hover {
     background: var(--color-surface, #fff);
-    border-color: var(--color-text-muted, #999);
+    border-color: var(--color-text-muted, #a88898);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     transform: translateY(-1px);
   }
@@ -616,7 +616,7 @@
 .low-stock {
   margin-top: 8px;
   font-size: 13px;
-  color: var(--color-sale, #b8462a);
+  color: var(--color-sale, #c4384a);
   font-weight: 500;
 }
 

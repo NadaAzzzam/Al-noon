@@ -58,7 +58,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #111;
+  background: #2d1520;
   overflow: hidden;
 }
 
@@ -225,7 +225,7 @@
 
   &:hover {
     background: #fff;
-    color: #111;
+    color: #2d1520;
   }
 }
 
@@ -607,7 +607,7 @@
 .loading-msg {
   text-align: center;
   padding: 24px;
-  color: var(--color-text-muted, #666);
+  color: var(--color-text-muted, #8a6070);
 }
 
 .error-msg {

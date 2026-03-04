@@ -13,7 +13,7 @@
   justify-content: center;
   gap: 16px;
   padding: 80px 24px;
-  color: var(--color-text-muted, #888);
+  color: var(--color-text-muted, #8a6070);
   font-size: 15px;
 }
 
@@ -37,8 +37,8 @@
 }
 
 .confirmation-right {
-  background: #fafafa;
-  border-inline-start: 1px solid var(--color-border, #e8e6e3);
+  background: #faf2f4;
+  border-inline-start: 1px solid var(--color-border, #e8d5db);
   padding: 40px 32px 60px;
   position: sticky;
   top: 0;
@@ -61,7 +61,7 @@
 
 .confirmation-number {
   font-size: 13px;
-  color: var(--color-text-muted, #888);
+  color: var(--color-text-muted, #8a6070);
   margin: 0 0 2px;
 }
 
@@ -70,12 +70,12 @@
   font-weight: 400;
   margin: 0;
   font-family: var(--font-heading, serif);
-  color: var(--color-text, #1a1a1a);
+  color: var(--color-text, #2d1520);
 }
 
 /* ── Order confirmed box ── */
 .confirmed-box {
-  border: 1px solid var(--color-border, #e8e6e3);
+  border: 1px solid var(--color-border, #e8d5db);
   border-radius: 8px;
   padding: 18px 20px;
   margin-bottom: 24px;
@@ -85,18 +85,18 @@
   font-size: 15px;
   font-weight: 600;
   margin: 0 0 4px;
-  color: var(--color-text, #1a1a1a);
+  color: var(--color-text, #2d1520);
 }
 
 .confirmed-box-text {
   font-size: 14px;
-  color: var(--color-text-muted, #888);
+  color: var(--color-text-muted, #8a6070);
   margin: 0;
 }
 
 /* ── Order Details Card ── */
 .order-details-card {
-  border: 1px solid var(--color-border, #e8e6e3);
+  border: 1px solid var(--color-border, #e8d5db);
   border-radius: 8px;
   padding: 20px 20px 24px;
   margin-bottom: 32px;
@@ -113,12 +113,12 @@
   font-size: 15px;
   font-weight: 600;
   margin: 0;
-  color: var(--color-text, #1a1a1a);
+  color: var(--color-text, #2d1520);
 }
 
 .view-account-link {
   font-size: 13px;
-  color: #1773b0;
+  color: #4a2035;
   text-decoration: none;
   font-weight: 500;
 
@@ -145,13 +145,13 @@
 .detail-label {
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-text, #1a1a1a);
+  color: var(--color-text, #2d1520);
   margin: 0 0 6px;
 }
 
 .detail-value {
   font-size: 13px;
-  color: var(--color-text-muted, #555);
+  color: var(--color-text-muted, #6b4a58);
   margin: 0;
   line-height: 1.5;
 }
@@ -167,9 +167,9 @@
   display: inline-flex;
   align-items: center;
   padding: 2px 6px;
-  border: 1px solid #ddd;
+  border: 1px solid #e8d5db;
   border-radius: 4px;
-  background: #f9f9f9;
+  background: #faf2f4;
 }
 
 /* ── Footer ── */
@@ -183,12 +183,12 @@
 
 .help-text {
   font-size: 14px;
-  color: var(--color-text-muted, #888);
+  color: var(--color-text-muted, #8a6070);
   margin: 0;
 }
 
 .help-link {
-  color: #1773b0;
+  color: #4a2035;
   text-decoration: none;
   font-weight: 500;
 
@@ -200,7 +200,7 @@
 .continue-btn {
   display: inline-block;
   padding: 14px 32px;
-  background: #1773b0;
+  background: #4a2035;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -214,7 +214,7 @@
   transition: background-color 0.2s;
 
   &:hover {
-    background: #125f94;
+    background: #3a1528;
   }
 }
 
@@ -232,7 +232,7 @@
   gap: 14px;
   margin-bottom: 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid var(--color-border, #e8e6e3);
+  border-bottom: 1px solid var(--color-border, #e8d5db);
 }
 
 .summary-product {
@@ -247,7 +247,7 @@
   width: 56px;
   height: 56px;
   border-radius: 8px;
-  border: 1px solid var(--color-border, #e8e6e3);
+  border: 1px solid var(--color-border, #e8d5db);
   overflow: hidden;
   background: #fff;
 
@@ -269,7 +269,7 @@
   font-weight: 600;
   line-height: 20px;
   text-align: center;
-  background: #666;
+  background: var(--color-text-muted, #8a6070);
   color: #fff;
   border-radius: 10px;
   z-index: 1;
@@ -285,7 +285,7 @@
 .summary-product-name {
   font-size: 13px;
   font-weight: 500;
-  color: var(--color-text, #1a1a1a);
+  color: var(--color-text, #2d1520);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -293,7 +293,7 @@
 
 .summary-product-variant {
   font-size: 12px;
-  color: var(--color-text-muted, #888);
+  color: var(--color-text-muted, #8a6070);
 }
 
 .summary-product-price {
@@ -313,7 +313,7 @@
   display: flex;
   justify-content: space-between;
   font-size: 14px;
-  color: var(--color-text, #1a1a1a);
+  color: var(--color-text, #2d1520);
 
   &.summary-row-discount .discount-amount {
     color: #0d7a3e;
@@ -322,7 +322,7 @@
 
 .summary-total {
   padding-top: 14px;
-  border-top: 1px solid var(--color-border, #e8e6e3);
+  border-top: 1px solid var(--color-border, #e8d5db);
   margin-top: 6px;
   font-size: 1rem;
 }
@@ -334,7 +334,7 @@
   small {
     font-size: 12px;
     font-weight: 400;
-    color: var(--color-text-muted, #888);
+    color: var(--color-text-muted, #8a6070);
     margin-inline-end: 4px;
   }
 }
@@ -356,7 +356,7 @@
     position: static;
     min-height: auto;
     border-inline-start: none;
-    border-top: 1px solid var(--color-border, #e8e6e3);
+    border-top: 1px solid var(--color-border, #e8d5db);
     padding: 24px 16px 32px;
     order: -1;
   }

@@ -35,21 +35,21 @@ import { ToastService } from '../../../core/services/toast.service';
       padding: 12px 16px;
       border-radius: 6px;
       background: var(--color-surface, #fff);
-      border: 1px solid var(--color-border, #e8e6e3);
+      border: 1px solid var(--color-border, #e8d5db);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
       animation: toast-in 0.3s ease;
       font-size: 0.9rem;
     }
     .toast-success { border-inline-start: 4px solid var(--color-success, #27ae60); }
     .toast-error { border-inline-start: 4px solid var(--color-error, #e74c3c); }
-    .toast-info { border-inline-start: 4px solid var(--color-accent, #2c2c2c); }
+    .toast-info { border-inline-start: 4px solid var(--color-accent, #4a2035); }
     .toast-message { flex: 1; }
     .toast-close {
       background: none;
       border: none;
       font-size: 1.2rem;
       cursor: pointer;
-      color: var(--color-text-muted, #5c5c5c);
+      color: var(--color-text-muted, #8a6070);
       padding: 0 4px;
       line-height: 1;
     }

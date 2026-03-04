@@ -19,8 +19,8 @@ import { Component, input, computed, ChangeDetectionStrategy } from '@angular/co
     .star { font-size: 0.9em; line-height: 1; }
     .star.filled { color: #d4a853; }
     .star.half { color: #d4a853; opacity: 0.6; }
-    .star.empty { color: var(--color-border, #e8e6e3); }
-    .rating-count { font-size: 0.85em; color: var(--color-text-muted, #5c5c5c); margin-inline-start: 4px; }
+    .star.empty { color: var(--color-border, #e8d5db); }
+    .rating-count { font-size: 0.85em; color: var(--color-text-muted, #8a6070); margin-inline-start: 4px; }
   `],
 })
 export class StarRatingComponent {

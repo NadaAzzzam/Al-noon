@@ -22,9 +22,9 @@ import { Component, signal, ChangeDetectionStrategy, HostListener } from '@angul
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      border: 1px solid var(--color-border, #e8e6e3);
+      border: 1px solid var(--color-border, #e8d5db);
       background: var(--color-surface, #fff);
-      color: var(--color-text, #1a1a1a);
+      color: var(--color-text, #2d1520);
       cursor: pointer;
       display: flex;
       align-items: center;

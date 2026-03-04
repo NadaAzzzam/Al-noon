@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg, #faf9f7);
+  background: var(--color-bg, #faf2f4);
   position: relative;
   overflow: hidden;
   padding: 40px 20px;
@@ -20,7 +20,7 @@
   position: absolute;
   border-radius: 50%;
   opacity: 0.04;
-  background: var(--color-accent, #2c2c2c);
+  background: var(--color-accent, #4a2035);
 }
 
 .cs-shape-1 {
@@ -68,7 +68,7 @@
   width: 120px;
   height: 120px;
   margin: 0 auto 36px;
-  color: var(--color-accent, #2c2c2c);
+  color: var(--color-accent, #4a2035);
   opacity: 0;
   animation: fadeIn 0.6s ease-out 0.3s forwards;
 
@@ -100,7 +100,7 @@
   font-family: var(--font-heading, 'Cormorant Garamond', Georgia, serif);
   font-size: clamp(2rem, 5vw, 3.2rem);
   font-weight: 600;
-  color: var(--color-text, #1a1a1a);
+  color: var(--color-text, #2d1520);
   margin: 0 0 20px;
   letter-spacing: 0.02em;
   opacity: 0;
@@ -110,7 +110,7 @@
 .cs-message {
   font-family: var(--font-body, 'Outfit', sans-serif);
   font-size: clamp(1rem, 2.5vw, 1.15rem);
-  color: var(--color-text-muted, #5c5c5c);
+  color: var(--color-text-muted, #8a6070);
   line-height: 1.7;
   margin: 0 0 32px;
   opacity: 0;
@@ -120,7 +120,7 @@
 .cs-divider {
   width: 60px;
   height: 1px;
-  background: var(--color-border, #e8e6e3);
+  background: var(--color-border, #e8d5db);
   margin: 0 auto 24px;
   opacity: 0;
   animation: fadeIn 0.6s ease-out 0.6s forwards;
@@ -129,7 +129,7 @@
 .cs-footer-text {
   font-family: var(--font-body, 'Outfit', sans-serif);
   font-size: 13px;
-  color: var(--color-text-muted, #5c5c5c);
+  color: var(--color-text-muted, #8a6070);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   margin: 0;
