@@ -776,6 +776,38 @@
                       "discountCodeSupported": {
                         "type": "boolean",
                         "description": "Whether discount codes are enabled at checkout"
+                      },
+                      "comingSoonMode": {
+                        "type": "boolean",
+                        "description": "When true, storefront should show coming-soon page"
+                      },
+                      "comingSoonMessage": {
+                        "type": "object",
+                        "properties": {
+                          "en": {
+                            "type": "string"
+                          },
+                          "ar": {
+                            "type": "string"
+                          }
+                        },
+                        "description": "Optional message on coming-soon page"
+                      },
+                      "underConstructionMode": {
+                        "type": "boolean",
+                        "description": "When true, storefront should show under-construction page"
+                      },
+                      "underConstructionMessage": {
+                        "type": "object",
+                        "properties": {
+                          "en": {
+                            "type": "string"
+                          },
+                          "ar": {
+                            "type": "string"
+                          }
+                        },
+                        "description": "Optional message on under-construction page"
                       }
                     }
                   },
@@ -921,6 +953,38 @@
                   },
                   "discountCodeSupported": {
                     "type": "boolean"
+                  },
+                  "comingSoonMode": {
+                    "type": "boolean",
+                    "description": "When true, storefront should show coming-soon page"
+                  },
+                  "comingSoonMessage": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string"
+                      },
+                      "ar": {
+                        "type": "string"
+                      }
+                    },
+                    "description": "Optional message on coming-soon page"
+                  },
+                  "underConstructionMode": {
+                    "type": "boolean",
+                    "description": "When true, storefront should show under-construction page"
+                  },
+                  "underConstructionMessage": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string"
+                      },
+                      "ar": {
+                        "type": "string"
+                      }
+                    },
+                    "description": "Optional message on under-construction page"
                   }
                 }
               }
@@ -2554,6 +2618,42 @@
                   },
                   "googleAnalyticsId": {
                     "type": "string"
+                  },
+                  "comingSoonMode": {
+                    "type": "boolean",
+                    "description": "When true, storefront shows coming-soon page"
+                  },
+                  "comingSoonMessage": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string"
+                      },
+                      "ar": {
+                        "type": "string"
+                      }
+                    },
+                    "description": "Optional message on coming-soon page"
+                  },
+                  "underConstructionMode": {
+                    "type": "boolean",
+                    "description": "When true, storefront shows under-construction page"
+                  },
+                  "underConstructionMessage": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string"
+                      },
+                      "ar": {
+                        "type": "string"
+                      }
+                    },
+                    "description": "Optional message on under-construction page"
+                  },
+                  "seoSettings": {
+                    "type": "object",
+                    "description": "SEO default meta (defaultMetaDescription, defaultMetaKeywords, ogImage, twitterCard, homePageMeta, catalogPageMeta, productPageMeta)"
                   }
                 }
               }
@@ -8013,6 +8113,34 @@
                   "currencySymbol": {
                     "type": "string",
                     "maxLength": 10
+                  },
+                  "comingSoonMode": {
+                    "type": "boolean",
+                    "description": "When true, storefront shows coming-soon page"
+                  },
+                  "comingSoonMessageEn": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "description": "Coming-soon message (EN)"
+                  },
+                  "comingSoonMessageAr": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "description": "Coming-soon message (AR)"
+                  },
+                  "underConstructionMode": {
+                    "type": "boolean",
+                    "description": "When true, storefront shows under-construction page"
+                  },
+                  "underConstructionMessageEn": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "description": "Under-construction message (EN)"
+                  },
+                  "underConstructionMessageAr": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "description": "Under-construction message (AR)"
                   }
                 }
               }

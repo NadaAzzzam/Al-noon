@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
 import { authGuard } from './core/guards/auth.guard';
 import { localeGuard } from './core/guards/locale.guard';
+import { storeStatusGuard, statusPageGuard } from './core/guards/store-status.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'en', pathMatch: 'full' },
@@ -9,14 +10,27 @@ export const routes: Routes = [
     path: ':lang',
     canActivate: [localeGuard],
     children: [
+      {
+        path: 'coming-soon',
+        canActivate: [statusPageGuard],
+        loadComponent: () => import('./pages/coming-soon/coming-soon.component').then((m) => m.ComingSoonComponent),
+      },
+      {
+        path: 'under-construction',
+        canActivate: [statusPageGuard],
+        loadComponent: () =>
+          import('./pages/under-construction/under-construction.component').then((m) => m.UnderConstructionComponent),
+      },
       /* Checkout has its own layout (Shopify-style header/footer) */
       {
         path: 'checkout',
+        canActivate: [storeStatusGuard],
         loadComponent: () => import('./pages/checkout/checkout.component').then((m) => m.CheckoutComponent),
       },
       {
         path: '',
         component: LayoutComponent,
+        canActivate: [storeStatusGuard],
         children: [
           { path: '', loadComponent: () => import('./pages/home/home.component').then((m) => m.HomeComponent) },
           { path: 'catalog', loadComponent: () => import('./pages/catalog/catalog.component').then((m) => m.CatalogComponent) },

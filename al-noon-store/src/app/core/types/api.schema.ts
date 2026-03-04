@@ -1436,6 +1436,20 @@ export interface components {
                         newsletterEnabled?: boolean;
                         /** @description Whether discount codes are enabled at checkout */
                         discountCodeSupported?: boolean;
+                        /** @description When true, storefront should show coming-soon page */
+                        comingSoonMode?: boolean;
+                        /** @description Optional message on coming-soon page */
+                        comingSoonMessage?: {
+                            en?: string;
+                            ar?: string;
+                        };
+                        /** @description When true, storefront should show under-construction page */
+                        underConstructionMode?: boolean;
+                        /** @description Optional message on under-construction page */
+                        underConstructionMessage?: {
+                            en?: string;
+                            ar?: string;
+                        };
                     };
                     /** @description Hero section config with images/videos, title, subtitle, CTA */
                     hero?: Record<string, never>;
@@ -1487,6 +1501,20 @@ export interface components {
                     /** @example LE */
                     currencySymbol?: string;
                     discountCodeSupported?: boolean;
+                    /** @description When true, storefront should show coming-soon page */
+                    comingSoonMode?: boolean;
+                    /** @description Optional message on coming-soon page */
+                    comingSoonMessage?: {
+                        en?: string;
+                        ar?: string;
+                    };
+                    /** @description When true, storefront should show under-construction page */
+                    underConstructionMode?: boolean;
+                    /** @description Optional message on under-construction page */
+                    underConstructionMessage?: {
+                        en?: string;
+                        ar?: string;
+                    };
                 };
             };
         };
@@ -2282,6 +2310,22 @@ export interface components {
                     lowStockThreshold?: number;
                     stockInfoThreshold?: number;
                     googleAnalyticsId?: string;
+                    /** @description When true, storefront shows coming-soon page */
+                    comingSoonMode?: boolean;
+                    /** @description Optional message on coming-soon page */
+                    comingSoonMessage?: {
+                        en?: string;
+                        ar?: string;
+                    };
+                    /** @description When true, storefront shows under-construction page */
+                    underConstructionMode?: boolean;
+                    /** @description Optional message on under-construction page */
+                    underConstructionMessage?: {
+                        en?: string;
+                        ar?: string;
+                    };
+                    /** @description SEO default meta (defaultMetaDescription, defaultMetaKeywords, ogImage, twitterCard, homePageMeta, catalogPageMeta, productPageMeta) */
+                    seoSettings?: Record<string, never>;
                 };
             };
         };
@@ -5667,6 +5711,18 @@ export interface operations {
                     };
                     currency?: string;
                     currencySymbol?: string;
+                    /** @description When true, storefront shows coming-soon page */
+                    comingSoonMode?: boolean;
+                    /** @description Coming-soon message (EN) */
+                    comingSoonMessageEn?: string;
+                    /** @description Coming-soon message (AR) */
+                    comingSoonMessageAr?: string;
+                    /** @description When true, storefront shows under-construction page */
+                    underConstructionMode?: boolean;
+                    /** @description Under-construction message (EN) */
+                    underConstructionMessageEn?: string;
+                    /** @description Under-construction message (AR) */
+                    underConstructionMessageAr?: string;
                 };
             };
         };

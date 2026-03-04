@@ -1,0 +1,214 @@
+.uc-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg, #faf9f7);
+  position: relative;
+  overflow: hidden;
+  padding: 40px 20px;
+}
+
+.uc-bg-shapes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.uc-shape {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.04;
+  background: var(--color-accent, #2c2c2c);
+}
+
+.uc-shape-1 {
+  width: 500px;
+  height: 500px;
+  top: -180px;
+  inset-inline-start: -120px;
+  animation: ucShapeFloat 22s ease-in-out infinite;
+}
+
+.uc-shape-2 {
+  width: 350px;
+  height: 350px;
+  bottom: -80px;
+  inset-inline-end: -80px;
+  animation: ucShapeFloat 18s ease-in-out infinite reverse;
+}
+
+.uc-shape-3 {
+  width: 180px;
+  height: 180px;
+  top: 40%;
+  inset-inline-end: 15%;
+  animation: ucShapeFloat 14s ease-in-out infinite;
+}
+
+.uc-content {
+  text-align: center;
+  max-width: 560px;
+  position: relative;
+  z-index: 1;
+  animation: ucFadeInUp 0.8s ease-out both;
+}
+
+.uc-logo {
+  height: 60px;
+  width: auto;
+  margin: 0 auto 40px;
+  object-fit: contain;
+  opacity: 0;
+  animation: ucFadeIn 0.6s ease-out 0.2s forwards;
+}
+
+.uc-icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 36px;
+  color: var(--color-accent, #2c2c2c);
+  opacity: 0;
+  animation: ucFadeIn 0.6s ease-out 0.3s forwards;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.uc-gear-outer {
+  transform-origin: 60px 38px;
+  animation: gearSpin 10s linear infinite;
+}
+
+.uc-wrench {
+  animation: wrenchWiggle 4s ease-in-out infinite;
+  transform-origin: 58px 62px;
+}
+
+.uc-progress {
+  animation: progressPulse 3s ease-in-out infinite;
+}
+
+.uc-dot {
+  animation: ucTwinkle 3s ease-in-out infinite;
+}
+
+.uc-dot-delay {
+  animation: ucTwinkle 3s ease-in-out 1.5s infinite;
+}
+
+.uc-title {
+  font-family: var(--font-heading, 'Cormorant Garamond', Georgia, serif);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 600;
+  color: var(--color-text, #1a1a1a);
+  margin: 0 0 20px;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  animation: ucFadeInUp 0.6s ease-out 0.4s forwards;
+}
+
+.uc-message {
+  font-family: var(--font-body, 'Outfit', sans-serif);
+  font-size: clamp(1rem, 2.5vw, 1.15rem);
+  color: var(--color-text-muted, #5c5c5c);
+  line-height: 1.7;
+  margin: 0 0 36px;
+  opacity: 0;
+  animation: ucFadeInUp 0.6s ease-out 0.5s forwards;
+}
+
+.uc-progress-bar {
+  width: 200px;
+  margin: 0 auto 28px;
+  opacity: 0;
+  animation: ucFadeIn 0.6s ease-out 0.6s forwards;
+}
+
+.uc-progress-track {
+  height: 4px;
+  background: var(--color-border, #e8e6e3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.uc-progress-fill {
+  height: 100%;
+  width: 60%;
+  background: var(--color-accent, #2c2c2c);
+  border-radius: 2px;
+  opacity: 0.4;
+  animation: progressSlide 3s ease-in-out infinite;
+}
+
+.uc-footer-text {
+  font-family: var(--font-body, 'Outfit', sans-serif);
+  font-size: 13px;
+  color: var(--color-text-muted, #5c5c5c);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0;
+  opacity: 0;
+  animation: ucFadeInUp 0.6s ease-out 0.7s forwards;
+}
+
+@keyframes ucFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ucFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ucShapeFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-25px, 15px) scale(1.04); }
+  66% { transform: translate(20px, -10px) scale(0.96); }
+}
+
+@keyframes gearSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes wrenchWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+
+@keyframes progressSlide {
+  0% { width: 30%; opacity: 0.3; }
+  50% { width: 70%; opacity: 0.5; }
+  100% { width: 30%; opacity: 0.3; }
+}
+
+@keyframes progressPulse {
+  0%, 100% { opacity: 0.08; width: 32; }
+  50% { opacity: 0.18; width: 48; }
+}
+
+@keyframes ucTwinkle {
+  0%, 100% { opacity: 0.08; }
+  50% { opacity: 0.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uc-gear-outer, .uc-wrench, .uc-progress, .uc-dot, .uc-dot-delay,
+  .uc-shape, .uc-content, .uc-logo, .uc-icon,
+  .uc-title, .uc-message, .uc-progress-bar, .uc-progress-fill, .uc-footer-text {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}

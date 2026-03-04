@@ -767,6 +767,10 @@ export interface Settings {
   currencySymbol?: string;
   /** SEO meta (home/catalog/product page meta, og image, twitter card, defaults). */
   seoSettings?: SeoSettings;
+  comingSoonMode?: boolean;
+  comingSoonMessage?: LocalizedText;
+  underConstructionMode?: boolean;
+  underConstructionMessage?: LocalizedText;
 }
 
 /**

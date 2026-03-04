@@ -275,6 +275,10 @@ export class StoreService {
                 currency: raw.currency,
                 currencySymbol: raw.currencySymbol,
                 seoSettings: raw.seoSettings,
+                comingSoonMode: raw['comingSoonMode'] === true,
+                comingSoonMessage: raw['comingSoonMessage'] as Settings['comingSoonMessage'],
+                underConstructionMode: raw['underConstructionMode'] === true,
+                underConstructionMessage: raw['underConstructionMessage'] as Settings['underConstructionMessage'],
               };
               sub.next(mapped);
             },

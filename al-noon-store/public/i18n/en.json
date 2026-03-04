@@ -265,6 +265,16 @@
     "currency": "EGP"
   },
   "storeName": "Al-Noon",
+  "comingSoon": {
+    "title": "Coming Soon",
+    "defaultMessage": "We're working hard to bring you something amazing. Our store will be launching soon — stay tuned!",
+    "stayTuned": "Stay tuned"
+  },
+  "underConstruction": {
+    "title": "Under Construction",
+    "defaultMessage": "We're currently making improvements to give you a better shopping experience. We'll be back shortly!",
+    "checkBack": "Please check back soon"
+  },
   "errors": {
     "required": "Required",
     "invalidEmail": "Invalid email",

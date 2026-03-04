@@ -1,0 +1,52 @@
+<div class="uc-page">
+  <div class="uc-bg-shapes">
+    <div class="uc-shape uc-shape-1"></div>
+    <div class="uc-shape uc-shape-2"></div>
+    <div class="uc-shape uc-shape-3"></div>
+  </div>
+
+  <div class="uc-content">
+    @if (logoUrl(); as url) {
+      <img [src]="url" [alt]="storeName() | localized:locale.lang()" class="uc-logo" />
+    }
+
+    <div class="uc-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+        <!-- Outer gear -->
+        <path d="M60 10 L64 20 L72 16 L70 26 L80 26 L74 34 L82 38 L74 44 L80 50 L70 50 L72 60 L64 56 L60 66 L56 56 L48 60 L50 50 L40 50 L46 44 L38 38 L46 34 L40 26 L50 26 L48 16 L56 20 Z"
+              stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.25" class="uc-gear-outer"/>
+        <circle cx="60" cy="38" r="10" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.2"/>
+        <!-- Wrench -->
+        <g opacity="0.3" class="uc-wrench">
+          <path d="M45 75 L70 50" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="73" cy="47" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
+          <rect x="38" y="76" width="12" height="5" rx="2" transform="rotate(-45 44 78)" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        </g>
+        <!-- Progress bar -->
+        <rect x="25" y="92" width="70" height="6" rx="3" stroke="currentColor" stroke-width="1" fill="none" opacity="0.15"/>
+        <rect x="25" y="92" width="42" height="6" rx="3" fill="currentColor" opacity="0.12" class="uc-progress"/>
+        <!-- Dots -->
+        <circle cx="18" cy="20" r="2" fill="currentColor" opacity="0.1" class="uc-dot"/>
+        <circle cx="105" cy="30" r="1.5" fill="currentColor" opacity="0.08" class="uc-dot-delay"/>
+        <circle cx="100" cy="100" r="2" fill="currentColor" opacity="0.1" class="uc-dot"/>
+        <circle cx="15" cy="105" r="1.5" fill="currentColor" opacity="0.08" class="uc-dot-delay"/>
+      </svg>
+    </div>
+
+    <h1 class="uc-title">{{ 'underConstruction.title' | translate }}</h1>
+
+    @if (message(); as msg) {
+      <p class="uc-message">{{ msg | localized:locale.lang() }}</p>
+    } @else {
+      <p class="uc-message">{{ 'underConstruction.defaultMessage' | translate }}</p>
+    }
+
+    <div class="uc-progress-bar">
+      <div class="uc-progress-track">
+        <div class="uc-progress-fill"></div>
+      </div>
+    </div>
+
+    <p class="uc-footer-text">{{ 'underConstruction.checkBack' | translate }}</p>
+  </div>
+</div>

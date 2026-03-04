@@ -265,6 +265,16 @@
     "currency": "ج.م."
   },
   "storeName": "Al-Noon",
+  "comingSoon": {
+    "title": "قريبًا",
+    "defaultMessage": "نعمل بجد لنقدم لك شيئًا مميزًا. متجرنا سيُطلق قريبًا — ترقبوا!",
+    "stayTuned": "ترقبوا"
+  },
+  "underConstruction": {
+    "title": "تحت الإنشاء",
+    "defaultMessage": "نعمل حاليًا على تحسينات لنقدم لك تجربة تسوق أفضل. سنعود قريبًا!",
+    "checkBack": "يرجى العودة قريبًا"
+  },
   "errors": {
     "required": "مطلوب",
     "invalidEmail": "بريد إلكتروني غير صالح",
