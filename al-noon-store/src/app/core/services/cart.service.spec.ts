@@ -5,6 +5,12 @@ describe('CartService', () => {
   let service: CartService;
   let localStorageMock: Record<string, string>;
 
+  /** CI may run without full DOM (no document.createElement); skip drawer tests then */
+  const hasDrawerDom =
+    typeof document !== 'undefined' &&
+    typeof document.body !== 'undefined' &&
+    (typeof document.createElement === 'function' || document.body.style);
+
   beforeEach(() => {
     localStorageMock = {};
     vi.stubGlobal(
@@ -101,12 +107,7 @@ describe('CartService', () => {
     expect(service.specialInstructions()).toBe('');
   });
 
-  it('should open and close drawer', () => {
-    // Ensure document.body exists (CI may run without full DOM)
-    if (!document.body) {
-      const body = document.createElement('body');
-      (document as { body: HTMLElement }).body = body;
-    }
+  it.skipIf(!hasDrawerDom)('should open and close drawer', () => {
     const bodySpy = vi.spyOn(document.body.style, 'overflow', 'set');
     service.openDrawer();
     expect(service.drawerOpen()).toBe(true);
@@ -175,10 +176,7 @@ describe('CartService', () => {
       expect(service.getItemQuantity('p1')).toBe(3);
     });
 
-    it('should toggle drawer open/close', () => {
-      if (!document.body) {
-        (document as { body: HTMLElement }).body = document.createElement('body');
-      }
+    it.skipIf(!hasDrawerDom)('should toggle drawer open/close', () => {
       expect(service.drawerOpen()).toBe(false);
       service.toggleDrawer();
       expect(service.drawerOpen()).toBe(true);
