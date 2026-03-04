@@ -5,6 +5,7 @@ import { PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { catchError, throwError } from 'rxjs';
 import { ToastService } from '../services/toast.service';
+import { AuthService } from '../services/auth.service';
 import { extractErrorMessage } from '../../shared/utils/error-utils';
 
 const LOCALE_KEY = 'al_noon_locale';
@@ -19,6 +20,7 @@ function getLocale(): string {
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const toast = inject(ToastService);
+  const auth = inject(AuthService);
   const platformId = inject(PLATFORM_ID);
 
   return next(req).pipe(
@@ -48,9 +50,16 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       if (status === 403) {
+        auth.clearSession();
         if (isPlatformBrowser(platformId)) {
           toast.show(extractErrorMessage(err, 'Access denied'), 'error');
         }
+        const locale = getLocale();
+        const returnUrl = typeof window !== 'undefined' ? window.location.pathname + (window.location.search || '') : '';
+        router.navigate([locale, 'account', 'login'], {
+          queryParams: { returnUrl: returnUrl || undefined },
+          queryParamsHandling: returnUrl ? 'merge' : '',
+        });
         return throwError(() => err);
       }
 

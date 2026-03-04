@@ -6,6 +6,7 @@ import { PLATFORM_ID } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { errorInterceptor } from './error.interceptor';
 import { ToastService } from '../services/toast.service';
+import { AuthService } from '../services/auth.service';
 
 describe('errorInterceptor', () => {
   const mockNext = vi.fn();
@@ -16,6 +17,7 @@ describe('errorInterceptor', () => {
       providers: [
         provideRouter([]),
         ToastService,
+        AuthService,
         { provide: PLATFORM_ID, useValue: 'browser' },
       ],
     });
@@ -118,9 +120,15 @@ describe('errorInterceptor', () => {
     });
   });
 
-  it('should show toast on 403', async () => {
+  it('should clear session, show toast and redirect on 403', async () => {
     const toast = TestBed.inject(ToastService);
+    const auth = TestBed.inject(AuthService);
+    const router = TestBed.inject(Router);
+    const clearSessionSpy = vi.spyOn(auth, 'clearSession');
     const toastSpy = vi.spyOn(toast, 'show');
+    const navSpy = vi.spyOn(router, 'navigate');
+    vi.stubGlobal('window', { location: { pathname: '/en/orders', search: '' } });
+    vi.stubGlobal('localStorage', { getItem: () => 'en' });
 
     const req = new HttpRequest('GET', 'http://api.test/orders');
     mockNext.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 403 })));
@@ -128,8 +136,10 @@ describe('errorInterceptor', () => {
     await new Promise<void>((resolve) => {
       runInterceptor(req, mockNext).subscribe({
         error: () => {
+          expect(clearSessionSpy).toHaveBeenCalled();
           expect(toastSpy).toHaveBeenCalled();
           expect(toastSpy.mock.calls[0][1]).toBe('error');
+          expect(navSpy).toHaveBeenCalledWith(['en', 'account', 'login'], expect.objectContaining({ queryParams: expect.any(Object) }));
           resolve();
         },
       });

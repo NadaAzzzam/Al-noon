@@ -119,20 +119,25 @@ export class AuthService {
   signOut(): Observable<void> {
     return this.http.post<SchemaSignOutResponse>('auth/sign-out', {}).pipe(
       tap(() => {
-        this.userSignal.set(null);
-        clearSessionHint();
+        this.clearSession();
       }),
       (o) =>
         new Observable<void>((sub) => {
           o.subscribe({
             next: () => sub.next(),
             error: () => {
-              this.userSignal.set(null);
+              this.clearSession();
               sub.next();
             },
             complete: () => sub.complete(),
           });
         })
     );
+  }
+
+  /** Clears user state and session hint (no HTTP). Use from interceptor on 403 to avoid extra request. */
+  clearSession(): void {
+    this.userSignal.set(null);
+    clearSessionHint();
   }
 }

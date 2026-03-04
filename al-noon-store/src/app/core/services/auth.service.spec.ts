@@ -45,6 +45,19 @@ describe('AuthService', () => {
     expect(service.user()).toBeNull();
   });
 
+  it('should clear user and session hint when clearSession is called', () => {
+    (sessionStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue('1');
+    httpMock.get.mockReturnValue(
+      of({ success: true, data: { user: { id: '1', email: 't@t.com', name: 'Test' } } })
+    );
+    service.loadProfile().subscribe();
+    expect(service.user()).toBeTruthy();
+    service.clearSession();
+    expect(service.user()).toBeNull();
+    expect(service.isLoggedIn()).toBe(false);
+    expect(sessionStorage.removeItem).toHaveBeenCalled();
+  });
+
   it('should set user on successful signIn', () => {
     const user = { id: '1', email: 'test@test.com', name: 'Test User' };
     httpMock.post.mockReturnValue(of({ success: true, data: { user, accessToken: 'token' } }));

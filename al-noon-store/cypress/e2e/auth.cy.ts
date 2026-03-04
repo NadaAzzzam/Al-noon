@@ -42,6 +42,18 @@ describe('Authentication', () => {
     });
   });
 
+  describe('403 Forbidden (logout and redirect)', () => {
+    it('should clear session and redirect to login when any API returns 403', () => {
+      cy.intercept('GET', '**/i18n/*.json', { body: {} }).as('i18n');
+      cy.intercept('GET', '**/auth/profile', { success: true, data: { user: null } }).as('profile');
+      cy.intercept('GET', '**/store/home*', { statusCode: 403, body: { message: 'Forbidden' } }).as('store403');
+      cy.intercept('GET', '**/categories*', { success: true, data: { categories: [] } }).as('categories');
+      cy.visit('/en');
+      cy.wait('@store403');
+      cy.url().should('include', '/account/login');
+    });
+  });
+
   describe('Register', () => {
     beforeEach(() => {
       cy.visit('/en/account/register');
