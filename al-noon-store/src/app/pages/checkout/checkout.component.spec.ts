@@ -27,19 +27,21 @@ describe('CheckoutComponent', () => {
   let fixture: ComponentFixture<CheckoutComponent>;
   let toastSpy: { show: ReturnType<typeof vi.fn> };
   let checkoutSpy: ReturnType<typeof vi.fn>;
+  let applyDiscountSpy: ReturnType<typeof vi.fn>;
   let cartClearSpy: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     toastSpy = { show: vi.fn() };
     checkoutSpy = vi.fn().mockReturnValue(of({ id: 'ord1', items: [], total: 100, status: 'PENDING' }));
+    applyDiscountSpy = vi.fn().mockReturnValue(of({ valid: true, discountAmount: 10 }));
     cartClearSpy = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [CheckoutComponent, TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
-        { provide: CartService, useValue: { items: signal(mockCartItems), subtotal: computed(() => 100), getItemsForOrder: () => [{ product: 'p1', quantity: 1, price: 100 }], specialInstructions: signal(''), clear: cartClearSpy } },
-        { provide: OrdersService, useValue: { checkout: checkoutSpy } },
+        { provide: CartService, useValue: { items: signal(mockCartItems), subtotal: computed(() => 100), subtotalBeforeDiscount: computed(() => 100), saleDiscount: computed(() => 0), getItemsForOrder: () => [{ product: 'p1', quantity: 1, price: 100 }], specialInstructions: signal(''), clear: cartClearSpy } },
+        { provide: OrdersService, useValue: { checkout: checkoutSpy, applyDiscount: applyDiscountSpy } },
         { provide: CitiesService, useValue: { getCities: () => of([mockCity]) } },
         { provide: ShippingService, useValue: { getShippingMethods: () => of([mockShipping]) } },
         { provide: PaymentMethodsService, useValue: { getPaymentMethods: () => of([mockPayment]) } },
@@ -88,6 +90,35 @@ describe('CheckoutComponent', () => {
       component.discountCodeError.set('Previous error');
       component.discountCode.set('SAVE10');
       component.applyDiscountCode();
+      expect(component.discountCodeError()).toBeNull();
+    });
+
+    it('should set discountCodeError and NOT set discountCodeApplied when applyDiscount fails', () => {
+      applyDiscountSpy.mockReturnValue(throwError(() => ({ status: 400, error: { message: 'Code expired' } })));
+      fixture.detectChanges();
+      component.discountCode.set('EXPIRED');
+      component.applyDiscountCode();
+      expect(component.discountCodeApplied()).toBe(false);
+      expect(component.discountCodeError()).toContain('expired');
+    });
+
+    it('should set discountAmount when applyDiscount succeeds', () => {
+      fixture.detectChanges();
+      component.discountCode.set('SAVE10');
+      component.applyDiscountCode();
+      expect(component.discountCodeApplied()).toBe(true);
+      expect(component.discountAmount()).toBe(10);
+    });
+
+    it('should clear discount state when clearDiscount is called', () => {
+      fixture.detectChanges();
+      component.discountCode.set('SAVE10');
+      component.applyDiscountCode();
+      expect(component.discountCodeApplied()).toBe(true);
+      component.clearDiscount();
+      expect(component.discountCode()).toBe('');
+      expect(component.discountCodeApplied()).toBe(false);
+      expect(component.discountAmount()).toBe(0);
       expect(component.discountCodeError()).toBeNull();
     });
   });

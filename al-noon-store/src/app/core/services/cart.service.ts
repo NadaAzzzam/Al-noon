@@ -7,6 +7,8 @@ export interface CartItem {
   variant?: string;
   quantity: number;
   price: number;
+  /** Original price before sale (when product had discountPrice); used to compute sale discount */
+  originalPrice?: number;
   /** Product name in en and ar; supports legacy string for backward compat with existing cart data */
   name?: string | LocalizedText;
   image?: string;
@@ -30,6 +32,23 @@ export class CartService {
   );
   readonly subtotal = computed(() =>
     this.itemsSignal().reduce((sum, i) => sum + i.price * i.quantity, 0)
+  );
+
+  /** Subtotal before sale discount (original prices); equals subtotal when no sale items */
+  readonly subtotalBeforeDiscount = computed(() =>
+    this.itemsSignal().reduce((sum, i) => {
+      const unitPrice = i.originalPrice != null && i.originalPrice > i.price ? i.originalPrice : i.price;
+      return sum + unitPrice * i.quantity;
+    }, 0)
+  );
+
+  /** Sale discount total (from products with discountPrice) */
+  readonly saleDiscount = computed(() =>
+    this.itemsSignal().reduce((sum, i) => {
+      const orig = i.originalPrice;
+      if (orig == null || orig <= i.price) return sum;
+      return sum + (orig - i.price) * i.quantity;
+    }, 0)
   );
 
   /** Cart drawer open state (shared so header, product-detail etc. can open it) */

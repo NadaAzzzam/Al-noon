@@ -2,7 +2,8 @@
 <header class="checkout-header">
   <div class="checkout-header-inner">
     <a [routerLink]="pathService.path()" class="checkout-logo">
-      <img [src]="api.imageUrl(checkoutHeaderInfo()?.logo ?? 'uploads/logos/default-logo.png')" [alt]="getLocalized(checkoutHeaderInfo()?.storeName) || ('storeName' | translate)" class="checkout-logo-img" />
+      <img [src]="api.imageUrl(checkoutHeaderInfo()?.logo ?? 'uploads/logos/default-logo.png')"
+        [alt]="getLocalized(checkoutHeaderInfo()?.storeName) || ('storeName' | translate)" class="checkout-logo-img" />
     </a>
     <a [routerLink]="pathService.path('cart')" class="checkout-header-cart" [attr.aria-label]="'nav.cart' | translate">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -37,12 +38,14 @@
           <div class="section-header">
             <h2 class="section-title">{{ 'checkout.contactSection' | translate }}</h2>
             @if (!isLoggedIn()) {
-            <a [routerLink]="pathService.path('account', 'login')" class="section-action-link">{{ 'checkout.signIn' | translate }}</a>
+            <a [routerLink]="pathService.path('account', 'login')" class="section-action-link">{{ 'checkout.signIn' |
+              translate }}</a>
             }
           </div>
           <div class="form-group">
             <input id="ck-email" type="email" autocomplete="email" [value]="email()"
-              (input)="email.set($any($event.target).value)" [placeholder]="'auth.email' | translate" [class.has-error]="emailErrorMsg()" />
+              (input)="email.set($any($event.target).value)" [placeholder]="'auth.email' | translate"
+              [class.has-error]="emailErrorMsg()" />
             @if (emailErrorMsg()) {
             <span class="field-error">{{ emailErrorMsg() }}</span>
             }
@@ -93,14 +96,15 @@
             <input id="ck-address" type="text" autocomplete="street-address" [value]="address()"
               (input)="address.set($any($event.target).value)" [placeholder]="'checkout.address' | translate"
               [class.has-error]="addressError()" />
-              @if (addressError()) {
-              <span class="field-error">{{ addressError() }}</span>
-              }
+            @if (addressError()) {
+            <span class="field-error">{{ addressError() }}</span>
+            }
           </div>
 
           <div class="form-group">
             <input id="ck-apt" type="text" autocomplete="address-line2" [value]="apartment()"
-              (input)="apartment.set($any($event.target).value)" [placeholder]="'checkout.apartmentOptional' | translate" />
+              (input)="apartment.set($any($event.target).value)"
+              [placeholder]="'checkout.apartmentOptional' | translate" />
           </div>
 
           <div class="form-row form-row-2">
@@ -119,7 +123,8 @@
             </div>
             <div class="form-group">
               <input type="text" autocomplete="postal-code" [value]="postalCode()"
-                (input)="postalCode.set($any($event.target).value)" [placeholder]="'checkout.postalOptional' | translate" />
+                (input)="postalCode.set($any($event.target).value)"
+                [placeholder]="'checkout.postalOptional' | translate" />
             </div>
           </div>
 
@@ -162,7 +167,8 @@
                   <span class="shipping-est">{{ getLocalized(method.description) }}</span>
                 </div>
               </div>
-              <span class="shipping-price">{{ (method.price != null ? method.price : cityDeliveryFee()) | priceFormat:'1.2-2' }}</span>
+              <span class="shipping-price">{{ (method.price != null ? method.price : cityDeliveryFee()) |
+                priceFormat:'1.2-2' }}</span>
             </div>
             }
             }
@@ -190,7 +196,8 @@
             }
             @if (selectedPaymentMethod(); as method) {
             @if (method.id === 'INSTAPAY' && method.instaPayNumber) {
-            <p class="instapay-number">{{ 'checkout.transferTo' | translate }} <strong>{{ method.instaPayNumber }}</strong></p>
+            <p class="instapay-number">{{ 'checkout.transferTo' | translate }} <strong>{{ method.instaPayNumber
+                }}</strong></p>
             }
             }
             }
@@ -216,22 +223,22 @@
           @if (!billingSameAsShipping()) {
           <div class="billing-form">
             <div class="form-row form-row-2">
-            <div class="form-group">
-              <input type="text" [value]="billingFirstName()"
-                (input)="billingFirstName.set($any($event.target).value)" [placeholder]="'checkout.firstName' | translate"
-                [class.has-error]="billingFirstNameError()" />
-              @if (billingFirstNameError()) {
-              <span class="field-error">{{ billingFirstNameError() }}</span>
-              }
+              <div class="form-group">
+                <input type="text" [value]="billingFirstName()"
+                  (input)="billingFirstName.set($any($event.target).value)"
+                  [placeholder]="'checkout.firstName' | translate" [class.has-error]="billingFirstNameError()" />
+                @if (billingFirstNameError()) {
+                <span class="field-error">{{ billingFirstNameError() }}</span>
+                }
+              </div>
+              <div class="form-group">
+                <input type="text" [value]="billingLastName()" (input)="billingLastName.set($any($event.target).value)"
+                  [placeholder]="'checkout.lastName' | translate" [class.has-error]="billingLastNameError()" />
+                @if (billingLastNameError()) {
+                <span class="field-error">{{ billingLastNameError() }}</span>
+                }
+              </div>
             </div>
-            <div class="form-group">
-              <input type="text" [value]="billingLastName()" (input)="billingLastName.set($any($event.target).value)"
-                [placeholder]="'checkout.lastName' | translate" [class.has-error]="billingLastNameError()" />
-              @if (billingLastNameError()) {
-              <span class="field-error">{{ billingLastNameError() }}</span>
-              }
-            </div>
-          </div>
             <div class="form-group">
               <input type="text" [value]="billingAddress()" (input)="billingAddress.set($any($event.target).value)"
                 [placeholder]="'checkout.address' | translate" [class.has-error]="billingAddressError()" />
@@ -252,12 +259,14 @@
                 }
               </div>
               <div class="form-group">
-                <input type="text" [value]="billingGovernorate()" (input)="billingGovernorate.set($any($event.target).value)"
+                <input type="text" [value]="billingGovernorate()"
+                  (input)="billingGovernorate.set($any($event.target).value)"
                   [placeholder]="'checkout.countryRegion' | translate" />
               </div>
               <div class="form-group">
                 <input type="text" [value]="billingPostalCode()"
-                  (input)="billingPostalCode.set($any($event.target).value)" [placeholder]="'checkout.postalOptional' | translate" />
+                  (input)="billingPostalCode.set($any($event.target).value)"
+                  [placeholder]="'checkout.postalOptional' | translate" />
               </div>
             </div>
             <div class="form-group">
@@ -273,7 +282,8 @@
         <div id="checkout-error-block" class="error-block">
           <p class="error-msg">{{ error() }}</p>
           @if (showUpdateCart()) {
-          <a [routerLink]="pathService.path('cart')" class="error-update-cart">{{ 'checkout.updateCart' | translate }}</a>
+          <a [routerLink]="pathService.path('cart')" class="error-update-cart">{{ 'checkout.updateCart' | translate
+            }}</a>
           }
         </div>
         }
@@ -313,12 +323,11 @@
       <!-- Discount code: check & apply (driven by store.discountCodeSupported from API) -->
       <div class="summary-discount">
         <input type="text" class="discount-input" [value]="discountCode()"
-          (input)="discountCode.set($any($event.target).value); discountCodeError.set(null); discountCodeApplied.set(false)"
+          (input)="discountCode.set($any($event.target).value); discountCodeError.set(null); discountCodeApplied.set(false); discountAmount.set(0)"
           [placeholder]="'checkout.discountCode' | translate" [class.has-error]="discountCodeError()"
-          [class.discount-applied]="discountCodeApplied()"
-          [disabled]="discountCodeChecking()" />
+          [class.discount-applied]="discountCodeApplied()" [disabled]="discountCodeChecking()" />
         @if (discountCodeApplied()) {
-        <button type="button" class="discount-btn discount-btn-remove" (click)="discountCodeApplied.set(false); discountCode.set(''); discountCodeError.set(null)">
+        <button type="button" class="discount-btn discount-btn-remove" (click)="clearDiscount()">
           {{ 'checkout.remove' | translate }}
         </button>
         } @else {
@@ -331,12 +340,24 @@
       <p class="discount-error">{{ discountCodeError() }}</p>
       }
 
-      <!-- Subtotal, Shipping, Total -->
+      <!-- Subtotal (before discount), Discounts, Shipping, Total -->
       <div class="summary-totals">
         <div class="summary-row">
           <span>{{ 'checkout.subtotal' | translate }}</span>
-          <span>{{ subtotal() | priceFormat:'1.2-2' }}</span>
+          <span>{{ subtotalBeforeDiscount() | priceFormat:'1.2-2' }}</span>
         </div>
+        @if (saleDiscount() > 0) {
+        <div class="summary-row summary-row-discount">
+          <span>{{ 'checkout.discountSale' | translate }}</span>
+          <span class="discount-amount">-{{ saleDiscount() | priceFormat:'1.2-2' }}</span>
+        </div>
+        }
+        @if (discountCodeApplied() && discountAmount() > 0) {
+        <div class="summary-row summary-row-discount">
+          <span>{{ 'checkout.discount' | translate }} ({{ discountCode() }})</span>
+          <span class="discount-amount">-{{ discountAmount() | priceFormat:'1.2-2' }}</span>
+        </div>
+        }
         <div class="summary-row">
           <span class="shipping-label">
             {{ 'checkout.delivery' | translate }}
@@ -363,18 +384,22 @@
 <footer class="checkout-footer">
   <div class="checkout-footer-inner">
     @if (contentPages().length) {
-      @for (page of contentPages(); track getPageSlug(page) || $index) {
-        @if (isContactPage(page)) {
-          <a [routerLink]="pathService.path('contact')" class="footer-link">{{ getLocalized(page.title) || 'Contact' }}</a>
-        } @else {
-          <a [routerLink]="pathService.path('page', getPageSlug(page))" class="footer-link">{{ getLocalized(page.title) || getPageSlug(page) }}</a>
-        }
-      }
+    @for (page of contentPages(); track getPageSlug(page) || $index) {
+    @if (isContactPage(page)) {
+    <a [routerLink]="pathService.path('contact')" class="footer-link">{{ getLocalized(page.title) || 'Contact' }}</a>
     } @else {
-      <a [routerLink]="pathService.path('page', 'return-policy')" class="footer-link">{{ 'checkout.refundPolicyLink' | translate }}</a>
-      <a [routerLink]="pathService.path('page', 'shipping-policy')" class="footer-link">{{ 'checkout.shippingLink' | translate }}</a>
-      <a [routerLink]="pathService.path('page', 'privacy')" class="footer-link">{{ 'checkout.privacyPolicyLink' | translate }}</a>
-      <a [routerLink]="pathService.path('contact')" class="footer-link">{{ 'checkout.cancellations' | translate }}</a>
+    <a [routerLink]="pathService.path('page', getPageSlug(page))" class="footer-link">{{ getLocalized(page.title) ||
+      getPageSlug(page) }}</a>
+    }
+    }
+    } @else {
+    <a [routerLink]="pathService.path('page', 'return-policy')" class="footer-link">{{ 'checkout.refundPolicyLink' |
+      translate }}</a>
+    <a [routerLink]="pathService.path('page', 'shipping-policy')" class="footer-link">{{ 'checkout.shippingLink' |
+      translate }}</a>
+    <a [routerLink]="pathService.path('page', 'privacy')" class="footer-link">{{ 'checkout.privacyPolicyLink' |
+      translate }}</a>
+    <a [routerLink]="pathService.path('contact')" class="footer-link">{{ 'checkout.cancellations' | translate }}</a>
     }
   </div>
 </footer>

@@ -55,6 +55,20 @@ describe('Checkout', () => {
         },
       },
     }).as('store');
+    cy.intercept('POST', '**/checkout/apply-discount', {
+      statusCode: 200,
+      body: {
+        success: true,
+        data: {
+          valid: true,
+          discountCode: 'SAVE10',
+          discountAmount: 10,
+          type: 'PERCENT',
+          value: 10,
+          subtotalAfterDiscount: 90,
+        },
+      },
+    }).as('applyDiscount');
 
     cy.visit('/en', {
       onBeforeLoad(win) {
@@ -96,7 +110,26 @@ describe('Checkout', () => {
     cy.get('.summary-discount').scrollIntoView();
     cy.get('.discount-input').should('be.visible').clear().type('SAVE10');
     cy.get('.discount-btn').not('.discount-btn-remove').should('be.visible').click();
+    cy.wait('@applyDiscount');
     cy.get('.discount-applied, .discount-btn-remove', { timeout: 5000 }).should('exist');
+  });
+
+  it('should show error when apply-discount returns invalid code', () => {
+    cy.intercept('POST', '**/checkout/apply-discount', {
+      statusCode: 400,
+      body: { success: false, message: 'Invalid or expired discount code' },
+    }).as('applyDiscountFail');
+    cy.visit('/en/checkout', {
+      onBeforeLoad(win) {
+        win.localStorage.setItem('al_noon_cart', JSON.stringify(cartItems));
+      },
+    });
+    cy.wait('@store');
+    cy.get('.discount-input').type('BADCODE');
+    cy.get('.discount-btn').not('.discount-btn-remove').click();
+    cy.wait('@applyDiscountFail');
+    cy.get('.discount-error').should('exist').and('contain.text', 'Invalid');
+    cy.get('.discount-applied').should('not.exist');
   });
 
   it('should show empty state when cart is empty', () => {

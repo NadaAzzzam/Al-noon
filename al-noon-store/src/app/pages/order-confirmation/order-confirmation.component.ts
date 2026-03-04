@@ -121,17 +121,40 @@ export class OrderConfirmationComponent implements OnInit {
     return method;
   });
 
-  /** Subtotal (sum of items) */
+  /** Subtotal (sum of charged item prices) */
   subtotal = computed(() => {
     const o = this.order();
     if (!o) return 0;
     return o.items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   });
 
+  /** Subtotal before sale discount (original prices) */
+  subtotalBeforeDiscount = computed(() => {
+    const o = this.order();
+    if (!o) return 0;
+    return o.items.reduce((sum, i) => {
+      const p = i.product;
+      const unitPrice =
+        p?.discountPrice != null && p.price > p.discountPrice ? p.price : i.price;
+      return sum + unitPrice * i.quantity;
+    }, 0);
+  });
+
   /** Delivery fee */
   deliveryFee = computed(() => {
     const o = this.order();
     return o?.deliveryFee ?? 0;
+  });
+
+  /** Sale discount from product discountPrice (items with original price > sale price) */
+  saleDiscount = computed(() => {
+    const o = this.order();
+    if (!o) return 0;
+    return o.items.reduce((sum, i) => {
+      const p = i.product;
+      if (!p?.discountPrice || p.price <= p.discountPrice) return sum;
+      return sum + (p.price - p.discountPrice) * i.quantity;
+    }, 0);
   });
 
   ngOnInit(): void {

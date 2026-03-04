@@ -26,6 +26,20 @@ describe('OrdersService', () => {
     expect(service).toBeTruthy();
   });
 
+  it('should apply discount and return discount amount', async () => {
+    httpMock.post.mockReturnValue(
+      of({
+        success: true,
+        data: { valid: true, discountCode: 'SAVE10', discountAmount: 15, type: 'PERCENT', value: 10, subtotalAfterDiscount: 85 },
+      })
+    );
+    const res = await firstValueFrom(service.applyDiscount('SAVE10', 100));
+    expect(res.valid).toBe(true);
+    expect(res.discountAmount).toBe(15);
+    expect(res.discountCode).toBe('SAVE10');
+    expect(httpMock.post).toHaveBeenCalledWith('checkout/apply-discount', { discountCode: 'SAVE10', subtotal: 100 });
+  });
+
   it('should complete checkout and return order', async () => {
     httpMock.post.mockReturnValue(of({ success: true, data: mockOrder }));
     const order = await firstValueFrom(service.checkout({ items: [{ product: '1', quantity: 1, price: 100 }] }));

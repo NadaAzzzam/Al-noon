@@ -496,6 +496,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/checkout/apply-discount": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Validate discount code and get discount amount
+         * @description Validates a discount code against cart subtotal. Use before checkout to show discounted price. Returns 403 when discountCodeSupported is false in store settings. Does NOT apply the discount (that happens at checkout).
+         */
+        post: operations["applyDiscount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/checkout": {
         parameters: {
             query?: never;
@@ -3987,6 +4007,79 @@ export interface operations {
             };
         };
     };
+    applyDiscount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    /** @description Discount code to validate (e.g. SAVE10) */
+                    discountCode: string;
+                    /** @description Cart/order subtotal in EGP (before discount) */
+                    subtotal: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Discount valid; discount amount and subtotal after discount */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        success?: boolean;
+                        data?: {
+                            /** @example true */
+                            valid?: boolean;
+                            /** @example SAVE10 */
+                            discountCode?: string;
+                            /** @description Discount in EGP */
+                            discountAmount?: number;
+                            /** @enum {string} */
+                            type?: "PERCENT" | "FIXED";
+                            /** @description Percent (1-100) or fixed EGP amount */
+                            value?: number;
+                            /** @description Subtotal minus discount */
+                            subtotalAfterDiscount?: number;
+                        };
+                    };
+                };
+            };
+            /** @description Invalid/expired discount code or subtotal too low for minOrderAmount */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Discount codes not enabled (discountCodeSupported is false) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Database unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
     checkout: {
         parameters: {
             query?: never;
@@ -4051,6 +4144,15 @@ export interface operations {
             };
             /** @description Validation error: items and shippingAddress required; guest checkout missing name/email; invalid/expired discount code */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Discount codes not enabled (when discountCode provided) */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

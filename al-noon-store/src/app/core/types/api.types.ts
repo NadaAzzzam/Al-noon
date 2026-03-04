@@ -512,6 +512,10 @@ export interface Order {
   guestName?: string | null;
   guestEmail?: string | null;
   guestPhone?: string | null;
+  /** Applied discount code (e.g. SAVE10) */
+  discountCode?: string | null;
+  /** Discount amount when discount code was applied */
+  discountAmount?: number | null;
 }
 
 /** Client shape for list orders (after mapping from API) */
@@ -827,3 +831,4 @@ export type SchemaAiChatResponse = components['schemas']['AiChatResponse'];
 // Operation response types (inline schemas in OpenAPI)
 export type SchemaListShippingMethodsResponse = operations['listShippingMethods']['responses']['200']['content']['application/json'];
 export type SchemaGetPaymentMethodsResponse = operations['getPaymentMethods']['responses']['200']['content']['application/json'];
+export type SchemaApplyDiscountResponse = operations['applyDiscount']['responses']['200']['content']['application/json'];

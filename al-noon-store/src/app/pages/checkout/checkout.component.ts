@@ -159,6 +159,8 @@ export class CheckoutComponent implements OnInit {
 
   discountCode = signal('');
   discountCodeApplied = signal(false);
+  /** Discount amount in EGP from apply-discount API when valid */
+  discountAmount = signal<number>(0);
   discountCodeError = signal<string | null>(null);
   discountCodeChecking = signal(false);
 
@@ -166,6 +168,8 @@ export class CheckoutComponent implements OnInit {
   /** Cart data */
   items = this.cart.items;
   subtotal = this.cart.subtotal;
+  subtotalBeforeDiscount = this.cart.subtotalBeforeDiscount;
+  saleDiscount = this.cart.saleDiscount;
   isLoggedIn = this.auth.isLoggedIn;
 
   /** Selected city (from dropdown); drives delivery fee */
@@ -195,7 +199,9 @@ export class CheckoutComponent implements OnInit {
     return this.cityDeliveryFee();
   });
 
-  total = computed(() => this.subtotal() + this.deliveryFee());
+  total = computed(() =>
+    this.subtotal() + this.deliveryFee() - (this.discountCodeApplied() ? this.discountAmount() : 0)
+  );
 
   /** Currently selected payment method (for instaPayNumber etc.) */
   selectedPaymentMethod = computed(() => {
@@ -390,7 +396,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   /**
-   * Check discount code (validate) and apply if valid.
+   * Check discount code via POST /api/checkout/apply-discount and apply if valid.
    * When discountCodeSupported is false, shows "coming soon" toast.
    */
   applyDiscountCode(): void {
@@ -408,8 +414,31 @@ export class CheckoutComponent implements OnInit {
       }, 200);
       return;
     }
-    this.discountCodeApplied.set(true);
-    this.toast.show(this.translate.instant('checkout.discountApplied'), 'success');
+    this.discountCodeChecking.set(true);
+    const subtotal = this.subtotal();
+    this.ordersService.applyDiscount(code, subtotal).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (res) => {
+        this.discountCodeChecking.set(false);
+        this.discountCodeApplied.set(true);
+        this.discountAmount.set(res.discountAmount ?? 0);
+        this.toast.show(this.translate.instant('checkout.discountApplied'), 'success');
+      },
+      error: (err: unknown) => {
+        this.discountCodeChecking.set(false);
+        const msg = extractErrorMessage(err, this.translate.instant('checkout.discountInvalid'));
+        this.discountCodeError.set(msg);
+      },
+    });
+  }
+
+  /** Clear applied discount (remove button). */
+  clearDiscount(): void {
+    this.discountCode.set('');
+    this.discountCodeApplied.set(false);
+    this.discountAmount.set(0);
+    this.discountCodeError.set(null);
   }
 
   submit(): void {

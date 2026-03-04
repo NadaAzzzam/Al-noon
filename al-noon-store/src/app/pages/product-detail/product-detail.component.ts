@@ -531,6 +531,7 @@ export class ProductDetailComponent implements OnInit {
       productId: p.id,
       quantity: qty,
       price,
+      originalPrice: this.hasSale() ? this.originalPrice() : undefined,
       name: p.name ?? undefined,
       image: p.images?.[0],
       variant: variant ?? undefined,

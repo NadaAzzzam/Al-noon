@@ -11,6 +11,7 @@ import type {
   ProductApiShape,
   SchemaOrderResponse,
   SchemaPaginatedOrdersResponse,
+  SchemaApplyDiscountResponse,
 } from '../types/api.types';
 import { normalizeProductFromApi } from '../utils/product-normalizer';
 
@@ -52,6 +53,46 @@ function normalizeOrder(o: Order & { _id?: string }): Order {
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
   private readonly http = inject(HttpClient);
+
+  /**
+   * POST /api/checkout/apply-discount – validate discount code and get discount amount.
+   * Use before checkout to show discounted price. Returns 403 when discountCodeSupported is false.
+   */
+  applyDiscount(discountCode: string, subtotal: number): Observable<{
+    valid: boolean;
+    discountCode?: string;
+    discountAmount?: number;
+    type?: 'PERCENT' | 'FIXED';
+    value?: number;
+    subtotalAfterDiscount?: number;
+  }> {
+    return this.http
+      .post<SchemaApplyDiscountResponse>('checkout/apply-discount', { discountCode, subtotal })
+      .pipe(
+        (o) =>
+          new Observable((sub) => {
+            o.subscribe({
+              next: (r) => {
+                const data = r?.data;
+                if (data?.valid && data.discountAmount != null) {
+                  sub.next({
+                    valid: true,
+                    discountCode: data.discountCode,
+                    discountAmount: data.discountAmount,
+                    type: data.type,
+                    value: data.value,
+                    subtotalAfterDiscount: data.subtotalAfterDiscount,
+                  });
+                } else {
+                  sub.error(new Error('Invalid discount response'));
+                }
+              },
+              error: (e) => sub.error(e),
+              complete: () => sub.complete(),
+            });
+          })
+      );
+  }
 
   /**
    * POST /api/checkout – complete checkout (create order) from storefront.

@@ -101,6 +101,8 @@
     "billingAddressSection": "عنوان الفواتير",
     "sameAsShipping": "نفس عنوان الشحن",
     "differentBilling": "استخدام عنوان فواتير مختلف",
+    "discount": "الخصم",
+    "discountSale": "خصم التخفيض",
     "discountCode": "كود الخصم",
     "discountCodeRequired": "يرجى إدخال كود الخصم.",
     "discountComingSoon": "أكواد الخصم قادمة قريباً.",

@@ -141,12 +141,24 @@
         }
       </div>
 
-      <!-- Subtotal, Shipping, Total -->
+      <!-- Subtotal (before discount), Discounts, Shipping, Total -->
       <div class="summary-totals">
         <div class="summary-row">
           <span>{{ 'checkout.subtotal' | translate }}</span>
-          <span>{{ subtotal() | priceFormat:'1.2-2' }}</span>
+          <span>{{ subtotalBeforeDiscount() | priceFormat:'1.2-2' }}</span>
         </div>
+        @if (saleDiscount() > 0) {
+        <div class="summary-row summary-row-discount">
+          <span>{{ 'checkout.discountSale' | translate }}</span>
+          <span class="discount-amount">-{{ saleDiscount() | priceFormat:'1.2-2' }}</span>
+        </div>
+        }
+        @if (o.discountCode && (o.discountAmount ?? 0) > 0) {
+        <div class="summary-row summary-row-discount">
+          <span>{{ 'checkout.discount' | translate }} ({{ o.discountCode }})</span>
+          <span class="discount-amount">-{{ o.discountAmount | priceFormat:'1.2-2' }}</span>
+        </div>
+        }
         <div class="summary-row">
           <span>{{ 'checkout.delivery' | translate }}</span>
           <span>{{ deliveryFee() | priceFormat:'1.2-2' }}</span>

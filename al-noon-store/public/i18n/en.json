@@ -101,6 +101,8 @@
     "billingAddressSection": "Billing address",
     "sameAsShipping": "Same as shipping address",
     "differentBilling": "Use a different billing address",
+    "discount": "Discount",
+    "discountSale": "Sale discount",
     "discountCode": "Discount code",
     "discountCodeRequired": "Please enter a discount code.",
     "discountComingSoon": "Discount codes are coming soon.",
